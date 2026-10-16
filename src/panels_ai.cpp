@@ -133,7 +133,7 @@ void App::drawAIPanel(Rect r) {
     }
 
     // ---- transcript ----
-    float inputH = 40 * s;
+    float inputH = 104 * s;  // room for ~4 lines of prompt
     Rect list(x, y, w, r.b() - y - inputH - 2 * pad - 22 * s);
     g.fillRoundRect(list, 8 * s, th.field);
     Rect inner = list.inset(10 * s);
@@ -224,14 +224,16 @@ void App::drawAIPanel(Rect r) {
 
     // ---- input ----
     float iy = list.b() + 8 * s;
-    float bw = 70 * s;
-    bool enter = in.key(SDLK_RETURN) || in.key(SDLK_KP_ENTER);
-    ui.textField("ai-input", Rect(x, iy, w - bw - 6 * s, inputH), agentInput, running ? "Working…" : "Describe a circuit or a change…", true);
+    float bw = 64 * s, bh = 30 * s;
+    Rect box(x, iy, w, inputH);
+    bool enter = ui.textArea("ai-input", box, agentInput,
+                             running ? "Working…" : "Describe a circuit or a change… (Shift+Enter for a new line)", bw + 4 * s);
+    Rect btn(box.r() - bw - 8 * s, box.b() - bh - 8 * s, bw, bh);
     if (running) {
-        if (ui.button("ai-stop", Rect(x + w - bw, iy, bw, inputH), "Stop")) stopAgent();
+        if (ui.button("ai-stop", btn, "Stop")) stopAgent();
     } else {
-        bool can = ready && !agentInput.empty();
-        if ((ui.button("ai-send", Rect(x + w - bw, iy, bw, inputH), "Send", BTN_PRIMARY, false, can) || (enter && can))) {
+        bool can = ready && agentInput.find_first_not_of(" \t\n") != std::string::npos;
+        if ((ui.button("ai-send", btn, "Send", BTN_PRIMARY, false, can) || (enter && can))) {
             std::string p = agentInput;
             agentInput.clear();
             startAgent(p);

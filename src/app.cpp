@@ -56,7 +56,7 @@ bool App::init(int argc, char** argv) {
     }
     bool loaded = false;
     if (!openPath.empty()) loaded = loadFile(openPath);
-    if (!loaded && !readOnly) {
+    if (!loaded && !readOnly && !scratchSession) {
         bool ok = false;
         std::string text = readTextFile(autosavePath(), &ok);
         if (ok) {
@@ -94,7 +94,7 @@ std::string App::autosavePath() const {
 }
 
 void App::autosave(bool force) {
-    if (readOnly || doc.revision == autosaveRevision) return;
+    if (readOnly || scratchSession || doc.revision == autosaveRevision) return;
     Uint64 now = SDL_GetTicks();
     if (!force && now - lastAutosave < 2500) return;
     if (!force && drag != DRAG_NONE) return;
@@ -1036,6 +1036,12 @@ SDL_AppResult App::iterate() {
     }
     ui.end();
     g.flush();
+    if (frameTap) {
+        if (SDL_Surface* f = SDL_RenderReadPixels(ren, nullptr)) {
+            frameTap(f);
+            SDL_DestroySurface(f);
+        }
+    }
     if (!capturePath.empty()) {
         SDL_Surface* shot = SDL_RenderReadPixels(ren, nullptr);
         captureOk = shot && SDL_SavePNG(shot, capturePath.c_str());

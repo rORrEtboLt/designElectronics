@@ -1,5 +1,6 @@
 // designElectronics — autorouter, design-rule check, simulator, exporters, examples.
 #pragma once
+#include "arduino.h"
 #include <array>
 #include <cstdint>
 #include <functional>
@@ -47,6 +48,7 @@ struct SimResult {
     };
     std::map<int, Code> code;
     std::map<int, std::string> serial;       // new Serial output during this step
+    std::map<int, ard::OledFrame> oled;      // OLED part id -> what the sketch drew on it
 };
 
 class Simulator {

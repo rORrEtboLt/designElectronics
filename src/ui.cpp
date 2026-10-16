@@ -229,6 +229,122 @@ bool UI::textField(const std::string& sid, Rect r, std::string& value, const std
     return committed;
 }
 
+bool UI::textArea(const std::string& sid, Rect r, std::string& value, const std::string& placeholder, float padRight) {
+    size_t id = hashId(sid);
+    bool focused = focus_ == id;
+    bool hot = hovered(r);
+    bool submit = false;
+    float px = 14 * s, lineH = 19 * s;
+    Rect inner(r.x + 10 * s, r.y + 9 * s, r.w - 20 * s - padRight, r.h - 18 * s);
+    if (!focused && hot && in->released && !scrollDrag_ && r.contains(in->pressPos)) {
+        if (focus_) clearFocus();
+        focus_ = id;
+        focused = true;
+        editBuf_ = value;
+        caret_ = editBuf_.size();
+        if (window) {
+            SDL_Rect area{(int)r.x, (int)r.y, (int)r.w, (int)r.h};
+            SDL_SetTextInputArea(window, &area, 0);
+            SDL_StartTextInput(window);
+        }
+    }
+    if (focused && value != editBuf_ && in->text.empty() && in->keys.empty()) editBuf_ = value, caret_ = std::min(caret_, editBuf_.size());
+    // word wrap: [start, end) byte ranges per visual line
+    auto wrap = [&](const std::string& t) {
+        std::vector<std::pair<size_t, size_t>> lines;
+        size_t start = 0;
+        while (true) {
+            size_t nl = t.find('\n', start);
+            size_t para = nl == std::string::npos ? t.size() : nl;
+            size_t ls = start;
+            while (true) {
+                size_t lastSpace = std::string::npos, i = ls, fit = para;
+                while (i < para) {
+                    size_t n = utf8Next(t, i);
+                    if (g->textWidth(t.substr(ls, n - ls), px) > inner.w) { fit = i; break; }
+                    if (t[i] == ' ') lastSpace = i;
+                    i = n;
+                }
+                if (fit >= para) { lines.push_back({ls, para}); break; }
+                size_t brk = (lastSpace != std::string::npos && lastSpace > ls) ? lastSpace + 1 : std::max(fit, utf8Next(t, ls));
+                lines.push_back({ls, brk});
+                ls = brk;
+            }
+            if (nl == std::string::npos) break;
+            start = nl + 1;
+        }
+        return lines;
+    };
+    if (focused) {
+        if (in->pressed && !r.contains(in->mouse)) {
+            value = editBuf_;
+            clearFocus();
+            focused = false;
+        } else {
+            if (!in->text.empty()) { editBuf_.insert(caret_, in->text); caret_ += in->text.size(); }
+            for (auto k : in->keys) {
+                if (k == SDLK_BACKSPACE && caret_ > 0) { size_t p = utf8Prev(editBuf_, caret_); editBuf_.erase(p, caret_ - p); caret_ = p; }
+                else if (k == SDLK_DELETE && caret_ < editBuf_.size()) { size_t n = utf8Next(editBuf_, caret_); editBuf_.erase(caret_, n - caret_); }
+                else if (k == SDLK_LEFT) caret_ = utf8Prev(editBuf_, caret_);
+                else if (k == SDLK_RIGHT) caret_ = utf8Next(editBuf_, caret_);
+                else if (k == SDLK_UP || k == SDLK_DOWN) {
+                    auto ls = wrap(editBuf_);
+                    size_t li = 0;
+                    for (size_t i = 0; i < ls.size(); i++) if (caret_ >= ls[i].first && caret_ <= ls[i].second) li = i;
+                    float cx = g->textWidth(editBuf_.substr(ls[li].first, caret_ - ls[li].first), px);
+                    size_t to = k == SDLK_UP ? (li ? li - 1 : 0) : std::min(ls.size() - 1, li + 1);
+                    size_t p = ls[to].first;
+                    while (p < ls[to].second && g->textWidth(editBuf_.substr(ls[to].first, utf8Next(editBuf_, p) - ls[to].first), px) <= cx + 2) p = utf8Next(editBuf_, p);
+                    caret_ = p;
+                }
+                else if (k == SDLK_HOME) caret_ = 0;
+                else if (k == SDLK_END) caret_ = editBuf_.size();
+                else if (k == SDLK_V && in->cmd()) {
+                    char* t = SDL_GetClipboardText();
+                    if (t) { std::string c = t; SDL_free(t); c.erase(std::remove(c.begin(), c.end(), '\r'), c.end()); editBuf_.insert(caret_, c); caret_ += c.size(); }
+                } else if (k == SDLK_A && in->cmd()) caret_ = editBuf_.size();
+                else if (k == SDLK_C && in->cmd()) SDL_SetClipboardText(editBuf_.c_str());
+                else if (k == SDLK_RETURN || k == SDLK_KP_ENTER) {
+                    if (in->shift()) { editBuf_.insert(caret_, "\n"); caret_++; }
+                    else submit = true;
+                } else if (k == SDLK_ESCAPE) { clearFocus(); focused = false; break; }
+            }
+            value = editBuf_;
+        }
+    }
+    g->fillRoundRect(r, 8 * s, th.field);
+    g->strokeRoundRect(r, 8 * s, focused ? 2 * s : std::max(1.f, s), focused ? th.accent : (hot ? mixColor(th.border, th.accent, 0.4f) : th.border));
+    const std::string& shown = focused ? editBuf_ : value;
+    auto lines = wrap(shown);
+    size_t caretLine = 0;
+    for (size_t i = 0; i < lines.size(); i++) if (caret_ >= lines[i].first && caret_ <= lines[i].second) caretLine = i;
+    int visible = std::max(1, (int)(inner.h / lineH));
+    int first = focused ? std::max(0, (int)caretLine - visible + 1) : 0;
+    bool hadClip = clipping_;
+    Rect prevClip = clipStack_;
+    Rect clip(r.x + 2 * s, r.y + 2 * s, r.w - 4 * s, r.h - 4 * s);
+    Rect c2 = hadClip ? Rect(std::max(clip.x, prevClip.x), std::max(clip.y, prevClip.y),
+                             std::min(clip.r(), prevClip.r()) - std::max(clip.x, prevClip.x),
+                             std::min(clip.b(), prevClip.b()) - std::max(clip.y, prevClip.y)) : clip;
+    g->setClip(&c2);
+    if (shown.empty() && !focused) {
+        auto pl = wrap(placeholder);
+        for (size_t i = 0; i < pl.size() && (int)i < visible; i++)
+            g->text({inner.x, inner.y + lineH * (float)i + lineH / 2}, placeholder.substr(pl[i].first, pl[i].second - pl[i].first), px, th.textDim, 0);
+    } else {
+        for (int i = first; i < (int)lines.size() && i < first + visible; i++)
+            g->text({inner.x, inner.y + lineH * (float)(i - first) + lineH / 2}, shown.substr(lines[(size_t)i].first, lines[(size_t)i].second - lines[(size_t)i].first), px, th.text, 0);
+    }
+    if (focused && (SDL_GetTicks() / 530) % 2 == 0 && !lines.empty()) {
+        auto& ln = lines[caretLine];
+        float cx = inner.x + g->textWidth(shown.substr(ln.first, std::min(caret_, ln.second) - ln.first), px);
+        float cy = inner.y + lineH * (float)((int)caretLine - first);
+        g->fillRect({cx, cy + 2 * s, std::max(1.5f, 1.5f * s), lineH - 4 * s}, th.accent);
+    }
+    if (hadClip) g->setClip(&prevClip); else g->setClip(nullptr);
+    return submit;
+}
+
 bool UI::comboField(const std::string& sid, Rect r, std::string& value, const std::vector<std::string>& options, bool editable) {
     float bw = options.empty() ? 0 : 30 * s;
     bool changed = false;

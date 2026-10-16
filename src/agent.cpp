@@ -76,7 +76,9 @@ const char* kSystemPrompt =
     "that is currently open: start with get_design. Build circuits that work: pick parts with list_parts/get_part_info, "
     "add_part, place parts on a breadboard with place_on_breadboard (check the reported holes for shorts) and/or connect pins, "
     "add current-limiting resistors for LEDs, then simulate to verify. For microcontroller boards, write an Arduino sketch with "
-    "set_part_properties {\"code\": …} and check its Serial output in simulate. Don't save or export files unless asked. "
+    "set_part_properties {\"code\": …} and check its Serial output in simulate. Use the real module from list_parts (e.g. max6675, ssd1306) "
+    "rather than a generic header standing in for it, so it simulates. In sketches, digital/analog I/O, Serial, bit-banged protocols and "
+    "Adafruit_SSD1306/SH1106 drawing are simulated (simulate reports what the OLED shows); other libraries' calls are skipped. Don't save or export files unless asked. "
     "Keep replies short: say what you built and what to look at.";
 
 }  // namespace
@@ -369,8 +371,7 @@ void App::startAgent(const std::string& prompt) {
                     gotResult = true;
                     char b[160];
                     double secs = (double)(SDL_GetTicks() - started) / 1000.0;
-                    if (j["total_cost_usd"].isNumber()) snprintf(b, sizeof b, "Done in %.0f s · $%.3f", secs, j["total_cost_usd"].num());
-                    else snprintf(b, sizeof b, "Done in %.0f s", secs);
+                    snprintf(b, sizeof b, "Done in %.0f s", secs);
                     if (j["is_error"].boolean()) stp->add(ChatMsg::R_ERROR, j["result"].str().empty() ? "The agent stopped with an error." : j["result"].str());
                     stp->add(ChatMsg::R_INFO, b);
                 }

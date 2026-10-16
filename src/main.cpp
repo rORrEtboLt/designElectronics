@@ -244,6 +244,36 @@ int simTests(int& failures) {
         printf("  74HC595 via shiftOut(0xA5): QA..QH = %s (expected 10100101)\n", pattern.c_str());
         check(pattern == "10100101", "shiftOut from a sketch loads a 74HC595", failures);
     }
+    {   // programs: read a MAX6675 by bit-banging and show it on an SSD1306 (Adafruit API)
+        TB t;
+        int esp = t.add("esp32_devkit", {{"code",
+            "#include <Adafruit_SSD1306.h>\n"
+            "Adafruit_SSD1306 display(128, 64, &Wire, -1);\n"
+            "float readTC() { uint16_t v = 0; digitalWrite(5, LOW);\n"
+            "  for (int i = 15; i >= 0; i--) { digitalWrite(18, HIGH); if (digitalRead(19)) v |= (1 << i); digitalWrite(18, LOW); }\n"
+            "  digitalWrite(5, HIGH); return (v >> 3) * 0.25; }\n"
+            "void setup() { Serial.begin(115200); pinMode(18, OUTPUT); pinMode(5, OUTPUT); pinMode(19, INPUT); digitalWrite(5, HIGH);\n"
+            "  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) Serial.println(\"no oled\"); }\n"
+            "void loop() { float c = readTC(); Serial.println(c, 2); display.clearDisplay(); display.setCursor(0, 0);\n"
+            "  display.print(c, 1); display.print(\" C\"); display.drawRect(0, 20, 50, 10, SSD1306_WHITE); display.display(); delay(200); }\n"}});
+        int tc = t.add("max6675", {{"temperature", "123.25"}});
+        int ol = t.add("ssd1306");
+        t.wire(esp, "GPIO18", tc, "SCK"); t.wire(esp, "GPIO5", tc, "CS"); t.wire(esp, "GPIO19", tc, "SO");
+        t.wire(esp, "3V3", tc, "VCC"); t.wire(esp, "GND", tc, "GND");
+        t.wire(esp, "GPIO21", ol, "SDA"); t.wire(esp, "GPIO22", ol, "SCL"); t.wire(esp, "3V3", ol, "VCC"); t.wire(esp, "GND", ol, "GND");
+        Connectivity cn; cn.build(t.d);
+        Simulator sim;
+        std::string serial;
+        SimResult r;
+        for (int i = 0; i < 30; i++) { r = sim.step(t.d, cn, {}, 0.01); for (auto& kv : r.serial) serial += kv.second; }
+        std::string shown = r.oled.count(ol) && !r.oled[ol].text.empty() ? r.oled[ol].text[0].text : "";
+        size_t lit = 0;
+        if (r.oled.count(ol)) for (auto px : r.oled[ol].px) lit += px;
+        printf("  MAX6675 -> OLED: serial \"%s\", OLED \"%s\", %zu px, %zu warnings\n", serial.substr(0, serial.find('\n')).c_str(), shown.c_str(), lit,
+               r.warnings.size());
+        check(serial.rfind("123.25\n", 0) == 0 && shown == "123.3 C" && lit == 2 * 50 + 2 * 8 && r.warnings.empty(),
+              "a sketch reads a MAX6675 and draws on an SSD1306 OLED", failures);
+    }
     {   // programs: compile errors are reported with their line
         TB t;
         int uno = t.add("arduino_uno", {{"code", "void setup() {\n  pinMode(13, OUTPUT)\n}\nvoid loop() {}\n"}});
@@ -592,6 +622,105 @@ struct Screenshot {
     std::vector<Ev> events;
 };
 
+// --record-ui out.mp4: records the app window itself (with --ai: the agent building the circuit,
+// time-lapsed by --speed, then the finished circuit simulating at normal speed).
+struct UiRecorder {
+    std::string path;
+    double speed = 4;          // time-lapse while the agent works
+    double curSpeed = 1;
+    int fps = 30, outW = 0, outH = 0;
+    std::unique_ptr<VideoWriter> vw;
+    std::vector<uint8_t> buf;
+    std::string err;
+    double nextT = 0;
+    long frames = 0;
+    void frame(SDL_Surface* s) {
+        double now = (double)SDL_GetTicksNS() / 1e9;
+        if (vw && now < nextT) return;
+        SDL_Surface* c = SDL_ConvertSurface(s, SDL_PIXELFORMAT_RGBA32);
+        if (!c) return;
+        if (!vw) {
+            outW = std::min(1920, c->w) & ~1;
+            outH = (int)std::lround((double)outW * c->h / c->w) & ~1;
+            vw = openMp4(path, outW, outH, fps, &err);
+            if (!vw) { SDL_DestroySurface(c); return; }
+            nextT = now;
+        }
+        // box-filtered downscale to the output size
+        buf.assign((size_t)outW * outH * 4, 0);
+        double rx = (double)c->w / outW, ry = (double)c->h / outH;
+        const uint8_t* src = (const uint8_t*)c->pixels;
+        for (int y = 0; y < outH; y++) {
+            int y0 = (int)(y * ry), y1 = std::max(y0 + 1, std::min(c->h, (int)((y + 1) * ry)));
+            for (int x = 0; x < outW; x++) {
+                int x0 = (int)(x * rx), x1 = std::max(x0 + 1, std::min(c->w, (int)((x + 1) * rx)));
+                unsigned acc[4] = {0, 0, 0, 0}, n = 0;
+                for (int yy = y0; yy < y1; yy++)
+                    for (int xx = x0; xx < x1; xx++, n++) {
+                        const uint8_t* p = src + (size_t)yy * c->pitch + (size_t)xx * 4;
+                        for (int k = 0; k < 4; k++) acc[k] += p[k];
+                    }
+                uint8_t* o = &buf[((size_t)y * outW + x) * 4];
+                for (int k = 0; k < 4; k++) o[k] = (uint8_t)(acc[k] / n);
+                o[3] = 255;
+            }
+        }
+        SDL_DestroySurface(c);
+        // keep the video's clock: repeat the frame for slots we fell behind on (at most a few)
+        int copies = 0;
+        do {
+            vw->addFrame(buf.data(), outW * 4);
+            frames++;
+            nextT += curSpeed / fps;
+        } while (nextT <= now && ++copies < 4);
+        if (nextT < now) nextT = now;
+    }
+};
+UiRecorder g_ui;
+std::string g_agentCmd;
+std::string g_animate, g_zoomTo;
+// --animate "max6675.temperature=24:85": sets that property on every part of the type, eased over `seconds`
+std::function<void(double)> makeAnimation(App* app, const std::string& spec, double seconds) {
+    size_t dot = spec.find('.'), eq = spec.find('='), col = spec.find(':');
+    if (dot == std::string::npos || eq == std::string::npos || col == std::string::npos) return nullptr;
+    std::string type = spec.substr(0, dot), prop = spec.substr(dot + 1, eq - dot - 1);
+    double a = std::atof(spec.substr(eq + 1, col - eq - 1).c_str()), b = std::atof(spec.substr(col + 1).c_str());
+    return [=](double t) {
+        double u = std::clamp(t / std::max(0.1, seconds * 0.8), 0.0, 1.0);
+        u = u * (2 - u);  // ease out
+        char v[32];
+        snprintf(v, sizeof v, "%.2f", a + (b - a) * u);
+        for (auto& p : app->doc.parts) if (p.type == type) p.props[prop] = v;
+    };
+}
+struct UiScript {
+    int phase = 0;
+    double t0 = 0;
+    size_t typed = 0;
+} g_uis;
+
+// Ease the canvas camera toward framing `target` (world units), or the whole design when target is empty.
+void glideCamera(App* app, Rect target, float rate) {
+    Camera& c = app->cam[app->view];
+    Camera saved = c;
+    if (target.w <= 0) {
+        app->fitView(app->view, app->rCanvas);
+    } else {
+        Rect vp = app->rCanvas;
+        c.zoom = std::min(vp.w / target.w, vp.h / target.h);
+        c.pan = vp.center() - target.center() * c.zoom;
+    }
+    Camera goal = c;
+    c = saved;
+    if (!saved.valid) { c = goal; return; }
+    // interpolate in log-zoom so the motion feels even
+    Vec2 ctrNow = (app->rCanvas.center() - c.pan) / c.zoom, ctrGoal = (app->rCanvas.center() - goal.pan) / goal.zoom;
+    float z = std::exp(std::log(c.zoom) + (std::log(goal.zoom) - std::log(c.zoom)) * rate);
+    Vec2 ctr = ctrNow + (ctrGoal - ctrNow) * rate;
+    c.zoom = z;
+    c.pan = app->rCanvas.center() - ctr * z;
+}
+
 App* g_app = nullptr;
 bool g_embed = false;
 // --record OUT.mp4|OUT.gif [--preset 0-3] [--seconds N] [--record-view 0-3]: export a video and quit
@@ -659,6 +788,11 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
         }
         else if (a == "--embed") g_embed = true;
         else if (a == "--record") g_record = next();
+        else if (a == "--record-ui") g_ui.path = next();
+        else if (a == "--animate") g_animate = next();
+        else if (a == "--zoom-to") g_zoomTo = next();  // "max6675,ssd1306": move in on these parts halfway through  // "type.prop=from:to" eased over the recording
+        else if (a == "--speed") g_ui.speed = std::atof(next().c_str());
+        else if (a == "--agent-cmd") g_agentCmd = next();  // testing: a custom command instead of Claude Code
         else if (a == "--preset") g_recordPreset = std::atoi(next().c_str());
         else if (a == "--seconds") g_recordSeconds = std::atoi(next().c_str());
         else if (a == "--record-view") g_recordView = std::atoi(next().c_str());
@@ -672,6 +806,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
     *appstate = g_app;
     g_app->embedMode = g_app->readOnly = g_embed;
     g_app->editorUrl = g_editorUrl;
+    g_app->scratchSession = !g_shot.out.empty() || !g_record.empty();
     if (!g_app->init((int)rest.size(), rest.data())) return SDL_APP_FAILURE;
     if (g_loadExample >= 0 && g_loadExample < (int)examples().size()) {
         g_app->doc.clear();
@@ -736,6 +871,24 @@ SDL_AppResult SDL_AppIterate(void* appstate) {
             app->videoView = g_recordView >= 0 ? g_recordView : app->view;
             app->videoGif = g_record.size() > 4 && g_record.substr(g_record.size() - 4) == ".gif";
             app->videoTitle = app->doc.title;
+            if (!g_animate.empty()) app->videoAnimate = makeAnimation(app, g_animate, g_recordSeconds);
+            if (!g_zoomTo.empty()) {
+                std::string types = "," + g_zoomTo + ",";
+                double secs = g_recordSeconds;
+                app->videoZoom = [app, types, secs](double t, Rect& focus) -> float {
+                    bool any = false;
+                    for (auto& p : app->doc.parts)
+                        if (types.find("," + p.type + ",") != std::string::npos) {
+                            Rect r = p.worldBounds(app->videoView < 3 ? app->videoView : BB);
+                            focus = any ? focus.united(r) : r;
+                            any = true;
+                        }
+                    if (!any) return 0;
+                    focus = Rect(focus.x - 150, focus.y - 150, focus.w + 300, focus.h + 300);
+                    double u = std::clamp((t - secs * 0.3) / 1.6, 0.0, 1.0);  // glide in from 30% of the clip
+                    return (float)(u * u * (3 - 2 * u));
+                };
+            }
             app->startVideo(g_record);
             if (!app->videoJob) { printf("could not start recording\n"); return SDL_APP_FAILURE; }
         } else if (!app->videoJob) {
@@ -751,6 +904,7 @@ SDL_AppResult SDL_AppIterate(void* appstate) {
             if (g_shot.drawer == "inspector") app->drawerInspector = true;
             if (g_shot.drawer == "layers") app->drawerLayers = true;
             if (g_shot.drawer == "layers-tab") app->rightTab = 1;
+            if (g_shot.drawer == "ai-tab") app->rightTab = 2;
             if (!g_shot.menu.empty()) {
                 std::vector<MenuItem> m = g_shot.menu == "file" ? app->fileMenu() : g_shot.menu == "view" ? app->viewMenu() : app->allMenus();
                 app->ui.openMenu(Rect(60 * app->ui.s, 8 * app->ui.s, 40 * app->ui.s, 36 * app->ui.s), m);
@@ -775,7 +929,90 @@ SDL_AppResult SDL_AppIterate(void* appstate) {
             app->event(e);
         }
         bool waitAI = false;
-        if (!g_shot.ai.empty()) {
+        if (!g_ui.path.empty()) {
+            // scripted recording: hold, type the prompt, time-lapse the agent, then run the result
+            double now = (double)SDL_GetTicksNS() / 1e9;
+            auto& S = g_uis;
+            if (!app->frameTap) {
+                app->frameTap = [](SDL_Surface* s) { g_ui.frame(s); };
+                app->rightTab = 2;
+                app->detectAgents();
+                if (!g_agentCmd.empty()) { app->agentKind = "custom"; app->agentCustomCommand = g_agentCmd; }
+                S.t0 = now;
+            }
+            bool running = false, detected = false;
+            std::map<std::string, std::string> paths;
+            app->agentMessages(running, detected, paths);
+            double t = now - S.t0;
+            static int lastPhase = -1;
+            static bool lastRunning = false;
+            if (S.phase != lastPhase || running != lastRunning) {
+                printf("[rec %.1fs] phase %d running %d\n", (double)SDL_GetTicks() / 1000.0, S.phase, (int)running);
+                fflush(stdout);
+                lastPhase = S.phase;
+                lastRunning = running;
+            }
+            if (S.phase == 0 && t > 1.5 && detected) { S.phase = 1; S.t0 = now; }
+            else if (S.phase == 1) {  // type the prompt
+                size_t want = std::min(g_shot.ai.size(), (size_t)(t / 0.03));
+                while (S.typed < want) {  // whole UTF-8 characters
+                    S.typed++;
+                    while (S.typed < g_shot.ai.size() && ((unsigned char)g_shot.ai[S.typed] & 0xC0) == 0x80) S.typed++;
+                }
+                app->agentInput = g_shot.ai.substr(0, S.typed);
+                if (S.typed >= g_shot.ai.size() && t > g_shot.ai.size() * 0.03 + 0.8) {
+                    app->agentInput.clear();
+                    app->startAgent(g_shot.ai);
+                    g_ui.curSpeed = g_ui.speed;
+                    S.phase = 2;
+                    S.t0 = now;
+                }
+            } else if (S.phase == 2 && !running && t > 2) {
+                g_ui.curSpeed = 1;
+                app->selParts.clear();  // no selection outline in the finished shot
+                app->selWires.clear();
+                S.phase = 3;
+                S.t0 = now;
+            } else if (S.phase == 3 && t > 2.5) {  // run it
+                app->simOn = true;
+                S.phase = 4;
+                S.t0 = now;
+            } else if (S.phase == 4) {
+                // warm the thermocouple up so the graph moves
+                for (auto& p : app->doc.parts)
+                    if (p.type == "max6675") {
+                        char b[16];
+                        snprintf(b, sizeof b, "%.2f", 24 + 60 * std::min(1.0, t / 13) * (2 - std::min(1.0, t / 13)));
+                        p.props["temperature"] = b;
+                    }
+                // then move in on the modules so the OLED reads on a phone
+                if (t > 3) {
+                    Rect focus;
+                    bool any = false;
+                    for (auto& p : app->doc.parts)
+                        if (p.type == "max6675" || p.type == "ssd1306" || p.type == "sh1106") {
+                            Rect r = p.worldBounds(app->view);
+                            focus = any ? focus.united(r) : r;
+                            any = true;
+                        }
+                    if (any) glideCamera(app, Rect(focus.x - 250, focus.y - 250, focus.w + 500, focus.h + 500), 0.05f);
+                }
+                if (t > 16) S.phase = 5;
+            }
+            if (S.phase == 2) glideCamera(app, Rect(), 0.08f);  // keep the growing design in frame
+            waitAI = S.phase < 5 && g_frame < 60 * 600;
+            if (!waitAI && g_ui.vw) {
+                app->frameTap = nullptr;
+                bool ok = g_ui.vw->finish();
+                printf("%s %s (%ld frames, %dx%d)\n", ok ? "recorded" : "FAILED", g_ui.path.c_str(), g_ui.frames, g_ui.outW, g_ui.outH);
+                bool r2 = false, d2 = false;
+                for (auto& m : app->agentMessages(r2, d2, paths)) if (m.role != App::ChatMsg::R_USER) printf("  [%d] %s\n", (int)m.role, m.text.substr(0, 200).c_str());
+                g_ui.vw.reset();
+                std::string dez = g_ui.path.substr(0, g_ui.path.find_last_of('.')) + ".dez";
+                writeTextFile(dez, app->doc.toJson(false).dump(1));
+                printf("design saved to %s\n", dez.c_str());
+            }
+        } else if (!g_shot.ai.empty()) {
             app->rightTab = 2;
             bool running = false, detected = false;
             std::map<std::string, std::string> paths;

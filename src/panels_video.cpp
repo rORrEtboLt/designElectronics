@@ -163,6 +163,7 @@ bool App::renderVideoFrame() {
     VideoJob& J = *videoJob;
     int v = J.viewMode < 3 ? J.viewMode : std::min(2, J.frame * 3 / std::max(1, J.frames));
     double t = (double)J.frame / J.fps;
+    if (videoAnimate) videoAnimate(t);
     if (J.simulate) {
         J.result = J.sim.step(doc, conn, {}, 1.0 / J.fps);
         (void)t;
@@ -199,6 +200,19 @@ bool App::renderVideoFrame() {
     g.fillRect(vp, v == PCB ? rgba(60, 64, 72) : rgba(246, 246, 244));
     rCanvas = vp;
     fitView(v, vp);
+    if (videoZoom) {
+        Rect focus;
+        float k = videoZoom(t, focus);
+        if (k > 0 && focus.w > 0) {
+            Camera& c = cam[v];
+            float z1 = std::min(vp.w / focus.w, vp.h / focus.h);
+            Vec2 c0 = (vp.center() - c.pan) / c.zoom;
+            float z = std::exp(std::log(c.zoom) + (std::log(z1) - std::log(c.zoom)) * k);
+            Vec2 ctr = c0 + (focus.center() - c0) * k;
+            c.zoom = z;
+            c.pan = vp.center() - ctr * z;
+        }
+    }
     drawCanvas(v, cam[v], vp, true);
     // footer
     if (J.watermark) {

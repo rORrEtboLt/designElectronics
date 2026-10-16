@@ -709,6 +709,18 @@ Json Server::callImpl(const std::string& name, const Json& a) {
             }
             j.set("displays", seg);
         }
+        if (!r.oled.empty()) {  // what the sketch drew on OLEDs: text plus a pixel count
+            Json od = j.has("displays") ? j["displays"] : Json::object();
+            for (auto& kv : r.oled) {
+                std::string txt;
+                for (auto& t : kv.second.text) txt += (txt.empty() ? "" : " | ") + t.text;
+                size_t lit = 0;
+                for (auto px : kv.second.px) lit += px;
+                od.set(label(kv.first), "OLED " + std::to_string(kv.second.w) + "x" + std::to_string(kv.second.h) + ", text: \"" + txt + "\", " +
+                                            std::to_string(lit) + " graphics pixels lit (text not counted)" + (kv.second.version ? "" : " (display() never called)"));
+            }
+            j.set("displays", od);
+        }
         Json meters = Json::object();
         for (auto& kv : r.meterText) meters.set(label(kv.first), kv.second);
         if (meters.size()) j.set("meters", meters);

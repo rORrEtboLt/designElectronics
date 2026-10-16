@@ -105,6 +105,8 @@ public:
 
     // tools
     bool simOn = false;
+    bool simNotesOpen = false;
+    Rect simNotesRect;          // where that toggle was drawn (the canvas ignores clicks there)  // canvas overlay: "not simulated" notes expanded
     SimResult sim;
     Simulator simulator;
     Uint64 lastSimTicks = 0;
@@ -150,6 +152,11 @@ public:
     std::vector<std::function<void()>> pending;  // work queued from other threads (file dialogs)
     std::vector<LibEntry> customEntries;     // imported / embedded custom parts shown in the bin
     bool quitNow = false;
+    std::function<void(SDL_Surface*)> frameTap;
+    bool scratchSession = false;
+    std::function<void(double t)> videoAnimate;
+    // --record --zoom-to: world rect to move in on, and how far (0 = whole design, 1 = that rect) at time t
+    std::function<float(double t, Rect& focus)> videoZoom;  // --record --animate: change part properties over the clip  // screenshots/recordings: never restore or overwrite the user's autosave  // --record-ui: sees every rendered frame
     std::string capturePath;   // --screenshot: save the next frame before presenting
     bool captureOk = false;
 
@@ -305,6 +312,7 @@ public:
     void drawPrims(const PartInst& p, int v, const Camera& c, bool forIcon = false);
     void canvasInput();
     void drawCanvas(int v, const Camera& c, Rect viewport, bool exporting);
+    void drawOledFrame(const ard::OledFrame& f, const Prim& screen, const Xform& xf, const Camera& c);
     void drawPartIcon(const PartDefPtr& def, Rect r);
     std::vector<MenuItem> contextMenu(const Hit& h);
     bool renderViewPng(int v, const std::string& path, std::string* msg);

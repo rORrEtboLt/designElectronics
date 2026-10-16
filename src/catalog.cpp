@@ -126,8 +126,8 @@ void makeBreakout(PartDef& d, const std::string& label, const std::vector<std::s
     float cx = x0 + width / 2, cy = -bh / 2 - 60;
     if (screen) {
         float sw = width * 0.82f, sh = bh * 0.62f;
-        bb.rect(cx - sw / 2, cy - sh / 2 - 20, sw, sh, chipColor, rgba(60, 60, 60), 8, 6);
-        bb.text(cx, cy - 20, chip, std::min(70.f, sh * 0.3f), rgba(120, 200, 255));
+        bb.rect(cx - sw / 2, cy - sh / 2 - 20, sw, sh, chipColor, rgba(60, 60, 60), 8, 6).tag = 3;  // a sketch can draw here
+        bb.text(cx, cy - 20, chip, std::min(70.f, sh * 0.3f), rgba(120, 200, 255)).tag = 4;
     } else if (!chip.empty()) {
         float cs = std::min(width * 0.5f, bh * 0.55f);
         bb.rect(cx - cs / 2, cy - cs / 2, cs, cs, chipColor, rgba(0, 0, 0, 80), 5, 8);
@@ -789,6 +789,11 @@ std::vector<Item>& items() {
            "sensor", "VCC=1;GND=2;RATIO 4:gas", {{"gas", "10"}}, {{"gas", "Gas level %", {"0", "10", "50", "90"}}});
     sensor("joystick", "Analog Joystick (KY-023)", "GND,+5V,VRX,VRY,SW", 1100, 1300, rgba(30, 30, 32), "JOY", "Two potentiometers and a push switch. Set X/Y in the Inspector. Simulated.",
            "sensor", "VCC=2;GND=1;RATIO 3:x;RATIO 4:y", {{"x", "50"}, {"y", "50"}}, {{"x", "X position %", {"0", "50", "100"}}, {"y", "Y position %", {"0", "50", "100"}}});
+    sensor("max6675", "MAX6675 Thermocouple Module (K-type)", "GND,VCC,SCK,CS,SO", 1000, 1100, rgba(170, 30, 40), "MAX6675",
+           "Reads a K-type thermocouple (0–1024 °C, 0.25 °C steps) over a 3-wire SPI-style interface: pull CS low, then read 16 bits on SO, "
+           "one per SCK pulse (temperature = bits 14..3 × 0.25 °C; bit 2 = thermocouple open). Set the temperature in the Inspector. Simulated.",
+           "logic", "VCC=2;GND=1;TC6675 3,4>5", {{"temperature", "25"}, {"thermocouple", "connected"}},
+           {{"temperature", "Temperature °C", {"0", "25", "100", "250", "500"}}, {"thermocouple", "Thermocouple", {"connected", "open"}}});
     sensor("mpu6050", "MPU-6050 Accelerometer/Gyro", "VCC,GND,SCL,SDA,XDA,XCL,AD0,INT", 900, 700, rgba(30, 90, 190), "MPU6050", "6-axis motion sensor (I²C).", "", "");
     sensor("bmp280", "BMP280 Pressure Sensor", "VCC,GND,SCL,SDA,CSB,SDO", 700, 600, rgba(120, 40, 140), "BMP280", "Barometric pressure and temperature (I²C/SPI).", "", "");
     sensor("bme280", "BME280 Environment Sensor", "VIN,GND,SCL,SDA", 700, 600, rgba(120, 40, 140), "BME280", "Temperature, humidity and pressure (I²C).", "", "");

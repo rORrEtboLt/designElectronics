@@ -112,6 +112,9 @@ public:
     bool button(const std::string& id, Rect r, const std::string& label, ButtonStyle st = BTN_NORMAL, bool selected = false, bool enabled = true);
     bool iconButton(const std::string& id, Rect r, const std::string& icon, const std::string& label, bool selected = false, bool enabled = true, const std::string& tip = "");
     bool textField(const std::string& id, Rect r, std::string& value, const std::string& placeholder = "", bool live = false);
+    // Multi-line, word-wrapping box that edits `value` live. Returns true when Enter is pressed (Shift+Enter = new line).
+    // `padRight` keeps text clear of buttons drawn inside the box.
+    bool textArea(const std::string& id, Rect r, std::string& value, const std::string& placeholder = "", float padRight = 0);
     bool comboField(const std::string& id, Rect r, std::string& value, const std::vector<std::string>& options, bool editable);
     bool checkbox(const std::string& id, Rect r, const std::string& label, bool& v);
     // Multi-line code editor (code_editor.cpp). Returns true when `text` changed.

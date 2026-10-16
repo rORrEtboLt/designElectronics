@@ -13,6 +13,7 @@
 // objects (WiFi, Wire, Servo, LCD…) are accepted and ignored with a warning —
 // the full sketch still compiles and runs on the real board.
 #pragma once
+#include <cstdint>
 #include <functional>
 #include <map>
 #include <memory>
@@ -45,6 +46,19 @@ struct Host {
     std::function<double(int partPin)> readVoltage;
 };
 
+// What a sketch drew on an SSD1306-style OLED through the Adafruit library (last display() call).
+struct OledText {
+    int x = 0, y = 0, size = 1, color = 1;
+    std::string text;
+};
+struct OledFrame {
+    int w = 128, h = 64;
+    std::vector<uint8_t> px;     // w*h, 0 = off, 1 = lit
+    std::vector<OledText> text;  // text runs (drawn with the app's font)
+    bool invert = false;
+    unsigned version = 0;
+};
+
 struct CompileError {
     int line = 0;
     std::string message;
@@ -74,6 +88,7 @@ public:
     const std::map<int, PinState>& pins() const;
     const std::vector<std::string>& warnings() const;
     int currentLine() const;                   // line being executed (for the editor)
+    const OledFrame* oled() const;             // nullptr if the sketch never drew on an OLED
 
 private:
     struct Impl;

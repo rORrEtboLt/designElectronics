@@ -352,7 +352,8 @@ void App::canvasInput() {
     Vec2 m = in.mouse;
     float s = ui.s;
     bool drawerOpen = compact && (drawerParts || drawerInspector || drawerLayers || drawerAI);
-    bool overCanvas = rCanvas.contains(m) && !ui.overBlocking(m) && !(drawerOpen && rRight.contains(m));
+    bool overCanvas = rCanvas.contains(m) && !ui.overBlocking(m) && !(drawerOpen && rRight.contains(m)) &&
+                      !(simOn && simNotesRect.contains(m));  // the overlay's notes toggle
     Camera& c = cam[view];
 
     // pinch / two-finger gestures
@@ -586,7 +587,10 @@ void App::drawPrims(const PartInst& p, int v, const Camera& c, bool forIcon) {
     uint32_t ledCol = 0;
     const std::vector<float>* segs = nullptr;
     uint32_t glowOverride = 0;
+    const ard::OledFrame* oled = nullptr;
     if (simOn && !forIcon) {
+        auto ol = sim.oled.find(p.id);
+        if (ol != sim.oled.end()) oled = &ol->second;
         auto it = sim.brightness.find(p.id);
         if (it != sim.brightness.end()) bright = std::min(1.f, it->second);
         auto sg = sim.segments.find(p.id);
@@ -607,6 +611,10 @@ void App::drawPrims(const PartInst& p, int v, const Camera& c, bool forIcon) {
             if (b > 0.02f) fill = withAlpha(mixColor(pr.stroke, rgba(255, 255, 255), 0.25f * b), 255);
             stroke = 0;
         } else if (pr.tag >= 10) stroke = 0;
+        if (pr.tag == 3 && oled && pr.kind == Prim::RECT) {
+            drawOledFrame(*oled, pr, xf, c);
+            continue;
+        }
         switch (pr.kind) {
             case Prim::LINE:
                 g.line(S(pr.a), S(pr.b), w, stroke);
@@ -641,6 +649,7 @@ void App::drawPrims(const PartInst& p, int v, const Camera& c, bool forIcon) {
                 float px = pr.size * z;
                 if (px < 4.5f) break;
                 std::string text = pr.text;
+                if (pr.tag == 4 && oled) break;  // screen placeholder label, replaced by the drawing
                 if (pr.tag == 2) {
                     auto it = sim.meterText.find(p.id);
                     text = simOn && it != sim.meterText.end() ? it->second : (simOn ? "--" : "OFF");
@@ -664,6 +673,39 @@ void App::drawPrims(const PartInst& p, int v, const Camera& c, bool forIcon) {
         }
         Vec2 ctr = c.pan + xf.apply(lens.center()) * z;
         g.radialGlow(ctr, (180 + 260 * bright) * z, withAlpha(ledCol, (int)(170 * bright)));
+    }
+}
+
+// What a sketch drew through the Adafruit SSD1306 library, on the OLED part's screen rectangle.
+void App::drawOledFrame(const ard::OledFrame& f, const Prim& screen, const Xform& xf, const Camera& c) {
+    auto S = [&](Vec2 w) { return c.pan + xf.apply(w) * c.zoom; };
+    Rect sr = Rect::fromPoints(screen.a, screen.b);
+    g.fillRoundRect(Rect::fromPoints(S(screen.a), S(screen.b)), screen.r * c.zoom, rgba(6, 8, 14));
+    // active area keeps the panel's aspect ratio, centred with a small bezel
+    float cell = std::min((sr.w - 40) / f.w, (sr.h - 40) / f.h);
+    if (cell <= 0 || f.px.size() < (size_t)f.w * f.h) return;
+    Vec2 o(sr.center().x - cell * f.w / 2, sr.center().y - cell * f.h / 2);
+    uint32_t on = rgba(120, 205, 255), off = rgba(6, 8, 14);
+    if (f.invert) {
+        g.fillRect(Rect::fromPoints(S(o), S(o + Vec2(cell * f.w, cell * f.h))), on);
+        std::swap(on, off);
+    }
+    for (int y = 0; y < f.h; y++)
+        for (int x = 0; x < f.w;) {
+            if (!f.px[(size_t)y * f.w + x]) { x++; continue; }
+            int x1 = x;
+            while (x1 < f.w && f.px[(size_t)y * f.w + x1]) x1++;
+            g.fillRect(Rect::fromPoints(S(o + Vec2(x * cell, y * cell)), S(o + Vec2(x1 * cell, (y + 1) * cell))), on);
+            x = x1;
+        }
+    // text in the app's monospace font, sized to the library's 6×8 character cells
+    float ang = xf.rot == 1 ? 90.f : xf.rot == 3 ? -90.f : 0.f;
+    for (auto& t : f.text) {
+        float px = 8 * t.size * cell * c.zoom;
+        if (px < 3.5f || t.x >= f.w || t.y >= f.h) continue;
+        uint32_t col = t.color == 0 ? off : on;
+        Vec2 at = o + Vec2(t.x * cell, (t.y + 4 * t.size) * cell);
+        g.text(S(at), t.text, px * 0.95f, col, xf.flip ? 2 : 0, FONT_MONO, ang);
     }
 }
 

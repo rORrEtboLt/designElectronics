@@ -337,6 +337,7 @@ SimResult Simulator::step(const Document& doc, const Connectivity& conn, const s
 
     int n = (int)nodeOf.size();
     std::vector<std::string> unsupported;
+    std::set<std::string> drivenOleds;  // OLEDs showing a sketch's drawing (so not "pinout only")
     for (auto& p : doc.parts) {
         if (!p.def || !p.def->sim.empty()) continue;
         if (p.def->isBreadboard || p.def->isBoard || !p.def->netProp.empty() || p.type == "via" || p.type == "hole" ||
@@ -983,6 +984,10 @@ SimResult Simulator::step(const Document& doc, const Connectivity& conn, const s
                                 bool oe = level(4, false);
                                 for (size_t o = 0; o < 8 && o < lv.size(); o++) lv[o] = oe ? 0 : L((latch >> o) & 1);
                                 if (lv.size() > 8) lv[8] = L((shiftR >> 7) & 1);
+                            } else if (K == "TC6675" && ins.size() == 2) {
+                                // SO drives the current bit of the 16-bit frame while CS is low
+                                int bit = ps.B(base + 2);
+                                if (!lv.empty()) lv[0] = level(1, false) ? 0 : L(bit >= 0 && ((ps.B(base + 1) >> bit) & 1));
                             } else if (K == "J4017" && ins.size() == 3) {
                                 int& c = ps.B(base + 1);
                                 if (level(2, false)) c = 0;
@@ -1034,6 +1039,14 @@ SimResult Simulator::step(const Document& doc, const Connectivity& conn, const s
                     } else if (K == "SR595") {
                         if (edge(1, 0, true)) { ps.B(base + 1) = ((ps.B(base + 1) << 1) | (lvl(0) ? 1 : 0)) & 0xFF; edges = true; }
                         if (edge(2, 3, true)) { ps.B(base + 2) = ps.B(base + 1); edges = true; }
+                    } else if (K == "TC6675") {
+                        if (edge(1, 0, false)) {  // CS falls: latch a conversion, D15 first
+                            double t = std::clamp(std::atof(p.prop("temperature").c_str()), 0.0, 1023.75);
+                            ps.B(base + 1) = p.prop("thermocouple") == "open" ? 0x4 : ((int)std::lround(t / 0.25) << 3);
+                            ps.B(base + 2) = 15;
+                            edges = true;
+                        }
+                        if (edge(0, 3, false) && !lvl(1)) { ps.B(base + 2)--; edges = true; }  // next bit on SCK falling
                     } else if (K == "J4017") {
                         if (edge(0, 0, true) && !lvl(1) && !lvl(2)) { ps.B(base + 1) = (ps.B(base + 1) + 1) % 10; edges = true; }
                     }
@@ -1125,6 +1138,25 @@ SimResult Simulator::step(const Document& doc, const Connectivity& conn, const s
             if (!out.empty()) res.serial[kv.first] = out;
         }
         res.code[kv.first] = c;
+        // Adafruit SSD1306 drawing goes to the OLED(s) wired to this board
+        if (prog.ok && prog.sketch->oled() && p) {
+            std::set<int> boardNets;
+            for (size_t i = 0; i < p->def->pins.size(); i++) boardNets.insert(conn.netOf(p->id, (int)i));
+            bool shown = false;
+            for (auto& q : doc.parts) {
+                if (!q.def || (q.type != "ssd1306" && q.type != "sh1106")) continue;
+                bool wired = false;
+                for (size_t i = 0; i < q.def->pins.size(); i++) {
+                    const std::string& pn = q.def->pins[i].name;
+                    if ((pn == "SDA" || pn == "SCL") && boardNets.count(conn.netOf(q.id, (int)i))) wired = true;
+                }
+                if (!wired) continue;
+                res.oled[q.id] = *prog.sketch->oled();
+                drivenOleds.insert(q.label);
+                shown = true;
+            }
+            if (!shown) res.warnings.push_back(label + "'s program draws on an OLED, but no OLED's SDA/SCL is wired to it.");
+        }
     }
 
     // -------------------- results --------------------
@@ -1210,6 +1242,8 @@ SimResult Simulator::step(const Document& doc, const Connectivity& conn, const s
             }
         }
     }
+    unsupported.erase(std::remove_if(unsupported.begin(), unsupported.end(), [&](const std::string& l) { return drivenOleds.count(l) > 0; }),
+                      unsupported.end());
     if (!unsupported.empty()) {
         std::string s = "Not simulated (pinout only): ";
         for (size_t i = 0; i < unsupported.size() && i < 6; i++) s += (i ? ", " : "") + unsupported[i];

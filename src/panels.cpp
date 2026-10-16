@@ -737,6 +737,7 @@ void App::drawCanvasOverlay() {
         g.text(r.center(), hint, 15 * s, ui.th.textDim, 1);
     }
     float y = c.y + 12 * s;
+    simNotesRect = Rect();
     if (simOn) {
         std::string msg = sim.message.empty() ? "Simulating" : sim.message;
         float w = g.textWidth(msg, 13.5f * s) + 44 * s;
@@ -745,16 +746,42 @@ void App::drawCanvasOverlay() {
         g.fillCircle({r.x + 16 * s, r.center().y}, 5 * s, (SDL_GetTicks() / 500) % 2 ? rgba(255, 255, 255) : rgba(160, 200, 255));
         g.text({r.x + 28 * s, r.center().y}, msg, 13.5f * s, rgba(255, 255, 255), 0);
         y += 36 * s;
-        for (auto& wmsg : sim.warnings) {
+        // real problems in red; "not simulated" notes are informational, folded into one grey line
+        std::vector<std::string> problems, notes;
+        for (auto& wmsg : sim.warnings)
+            (wmsg.find("isn't simulated") != std::string::npos || wmsg.rfind("Not simulated", 0) == 0 ? notes : problems).push_back(wmsg);
+        auto box = [&](const std::string& wmsg, uint32_t bg, uint32_t fg) {
             auto lines = wrapText(g, wmsg, 13 * s, std::min(520 * s, c.w - 60 * s));
             float h = 12 * s + (float)lines.size() * 17 * s;
             float ww = 0;
             for (auto& l : lines) ww = std::max(ww, g.textWidth(l, 13 * s));
             Rect r2(c.x + 12 * s, y, ww + 24 * s, h);
-            g.fillRoundRect(r2, 8 * s, rgba(200, 50, 50, 235));
-            for (size_t i = 0; i < lines.size(); i++) g.text({r2.x + 12 * s, r2.y + 6 * s + 17 * s * ((float)i + 0.5f)}, lines[i], 13 * s, rgba(255, 255, 255), 0);
+            g.fillRoundRect(r2, 8 * s, bg);
+            for (size_t i = 0; i < lines.size(); i++) g.text({r2.x + 12 * s, r2.y + 6 * s + 17 * s * ((float)i + 0.5f)}, lines[i], 13 * s, fg, 0);
             y += h + 6 * s;
+        };
+        for (auto& wmsg : problems) {
+            box(wmsg, rgba(200, 50, 50, 235), rgba(255, 255, 255));
             if (y > c.b() - 80 * s) break;
+        }
+        if (!notes.empty() && y < c.b() - 80 * s) {
+            std::string head = std::to_string(notes.size()) + (notes.size() == 1 ? " note" : " notes") +
+                               ": some parts or libraries aren't simulated " + (simNotesOpen ? "\u25B4" : "\u25BE");
+            float w = g.textWidth(head, 12.5f * s) + 24 * s;
+            Rect r(c.x + 12 * s, y, w, 26 * s);
+            simNotesRect = r;
+            g.fillRoundRect(r, 13 * s, ui.hovered(r) ? rgba(90, 96, 108, 225) : rgba(110, 116, 128, 200));
+            g.text({r.x + 12 * s, r.center().y}, head, 12.5f * s, rgba(255, 255, 255), 0);
+            if (ui.hovered(r) && ui.in->pressed) {
+                simNotesOpen = !simNotesOpen;
+                ui.in->pressed = false;
+            }
+            y += 32 * s;
+            if (simNotesOpen)
+                for (auto& n : notes) {
+                    box(n, rgba(245, 246, 248, 240), rgba(70, 76, 88));
+                    if (y > c.b() - 80 * s) break;
+                }
         }
     }
     if (view == PCB && !readOnly) {

@@ -220,11 +220,20 @@ const char* kBuiltins[] = {
     "round", "random", "randomSeed", "bitRead", "highByte", "lowByte", "bit", "Serial.begin", "Serial.print", "Serial.println",
     "Serial.write", "Serial.available", "Serial.read", "Serial.printf", "Serial.flush", "Serial.end", "Serial.readString",
     "Serial.parseInt", "String", "analogReadResolution", "analogWriteResolution", "ledcSetup", "ledcAttachPin", "ledcWrite",
-    "ledcAttach", "yield", "atan", "asin", "acos", "exp", "log", "log10", "fabs", "isnan", "fmod", "str.length", "str.toInt",
+    "ledcAttach", "yield", "atan", "asin", "acos", "exp", "log", "log10", "fabs", "isnan", "isinf", "fmod", "str.length", "str.toInt",
     "str.toFloat", "str.charAt", "str.substring", "str.indexOf", "str.equals", "str.startsWith", "str.endsWith", "str.concat",
     "str.toUpperCase", "str.toLowerCase", "str.trim", "sizeof_elem", "Serial.peek", "radians", "degrees", "noop", "ledcWriteTone",
     "str.replace", "str.c_str",
+    // Adafruit_SSD1306 / Adafruit_SH1106G (drawn on the OLED part)
+    "oled.begin", "oled.clearDisplay", "oled.display", "oled.setTextSize", "oled.setTextColor", "oled.setCursor", "oled.print",
+    "oled.println", "oled.write", "oled.drawPixel", "oled.drawLine", "oled.drawFastHLine", "oled.drawFastVLine", "oled.drawRect",
+    "oled.fillRect", "oled.drawRoundRect", "oled.fillRoundRect", "oled.drawCircle", "oled.fillCircle", "oled.drawTriangle",
+    "oled.fillTriangle", "oled.width", "oled.height", "oled.invertDisplay", "oled.fillScreen", "oled.setTextWrap", "oled.getCursorX",
+    "oled.getCursorY",
 };
+bool isOledClass(const std::string& c) {
+    return c == "Adafruit_SSD1306" || c == "Adafruit_SH1106G" || c == "Adafruit_SH1106" || c == "Adafruit_SH1107";
+}
 int builtinId(const std::string& n) {
     for (size_t i = 0; i < sizeof(kBuiltins) / sizeof(kBuiltins[0]); i++) if (n == kBuiltins[i]) return (int)i;
     return -1;
@@ -320,12 +329,18 @@ private:
         if (peek().k != T_ID) fail(line(), "expected a name");
         return next().s;
     }
+    // One note per library ("Wire", "WiFi", "Servo"…), not one per call.
     void warnOnce(const std::string& what, int ln) {
+        if (what == "Wire" && usesOled) return;  // I²C plumbing for the emulated OLED
         if (warned_.insert(what).second) {
             char b[300];
-            snprintf(b, sizeof b, "line %d: %s isn't simulated (ignored here, it still works on the real board)", ln, what.c_str());
+            snprintf(b, sizeof b, "%s isn't simulated: its calls are skipped here (from line %d) and work on the real board", what.c_str(), ln);
             warns_.push_back(b);
         }
+    }
+    // Skipped library calls answer like a healthy device: begin()/init()/connect() succeed.
+    static double libraryResult(const std::string& method) {
+        return method == "begin" || method == "init" || method == "connect" || method == "isConnected" ? 1 : 0;
     }
 
     // ---- emit ----
@@ -518,6 +533,11 @@ private:
         }
         int ln = line();
         if (ty.obj) {  // library object: `Servo s;` or `LiquidCrystal lcd(12, 11, …);`
+            if (isOledClass(cls)) usesOled = true;
+            if (isOledClass(cls) && isOp("(") && peek(1).k == T_NUM && isOp(",", 2) && peek(3).k == T_NUM) {
+                oledW = (int)peek(1).n;
+                oledH = (int)peek(3).n;
+            }
             if (accept("(")) {
                 int depth = 1;
                 while (depth && peek().k != T_END) { if (isOp("(")) depth++; if (isOp(")")) depth--; next(); }
@@ -858,7 +878,12 @@ private:
         static const std::map<std::string, long> base = {
             {"HIGH", 1}, {"LOW", 0}, {"INPUT", 0}, {"OUTPUT", 1}, {"INPUT_PULLUP", 2}, {"INPUT_PULLDOWN", 3}, {"true", 1},
             {"false", 0}, {"LSBFIRST", 0}, {"MSBFIRST", 1}, {"DEC", 10}, {"HEX", 16}, {"OCT", 8}, {"BIN", 2},
-            {"CHANGE", 1}, {"FALLING", 2}, {"RISING", 3}, {"NULL", 0}, {"nullptr", 0}};
+            {"CHANGE", 1}, {"FALLING", 2}, {"RISING", 3}, {"NULL", 0}, {"nullptr", 0},
+            // common library constants (so sketches that use them compile)
+            {"WL_CONNECTED", 3}, {"WL_IDLE_STATUS", 0}, {"WL_DISCONNECTED", 6}, {"WL_CONNECT_FAILED", 4}, {"WIFI_STA", 1}, {"WIFI_AP", 2},
+            {"SSD1306_SWITCHCAPVCC", 2}, {"SSD1306_EXTERNALVCC", 1}, {"SSD1306_WHITE", 1}, {"SSD1306_BLACK", 0},
+            {"SSD1306_INVERSE", 2}, {"SH110X_WHITE", 1}, {"SH110X_BLACK", 0}, {"SH110X_INVERSE", 2}, {"WHITE", 1}, {"BLACK", 0},
+            {"INVERSE", 2}};
         auto it = base.find(n);
         if (it != base.end()) { out = it->second; return true; }
         if (n == "LED_BUILTIN") { out = board_.ledBuiltin; return true; }
@@ -1054,9 +1079,16 @@ private:
                 Var var = lv->var;
                 if (var.isObject) {
                     lv->kind = LV::NONE;
+                    if (isOledClass(var.className)) {  // drawn on the OLED part
+                        int id = builtinId("oled." + m);
+                        if (id >= 0) { int n = args(); emit(BUILTIN, id, n, 0, ln); continue; }
+                        skipArgs();  // setRotation, setFont, dim, scrolling…: no visible effect here
+                        emit(PUSHN, 0, 0, 0);
+                        continue;
+                    }
                     skipArgs();
-                    warnOnce(var.className + "." + m + "()", ln);
-                    emit(PUSHN, 0, 0, 0);
+                    warnOnce(var.className, ln);
+                    emit(PUSHN, 0, 0, libraryResult(m));
                     continue;
                 }
                 const Ty& vt = types_[(size_t)var.ty];
@@ -1135,9 +1167,9 @@ private:
             if (name == "Serial1" || name == "Serial2" || name == "SerialUSB") full = "Serial." + m;
             int id = builtinId(full);
             if (id >= 0 && isOp("(")) { int n = args(); emit(BUILTIN, id, n, 0, ln); return; }
-            warnOnce(full + (isOp("(") ? "()" : ""), ln);
+            warnOnce(name, ln);
             skipArgs();
-            emit(PUSHN, 0, 0, 0, ln);
+            emit(PUSHN, 0, 0, name == "WiFi" && m == "status" ? 3 : libraryResult(m), ln);
             return;
         }
         if (isOp("(")) {
@@ -1210,6 +1242,8 @@ private:
         if (constantValue(name, c)) { emit(PUSHN, 0, 0, (double)c, ln); return; }
         if (name == "PI" || name == "M_PI") { emit(PUSHN, 1, 0, M_PI, ln); return; }
         if (name == "HALF_PI") { emit(PUSHN, 1, 0, M_PI / 2, ln); return; }
+        if (name == "NAN") { emit(PUSHN, 1, 0, std::nan(""), ln); return; }
+        if (name == "INFINITY") { emit(PUSHN, 1, 0, HUGE_VAL, ln); return; }
         if (name == "TWO_PI") { emit(PUSHN, 1, 0, M_PI * 2, ln); return; }
         if (name == "DEG_TO_RAD") { emit(PUSHN, 1, 0, M_PI / 180, ln); return; }
         if (name == "RAD_TO_DEG") { emit(PUSHN, 1, 0, 180 / M_PI, ln); return; }
@@ -1250,6 +1284,8 @@ private:
 
 public:
     int initLocals() const { return std::max(8, nextLocal_ + 4); }
+    int oledW = 128, oledH = 64;
+    bool usesOled = false;
 };
 
 }  // namespace
@@ -1287,6 +1323,76 @@ struct Sketch::Impl {
     std::set<std::string> runtimeWarned;
     Host* host = nullptr;
 
+    // ---- OLED (Adafruit GFX API) ----
+    bool oledUsed = false;
+    OledFrame oledCur, oledShown;
+    int curX = 0, curY = 0, textSize = 1, textColor = 1;
+    bool textWrap = true;
+    void oledInit(int w, int h) {
+        oledCur.w = oledShown.w = std::clamp(w, 8, 256);
+        oledCur.h = oledShown.h = std::clamp(h, 8, 128);
+        oledCur.px.assign((size_t)oledCur.w * oledCur.h, 0);
+        oledShown.px = oledCur.px;
+    }
+    void px(int x, int y, int c) {
+        if (x < 0 || y < 0 || x >= oledCur.w || y >= oledCur.h) return;
+        uint8_t& p = oledCur.px[(size_t)y * oledCur.w + x];
+        p = c == 2 ? (uint8_t)!p : (uint8_t)(c ? 1 : 0);
+    }
+    void hline(int x, int y, int w, int c) { for (int i = 0; i < w; i++) px(x + i, y, c); }
+    void vline(int x, int y, int h, int c) { for (int i = 0; i < h; i++) px(x, y + i, c); }
+    void line(int x0, int y0, int x1, int y1, int c) {
+        int dx = std::abs(x1 - x0), sx = x0 < x1 ? 1 : -1, dy = -std::abs(y1 - y0), sy = y0 < y1 ? 1 : -1, err = dx + dy;
+        for (int guard = 0; guard < 4096; guard++) {
+            px(x0, y0, c);
+            if (x0 == x1 && y0 == y1) break;
+            int e2 = 2 * err;
+            if (e2 >= dy) { err += dy; x0 += sx; }
+            if (e2 <= dx) { err += dx; y0 += sy; }
+        }
+    }
+    void circle(int cx, int cy, int r, int c, bool fill) {
+        for (int y = -r; y <= r; y++)
+            for (int x = -r; x <= r; x++) {
+                int d = x * x + y * y;
+                if (fill ? d <= r * r + r : (d <= r * r + r && d >= r * r - r)) px(cx + x, cy + y, c);
+            }
+    }
+    void triangle(int x0, int y0, int x1, int y1, int x2, int y2, int c, bool fill) {
+        if (!fill) { line(x0, y0, x1, y1, c); line(x1, y1, x2, y2, c); line(x2, y2, x0, y0, c); return; }
+        int minX = std::min({x0, x1, x2}), maxX = std::max({x0, x1, x2}), minY = std::min({y0, y1, y2}), maxY = std::max({y0, y1, y2});
+        auto edge = [](int ax, int ay, int bx, int by, int x, int y) { return (bx - ax) * (y - ay) - (by - ay) * (x - ax); };
+        for (int y = std::max(0, minY); y <= std::min(oledCur.h - 1, maxY); y++)
+            for (int x = std::max(0, minX); x <= std::min(oledCur.w - 1, maxX); x++) {
+                int w0 = edge(x1, y1, x2, y2, x, y), w1 = edge(x2, y2, x0, y0, x, y), w2 = edge(x0, y0, x1, y1, x, y);
+                if ((w0 >= 0 && w1 >= 0 && w2 >= 0) || (w0 <= 0 && w1 <= 0 && w2 <= 0)) px(x, y, c);
+            }
+    }
+    void oledText(const std::string& s) {
+        std::string run;
+        int runX = curX, runY = curY;
+        auto flush = [&]() {
+            if (run.empty()) return;
+            auto& t = oledCur.text;
+            if (!t.empty() && t.back().y == runY && t.back().size == textSize && t.back().color == textColor &&
+                t.back().x + 6 * textSize * (int)t.back().text.size() == runX)
+                t.back().text += run;  // print("x"); print(" C") continue one run
+            else
+                t.push_back({runX, runY, textSize, textColor, run});
+            run.clear();
+        };
+        for (char ch : s) {
+            if (ch == '\n') { flush(); curX = 0; curY += 8 * textSize; runX = curX; runY = curY; continue; }
+            if (ch == '\r') continue;
+            if (textWrap && curX + 6 * textSize > oledCur.w) { flush(); curX = 0; curY += 8 * textSize; runX = curX; runY = curY; }
+            if (run.empty()) { runX = curX; runY = curY; }
+            run += ch;
+            curX += 6 * textSize;
+        }
+        flush();
+        if (oledCur.text.size() > 400) oledCur.text.erase(oledCur.text.begin(), oledCur.text.begin() + 100);
+    }
+
     [[noreturn]] void runtimeFail(const std::string& m) { throw Err{curLine, m}; }
 
     Val pop() {
@@ -1299,7 +1405,14 @@ struct Sketch::Impl {
     static std::string fmtNum(const Val& v, int base = 10, int decimals = 2) {
         char b[96];
         if (!v.isInt) {
-            snprintf(b, sizeof b, "%.*f", std::clamp(decimals, 0, 10), v.n);
+            // Arduino's Print rounds half away from zero (adds 0.5 of the last digit), unlike printf's round-half-even
+            int d = std::clamp(decimals, 0, 10);
+            double x = v.n, r = 0.5 * std::pow(10.0, -d);
+            snprintf(b, sizeof b, "%.*f", d, x);  // nan / inf
+            if (std::isfinite(x)) {
+                double t = std::trunc((std::fabs(x) + r) * std::pow(10.0, d)) / std::pow(10.0, d);
+                snprintf(b, sizeof b, "%s%.*f", x < 0 && t != 0 ? "-" : "", d, t);
+            }
             return b;
         }
         long long n = (long long)v.n;
@@ -1515,6 +1628,7 @@ struct Sketch::Impl {
         else if (name == "log10") push(num(std::log10(N(0)), false));
         else if (name == "fmod") push(num(std::fmod(N(0), N(1)), false));
         else if (name == "isnan") push(num(std::isnan(N(0)), true));
+        else if (name == "isinf") push(num(std::isinf(N(0)), true));
         else if (name == "floor") push(num(std::floor(N(0)), false));
         else if (name == "ceil") push(num(std::ceil(N(0)), false));
         else if (name == "round") push(num(std::round(N(0)), true));
@@ -1598,6 +1712,50 @@ struct Sketch::Impl {
             int pp = resolve(pin);
             if (pp >= 0) { pins[pp].mode = PM_OUTPUT; pins[pp].level = std::clamp(N(1) / (std::pow(2.0, bits) - 1), 0.0, 1.0); }
             push(num(0, true));
+        } else if (name.rfind("oled.", 0) == 0) {
+            std::string m = name.substr(5);
+            auto I = [&](size_t i) { return (int)std::lround(N(i)); };
+            auto C = [&](size_t i) { return i < a.size() ? I(i) : 1; };
+            if (!oledUsed) { oledUsed = true; if (oledCur.px.empty()) oledInit(oledCur.w, oledCur.h); }
+            double ret = 0;
+            if (m == "begin") ret = 1;
+            else if (m == "clearDisplay") { std::fill(oledCur.px.begin(), oledCur.px.end(), 0); oledCur.text.clear(); }
+            else if (m == "fillScreen") { std::fill(oledCur.px.begin(), oledCur.px.end(), (uint8_t)(C(0) ? 1 : 0)); oledCur.text.clear(); }
+            else if (m == "display") { oledCur.version++; oledShown = oledCur; }
+            else if (m == "setTextSize") textSize = std::clamp(I(0), 1, 8);
+            else if (m == "setTextColor") textColor = C(0);
+            else if (m == "setCursor") { curX = I(0); curY = I(1); }
+            else if (m == "setTextWrap") textWrap = N(0) != 0;
+            else if (m == "getCursorX") ret = curX;
+            else if (m == "getCursorY") ret = curY;
+            else if (m == "width") ret = oledCur.w;
+            else if (m == "height") ret = oledCur.h;
+            else if (m == "invertDisplay") oledCur.invert = oledShown.invert = N(0) != 0;
+            else if (m == "print" || m == "println" || m == "write") {
+                std::string t;
+                if (!a.empty()) {
+                    if (a[0].isStr()) t = *a[0].s;
+                    else if (m == "write") t = std::string(1, (char)I(0));
+                    else if (a.size() > 1) t = a[0].isInt ? fmtNum(a[0], I(1)) : fmtNum(a[0], 10, I(1));
+                    else t = fmtNum(a[0]);
+                }
+                if (m == "println") t += "\n";
+                oledText(t);
+            } else if (m == "drawPixel") px(I(0), I(1), C(2));
+            else if (m == "drawLine") line(I(0), I(1), I(2), I(3), C(4));
+            else if (m == "drawFastHLine") hline(I(0), I(1), I(2), C(3));
+            else if (m == "drawFastVLine") vline(I(0), I(1), I(2), C(3));
+            else if (m == "drawRect" || m == "drawRoundRect") {
+                int x = I(0), y = I(1), w = I(2), h = I(3), c = m == "drawRect" ? C(4) : C(5);
+                hline(x, y, w, c); hline(x, y + h - 1, w, c); vline(x, y, h, c); vline(x + w - 1, y, h, c);
+            } else if (m == "fillRect" || m == "fillRoundRect") {
+                int c = m == "fillRect" ? C(4) : C(5);
+                for (int yy = 0; yy < I(3); yy++) hline(I(0), I(1) + yy, I(2), c);
+            } else if (m == "drawCircle") circle(I(0), I(1), I(2), C(3), false);
+            else if (m == "fillCircle") circle(I(0), I(1), I(2), C(3), true);
+            else if (m == "drawTriangle") triangle(I(0), I(1), I(2), I(3), I(4), I(5), C(6), false);
+            else if (m == "fillTriangle") triangle(I(0), I(1), I(2), I(3), I(4), I(5), C(6), true);
+            push(num(ret, true));
         } else if (name.rfind("str.", 0) == 0) {
             std::string s = a.empty() ? "" : toStr(a[0]);
             std::string m = name.substr(4);
@@ -1842,6 +2000,10 @@ bool Sketch::compile(const std::string& source, const BoardInfo& board, CompileE
         }
         m.frames.push_back({-1, 0, 0});
         m.locals.resize(4);
+        m.oledCur.w = c.oledW;
+        if (c.usesOled)  // Wire.begin() before the display was declared: still just OLED plumbing
+            m.warns.erase(std::remove_if(m.warns.begin(), m.warns.end(), [](const std::string& w) { return w.rfind("Wire ", 0) == 0; }), m.warns.end());
+        m.oledCur.h = c.oledH;
         m.ok = true;
         m.stopped = false;
     } catch (const Err& e) {
@@ -1882,5 +2044,6 @@ void Sketch::serialInput(const std::string& text) { impl_->serialIn += text; }
 const std::map<int, PinState>& Sketch::pins() const { return impl_->pins; }
 const std::vector<std::string>& Sketch::warnings() const { return impl_->warns; }
 int Sketch::currentLine() const { return impl_->curLine; }
+const OledFrame* Sketch::oled() const { return impl_->oledUsed ? &impl_->oledShown : nullptr; }
 
 }  // namespace ard
