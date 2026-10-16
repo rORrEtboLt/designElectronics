@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=designElectronics
+GenericName=Electronics Design
+Comment=Design breadboard circuits, schematics and PCBs
+Exec=designElectronics %f
+Terminal=false
+Categories=Electronics;Engineering;Education;
+MimeType=application/x-designelectronics;application/x-designelectronics-part;

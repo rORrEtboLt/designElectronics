@@ -1,0 +1,161 @@
+// designElectronics — document model, .dez file format and connectivity.
+#pragma once
+#include <map>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
+#include "geom.h"
+#include "json.h"
+#include "partlib.h"
+
+constexpr const char* kFileFormat = "designElectronics";
+constexpr int kFileVersion = 1;
+constexpr const char* kFileExt = ".dez";
+constexpr const char* kAppVersion = "0.1.0";
+
+struct PartInst {
+    int id = 0;
+    std::string type;
+    Props props;          // only values that differ from / add to the defaults
+    std::string label;    // R1, LED2, ...
+    Xform place[NUM_VIEWS];
+    PartDefPtr def;
+
+    void refresh() { def = getPartDef(type, props); }
+    std::string prop(const std::string& k) const {
+        auto m = mergedProps(type, props);
+        auto it = m.find(k);
+        return it == m.end() ? std::string() : it->second;
+    }
+    bool inView(int v) const { return def && def->inView(v); }
+    Vec2 pinPos(int pin, int view) const { return place[view].apply(def->pins[pin].pos[view]); }
+    Rect worldBounds(int view) const { return place[view].applyRect(def->bounds[view]); }
+};
+
+struct WireEnd {
+    int part = -1;  // part id the end is attached to (-1 = free)
+    int pin = -1;   // pin index on that part
+    bool attached() const { return part >= 0 && pin >= 0; }
+};
+
+enum Layer { TOP = 0, BOTTOM = 1 };
+
+struct Wire {
+    int id = 0;
+    int view = BB;
+    std::vector<Vec2> pts;  // at least two points; ends are pts.front()/pts.back()
+    WireEnd ends[2];
+    uint32_t color = rgba(65, 140, 225);
+    float width = 24;       // PCB trace width (mils); breadboard/schematic use fixed widths
+    int layer = TOP;        // PCB only
+    bool autorouted = false;
+};
+
+struct Note {
+    int id = 0;
+    int view = BB;
+    Vec2 pos;
+    Vec2 size{1500, 800};
+    std::string text;
+};
+
+struct DesignRules {
+    float traceWidth = 24;    // mils
+    float clearance = 12;     // mils
+    float viaPad = 40, viaDrill = 20;
+};
+
+class Document {
+public:
+    std::string title = "Untitled";
+    std::string author;
+    std::string notesText;   // free-form project notes
+    int nextId = 1;
+    std::vector<PartInst> parts;
+    std::vector<Wire> wires;
+    std::vector<Note> notes;
+    DesignRules rules;
+    int revision = 0;        // bumped on every change, used for caches
+
+    void clear();
+    int newId() { return nextId++; }
+
+    PartInst* part(int id);
+    const PartInst* part(int id) const;
+    Wire* wire(int id);
+    Note* note(int id);
+    int partIndex(int id) const;
+
+    PartInst& addPart(const std::string& type, const Props& props, Vec2 posAllViews);
+    void removePart(int id);
+    void removeWire(int id);
+    void removeNote(int id);
+    std::string nextLabel(const std::string& prefix) const;
+
+    // Moves attached wire ends to follow their pins.
+    void syncWireEnds();
+    void touch() { revision++; }
+
+    // full = include save timestamp and embedded part library (off for undo snapshots)
+    Json toJson(bool full = true) const;
+    bool fromJson(const Json& j, std::string* err);
+    std::string serialize(bool pretty = true) const { return toJson().dump(pretty ? 1 : -1); }
+    std::string snapshot() const { return toJson(false).dump(-1); }
+    bool deserialize(const std::string& text, std::string* err);
+};
+
+// ---------------------------------------------------------------------------
+// Connectivity: global nets (connections made in any view count everywhere,
+// like Fritzing) plus per-view groups used for ratsnest lines and routing status.
+// ---------------------------------------------------------------------------
+
+struct PinRef {
+    int part = -1, pin = -1;
+    bool operator==(const PinRef& o) const { return part == o.part && pin == o.pin; }
+    bool operator<(const PinRef& o) const { return part < o.part || (part == o.part && pin < o.pin); }
+};
+
+struct RatLine {
+    Vec2 a, b;
+    PinRef pa, pb;
+    int net = -1;
+};
+
+struct RoutingStatus {
+    int nets = 0;            // nets with ≥2 pins in this view
+    int routedNets = 0;
+    int connectionsToRoute = 0;
+};
+
+class Connectivity {
+public:
+    void build(const Document& doc);
+
+    int numNets() const { return numNets_; }
+    int netOf(int partId, int pin) const;
+    int wireNet(int wireId) const;
+    int viewGroup(int view, int partId, int pin) const;
+    const std::vector<PinRef>& netPins(int net) const { return netPins_[net]; }
+    std::string netName(int net) const { return net >= 0 && net < (int)netNames_.size() ? netNames_[net] : "?"; }
+
+    // True if the pin is touched by anything in this view (wire end, another pin).
+    bool pinConnectedInView(int view, int partId, int pin) const;
+
+    std::vector<RatLine> ratsnest(const Document& doc, int view, RoutingStatus* status = nullptr) const;
+
+private:
+    int numNets_ = 0;
+    std::unordered_map<int, int> partBase_;       // part id -> first node index
+    std::unordered_map<int, int> wireNode_;       // wire id -> node index
+    std::vector<int> globalNet_;                  // node -> net id
+    std::vector<int> viewRoot_[NUM_VIEWS];        // node -> group root within view
+    std::vector<unsigned char> touched_[NUM_VIEWS];
+    std::vector<std::vector<PinRef>> netPins_;
+    std::vector<std::string> netNames_;
+    int node(int partId, int pin) const;
+};
+
+std::string readTextFile(const std::string& path, bool* ok = nullptr);
+bool writeTextFile(const std::string& path, const std::string& data);
+std::string fileBaseName(const std::string& path);

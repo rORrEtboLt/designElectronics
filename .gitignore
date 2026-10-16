@@ -1,0 +1,11 @@
+build/
+build-*/
+external/
+/android/
+.DS_Store
+*.o
+.cache/
+.claude/
+CLAUDE.md
+CLAUDE.local.md
+*.dez.autosave

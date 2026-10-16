@@ -1,0 +1,8911 @@
+{
+ "format": "designElectronics",
+ "version": 1,
+ "app": "designElectronics 0.1.0",
+ "title": "ESP32 blink",
+ "notes": "ESP32 DevKitC drives GPIO2 (BLINK:500) through a 220Ω resistor to an LED.",
+ "saved": "2026-10-16T08:12:32Z",
+ "rules": {
+  "traceWidth": 24,
+  "clearance": 12,
+  "viaPad": 40,
+  "viaDrill": 20
+ },
+ "nextId": 10,
+ "parts": [
+  {
+   "id": 5,
+   "type": "pcb_board",
+   "label": "PCB1",
+   "props": {
+    "height": "50",
+    "layers": "two layers (double-sided)",
+    "width": "75"
+   },
+   "views": {
+    "pcb": {
+     "at": [-300, -300]
+    }
+   }
+  },
+  {
+   "id": 1,
+   "type": "breadboard",
+   "label": "BB1",
+   "props": {
+    "size": "half+"
+   },
+   "views": {
+    "breadboard": {
+     "at": [0, 0]
+    }
+   }
+  },
+  {
+   "id": 2,
+   "type": "esp32_devkit",
+   "label": "U1",
+   "props": {
+    "outputs": "GPIO2=BLINK:500"
+   },
+   "views": {
+    "breadboard": {
+     "at": [100, -1700]
+    },
+    "schematic": {
+     "at": [0, 0]
+    },
+    "pcb": {
+     "at": [0, 0]
+    }
+   }
+  },
+  {
+   "id": 3,
+   "type": "resistor",
+   "label": "R1",
+   "props": {
+    "power": "1/4W",
+    "resistance": "220Ω",
+    "tolerance": "±5%"
+   },
+   "views": {
+    "breadboard": {
+     "at": [500, 700]
+    },
+    "schematic": {
+     "at": [1500, 500]
+    },
+    "pcb": {
+     "at": [600, 1400]
+    }
+   }
+  },
+  {
+   "id": 4,
+   "type": "led",
+   "label": "LED1",
+   "props": {
+    "color": "Red",
+    "package": "5 mm [THT]"
+   },
+   "views": {
+    "breadboard": {
+     "at": [1000, 600],
+     "flip": true
+    },
+    "schematic": {
+     "at": [2100, 500]
+    },
+    "pcb": {
+     "at": [1100, 1400]
+    }
+   }
+  }
+ ],
+ "wires": [
+  {
+   "id": 6,
+   "view": "breadboard",
+   "points": [
+    [500, -700],
+    [500, 300]
+   ],
+   "from": {
+    "part": 2,
+    "pin": "GPIO2"
+   },
+   "to": {
+    "part": 1,
+    "pin": "j6"
+   },
+   "color": "#f0c828"
+  },
+  {
+   "id": 7,
+   "view": "breadboard",
+   "points": [
+    [1300, -700],
+    [1300, 100]
+   ],
+   "from": {
+    "part": 2,
+    "pin": "GND_2"
+   },
+   "to": {
+    "part": 1,
+    "pin": "tn11"
+   },
+   "color": "#282828"
+  },
+  {
+   "id": 8,
+   "view": "breadboard",
+   "points": [
+    [1000, 300],
+    [1000, 100]
+   ],
+   "from": {
+    "part": 1,
+    "pin": "j11"
+   },
+   "to": {
+    "part": 1,
+    "pin": "tn9"
+   },
+   "color": "#282828"
+  }
+ ],
+ "notes_": [
+  {
+   "id": 9,
+   "view": "breadboard",
+   "at": [2200, -2400],
+   "size": [2200, 700],
+   "text": "Select the ESP32 and edit \"Pin outputs\" in the Inspector, e.g. GPIO2=BLINK:100 or GPIO2=PWM:20, then press Simulate."
+  }
+ ],
+ "library": [
+  {
+   "type": "pcb_board",
+   "title": "PCB",
+   "category": "PCB",
+   "description": "Printed circuit board outline. Set the size in millimetres in the Inspector.",
+   "labelPrefix": "PCB",
+   "views": ["pcb"],
+   "isBoard": true,
+   "properties": {
+    "height": "50",
+    "layers": "two layers (double-sided)",
+    "width": "80"
+   },
+   "propertyDefs": [
+    {
+     "key": "width",
+     "label": "Width (mm)",
+     "options": ["50", "80", "100"]
+    },
+    {
+     "key": "height",
+     "label": "Height (mm)",
+     "options": ["30", "50", "80"]
+    },
+    {
+     "key": "layers",
+     "label": "Layers",
+     "options": ["two layers (double-sided)", "one layer (single-sided)"]
+    }
+   ],
+   "pins": [],
+   "buses": [],
+   "holes": [],
+   "graphics": {
+    "breadboard": [],
+    "schematic": [],
+    "pcb": [
+     {
+      "k": "rect",
+      "a": [0, 0],
+      "b": [2952.76, 1968.5],
+      "w": 12,
+      "stroke": "#b4b4a0",
+      "fill": "#346e3c"
+     }
+    ]
+   }
+  },
+  {
+   "type": "breadboard",
+   "title": "Half+ Breadboard",
+   "category": "Breadboard",
+   "description": "Solderless breadboard. Each column of 5 holes (a–e, f–j) is connected; the long rails carry power. Parts snap into the holes.",
+   "labelPrefix": "BB",
+   "views": ["breadboard"],
+   "isBreadboard": true,
+   "properties": {
+    "size": "half+"
+   },
+   "propertyDefs": [
+    {
+     "key": "size",
+     "label": "Size",
+     "options": ["half+", "full+", "mini"]
+    }
+   ],
+   "pins": [
+    {
+     "id": "j1",
+     "name": "j1",
+     "breadboard": [0, 300],
+     "schematic": [0, 300],
+     "pcb": [0, 300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "e1",
+     "name": "e1",
+     "breadboard": [0, 1000],
+     "schematic": [0, 1000],
+     "pcb": [0, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "i1",
+     "name": "i1",
+     "breadboard": [0, 400],
+     "schematic": [0, 400],
+     "pcb": [0, 400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "d1",
+     "name": "d1",
+     "breadboard": [0, 1100],
+     "schematic": [0, 1100],
+     "pcb": [0, 1100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "h1",
+     "name": "h1",
+     "breadboard": [0, 500],
+     "schematic": [0, 500],
+     "pcb": [0, 500],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "c1",
+     "name": "c1",
+     "breadboard": [0, 1200],
+     "schematic": [0, 1200],
+     "pcb": [0, 1200],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "g1",
+     "name": "g1",
+     "breadboard": [0, 600],
+     "schematic": [0, 600],
+     "pcb": [0, 600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "b1",
+     "name": "b1",
+     "breadboard": [0, 1300],
+     "schematic": [0, 1300],
+     "pcb": [0, 1300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "f1",
+     "name": "f1",
+     "breadboard": [0, 700],
+     "schematic": [0, 700],
+     "pcb": [0, 700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "a1",
+     "name": "a1",
+     "breadboard": [0, 1400],
+     "schematic": [0, 1400],
+     "pcb": [0, 1400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "j2",
+     "name": "j2",
+     "breadboard": [100, 300],
+     "schematic": [100, 300],
+     "pcb": [100, 300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "e2",
+     "name": "e2",
+     "breadboard": [100, 1000],
+     "schematic": [100, 1000],
+     "pcb": [100, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "i2",
+     "name": "i2",
+     "breadboard": [100, 400],
+     "schematic": [100, 400],
+     "pcb": [100, 400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "d2",
+     "name": "d2",
+     "breadboard": [100, 1100],
+     "schematic": [100, 1100],
+     "pcb": [100, 1100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "h2",
+     "name": "h2",
+     "breadboard": [100, 500],
+     "schematic": [100, 500],
+     "pcb": [100, 500],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "c2",
+     "name": "c2",
+     "breadboard": [100, 1200],
+     "schematic": [100, 1200],
+     "pcb": [100, 1200],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "g2",
+     "name": "g2",
+     "breadboard": [100, 600],
+     "schematic": [100, 600],
+     "pcb": [100, 600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "b2",
+     "name": "b2",
+     "breadboard": [100, 1300],
+     "schematic": [100, 1300],
+     "pcb": [100, 1300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "f2",
+     "name": "f2",
+     "breadboard": [100, 700],
+     "schematic": [100, 700],
+     "pcb": [100, 700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "a2",
+     "name": "a2",
+     "breadboard": [100, 1400],
+     "schematic": [100, 1400],
+     "pcb": [100, 1400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "j3",
+     "name": "j3",
+     "breadboard": [200, 300],
+     "schematic": [200, 300],
+     "pcb": [200, 300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "e3",
+     "name": "e3",
+     "breadboard": [200, 1000],
+     "schematic": [200, 1000],
+     "pcb": [200, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "i3",
+     "name": "i3",
+     "breadboard": [200, 400],
+     "schematic": [200, 400],
+     "pcb": [200, 400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "d3",
+     "name": "d3",
+     "breadboard": [200, 1100],
+     "schematic": [200, 1100],
+     "pcb": [200, 1100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "h3",
+     "name": "h3",
+     "breadboard": [200, 500],
+     "schematic": [200, 500],
+     "pcb": [200, 500],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "c3",
+     "name": "c3",
+     "breadboard": [200, 1200],
+     "schematic": [200, 1200],
+     "pcb": [200, 1200],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "g3",
+     "name": "g3",
+     "breadboard": [200, 600],
+     "schematic": [200, 600],
+     "pcb": [200, 600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "b3",
+     "name": "b3",
+     "breadboard": [200, 1300],
+     "schematic": [200, 1300],
+     "pcb": [200, 1300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "f3",
+     "name": "f3",
+     "breadboard": [200, 700],
+     "schematic": [200, 700],
+     "pcb": [200, 700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "a3",
+     "name": "a3",
+     "breadboard": [200, 1400],
+     "schematic": [200, 1400],
+     "pcb": [200, 1400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "j4",
+     "name": "j4",
+     "breadboard": [300, 300],
+     "schematic": [300, 300],
+     "pcb": [300, 300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "e4",
+     "name": "e4",
+     "breadboard": [300, 1000],
+     "schematic": [300, 1000],
+     "pcb": [300, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "i4",
+     "name": "i4",
+     "breadboard": [300, 400],
+     "schematic": [300, 400],
+     "pcb": [300, 400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "d4",
+     "name": "d4",
+     "breadboard": [300, 1100],
+     "schematic": [300, 1100],
+     "pcb": [300, 1100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "h4",
+     "name": "h4",
+     "breadboard": [300, 500],
+     "schematic": [300, 500],
+     "pcb": [300, 500],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "c4",
+     "name": "c4",
+     "breadboard": [300, 1200],
+     "schematic": [300, 1200],
+     "pcb": [300, 1200],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "g4",
+     "name": "g4",
+     "breadboard": [300, 600],
+     "schematic": [300, 600],
+     "pcb": [300, 600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "b4",
+     "name": "b4",
+     "breadboard": [300, 1300],
+     "schematic": [300, 1300],
+     "pcb": [300, 1300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "f4",
+     "name": "f4",
+     "breadboard": [300, 700],
+     "schematic": [300, 700],
+     "pcb": [300, 700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "a4",
+     "name": "a4",
+     "breadboard": [300, 1400],
+     "schematic": [300, 1400],
+     "pcb": [300, 1400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "j5",
+     "name": "j5",
+     "breadboard": [400, 300],
+     "schematic": [400, 300],
+     "pcb": [400, 300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "e5",
+     "name": "e5",
+     "breadboard": [400, 1000],
+     "schematic": [400, 1000],
+     "pcb": [400, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "i5",
+     "name": "i5",
+     "breadboard": [400, 400],
+     "schematic": [400, 400],
+     "pcb": [400, 400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "d5",
+     "name": "d5",
+     "breadboard": [400, 1100],
+     "schematic": [400, 1100],
+     "pcb": [400, 1100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "h5",
+     "name": "h5",
+     "breadboard": [400, 500],
+     "schematic": [400, 500],
+     "pcb": [400, 500],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "c5",
+     "name": "c5",
+     "breadboard": [400, 1200],
+     "schematic": [400, 1200],
+     "pcb": [400, 1200],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "g5",
+     "name": "g5",
+     "breadboard": [400, 600],
+     "schematic": [400, 600],
+     "pcb": [400, 600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "b5",
+     "name": "b5",
+     "breadboard": [400, 1300],
+     "schematic": [400, 1300],
+     "pcb": [400, 1300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "f5",
+     "name": "f5",
+     "breadboard": [400, 700],
+     "schematic": [400, 700],
+     "pcb": [400, 700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "a5",
+     "name": "a5",
+     "breadboard": [400, 1400],
+     "schematic": [400, 1400],
+     "pcb": [400, 1400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "j6",
+     "name": "j6",
+     "breadboard": [500, 300],
+     "schematic": [500, 300],
+     "pcb": [500, 300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "e6",
+     "name": "e6",
+     "breadboard": [500, 1000],
+     "schematic": [500, 1000],
+     "pcb": [500, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "i6",
+     "name": "i6",
+     "breadboard": [500, 400],
+     "schematic": [500, 400],
+     "pcb": [500, 400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "d6",
+     "name": "d6",
+     "breadboard": [500, 1100],
+     "schematic": [500, 1100],
+     "pcb": [500, 1100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "h6",
+     "name": "h6",
+     "breadboard": [500, 500],
+     "schematic": [500, 500],
+     "pcb": [500, 500],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "c6",
+     "name": "c6",
+     "breadboard": [500, 1200],
+     "schematic": [500, 1200],
+     "pcb": [500, 1200],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "g6",
+     "name": "g6",
+     "breadboard": [500, 600],
+     "schematic": [500, 600],
+     "pcb": [500, 600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "b6",
+     "name": "b6",
+     "breadboard": [500, 1300],
+     "schematic": [500, 1300],
+     "pcb": [500, 1300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "f6",
+     "name": "f6",
+     "breadboard": [500, 700],
+     "schematic": [500, 700],
+     "pcb": [500, 700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "a6",
+     "name": "a6",
+     "breadboard": [500, 1400],
+     "schematic": [500, 1400],
+     "pcb": [500, 1400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "j7",
+     "name": "j7",
+     "breadboard": [600, 300],
+     "schematic": [600, 300],
+     "pcb": [600, 300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "e7",
+     "name": "e7",
+     "breadboard": [600, 1000],
+     "schematic": [600, 1000],
+     "pcb": [600, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "i7",
+     "name": "i7",
+     "breadboard": [600, 400],
+     "schematic": [600, 400],
+     "pcb": [600, 400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "d7",
+     "name": "d7",
+     "breadboard": [600, 1100],
+     "schematic": [600, 1100],
+     "pcb": [600, 1100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "h7",
+     "name": "h7",
+     "breadboard": [600, 500],
+     "schematic": [600, 500],
+     "pcb": [600, 500],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "c7",
+     "name": "c7",
+     "breadboard": [600, 1200],
+     "schematic": [600, 1200],
+     "pcb": [600, 1200],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "g7",
+     "name": "g7",
+     "breadboard": [600, 600],
+     "schematic": [600, 600],
+     "pcb": [600, 600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "b7",
+     "name": "b7",
+     "breadboard": [600, 1300],
+     "schematic": [600, 1300],
+     "pcb": [600, 1300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "f7",
+     "name": "f7",
+     "breadboard": [600, 700],
+     "schematic": [600, 700],
+     "pcb": [600, 700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "a7",
+     "name": "a7",
+     "breadboard": [600, 1400],
+     "schematic": [600, 1400],
+     "pcb": [600, 1400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "j8",
+     "name": "j8",
+     "breadboard": [700, 300],
+     "schematic": [700, 300],
+     "pcb": [700, 300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "e8",
+     "name": "e8",
+     "breadboard": [700, 1000],
+     "schematic": [700, 1000],
+     "pcb": [700, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "i8",
+     "name": "i8",
+     "breadboard": [700, 400],
+     "schematic": [700, 400],
+     "pcb": [700, 400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "d8",
+     "name": "d8",
+     "breadboard": [700, 1100],
+     "schematic": [700, 1100],
+     "pcb": [700, 1100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "h8",
+     "name": "h8",
+     "breadboard": [700, 500],
+     "schematic": [700, 500],
+     "pcb": [700, 500],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "c8",
+     "name": "c8",
+     "breadboard": [700, 1200],
+     "schematic": [700, 1200],
+     "pcb": [700, 1200],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "g8",
+     "name": "g8",
+     "breadboard": [700, 600],
+     "schematic": [700, 600],
+     "pcb": [700, 600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "b8",
+     "name": "b8",
+     "breadboard": [700, 1300],
+     "schematic": [700, 1300],
+     "pcb": [700, 1300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "f8",
+     "name": "f8",
+     "breadboard": [700, 700],
+     "schematic": [700, 700],
+     "pcb": [700, 700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "a8",
+     "name": "a8",
+     "breadboard": [700, 1400],
+     "schematic": [700, 1400],
+     "pcb": [700, 1400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "j9",
+     "name": "j9",
+     "breadboard": [800, 300],
+     "schematic": [800, 300],
+     "pcb": [800, 300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "e9",
+     "name": "e9",
+     "breadboard": [800, 1000],
+     "schematic": [800, 1000],
+     "pcb": [800, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "i9",
+     "name": "i9",
+     "breadboard": [800, 400],
+     "schematic": [800, 400],
+     "pcb": [800, 400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "d9",
+     "name": "d9",
+     "breadboard": [800, 1100],
+     "schematic": [800, 1100],
+     "pcb": [800, 1100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "h9",
+     "name": "h9",
+     "breadboard": [800, 500],
+     "schematic": [800, 500],
+     "pcb": [800, 500],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "c9",
+     "name": "c9",
+     "breadboard": [800, 1200],
+     "schematic": [800, 1200],
+     "pcb": [800, 1200],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "g9",
+     "name": "g9",
+     "breadboard": [800, 600],
+     "schematic": [800, 600],
+     "pcb": [800, 600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "b9",
+     "name": "b9",
+     "breadboard": [800, 1300],
+     "schematic": [800, 1300],
+     "pcb": [800, 1300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "f9",
+     "name": "f9",
+     "breadboard": [800, 700],
+     "schematic": [800, 700],
+     "pcb": [800, 700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "a9",
+     "name": "a9",
+     "breadboard": [800, 1400],
+     "schematic": [800, 1400],
+     "pcb": [800, 1400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "j10",
+     "name": "j10",
+     "breadboard": [900, 300],
+     "schematic": [900, 300],
+     "pcb": [900, 300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "e10",
+     "name": "e10",
+     "breadboard": [900, 1000],
+     "schematic": [900, 1000],
+     "pcb": [900, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "i10",
+     "name": "i10",
+     "breadboard": [900, 400],
+     "schematic": [900, 400],
+     "pcb": [900, 400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "d10",
+     "name": "d10",
+     "breadboard": [900, 1100],
+     "schematic": [900, 1100],
+     "pcb": [900, 1100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "h10",
+     "name": "h10",
+     "breadboard": [900, 500],
+     "schematic": [900, 500],
+     "pcb": [900, 500],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "c10",
+     "name": "c10",
+     "breadboard": [900, 1200],
+     "schematic": [900, 1200],
+     "pcb": [900, 1200],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "g10",
+     "name": "g10",
+     "breadboard": [900, 600],
+     "schematic": [900, 600],
+     "pcb": [900, 600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "b10",
+     "name": "b10",
+     "breadboard": [900, 1300],
+     "schematic": [900, 1300],
+     "pcb": [900, 1300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "f10",
+     "name": "f10",
+     "breadboard": [900, 700],
+     "schematic": [900, 700],
+     "pcb": [900, 700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "a10",
+     "name": "a10",
+     "breadboard": [900, 1400],
+     "schematic": [900, 1400],
+     "pcb": [900, 1400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "j11",
+     "name": "j11",
+     "breadboard": [1000, 300],
+     "schematic": [1000, 300],
+     "pcb": [1000, 300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "e11",
+     "name": "e11",
+     "breadboard": [1000, 1000],
+     "schematic": [1000, 1000],
+     "pcb": [1000, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "i11",
+     "name": "i11",
+     "breadboard": [1000, 400],
+     "schematic": [1000, 400],
+     "pcb": [1000, 400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "d11",
+     "name": "d11",
+     "breadboard": [1000, 1100],
+     "schematic": [1000, 1100],
+     "pcb": [1000, 1100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "h11",
+     "name": "h11",
+     "breadboard": [1000, 500],
+     "schematic": [1000, 500],
+     "pcb": [1000, 500],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "c11",
+     "name": "c11",
+     "breadboard": [1000, 1200],
+     "schematic": [1000, 1200],
+     "pcb": [1000, 1200],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "g11",
+     "name": "g11",
+     "breadboard": [1000, 600],
+     "schematic": [1000, 600],
+     "pcb": [1000, 600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "b11",
+     "name": "b11",
+     "breadboard": [1000, 1300],
+     "schematic": [1000, 1300],
+     "pcb": [1000, 1300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "f11",
+     "name": "f11",
+     "breadboard": [1000, 700],
+     "schematic": [1000, 700],
+     "pcb": [1000, 700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "a11",
+     "name": "a11",
+     "breadboard": [1000, 1400],
+     "schematic": [1000, 1400],
+     "pcb": [1000, 1400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "j12",
+     "name": "j12",
+     "breadboard": [1100, 300],
+     "schematic": [1100, 300],
+     "pcb": [1100, 300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "e12",
+     "name": "e12",
+     "breadboard": [1100, 1000],
+     "schematic": [1100, 1000],
+     "pcb": [1100, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "i12",
+     "name": "i12",
+     "breadboard": [1100, 400],
+     "schematic": [1100, 400],
+     "pcb": [1100, 400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "d12",
+     "name": "d12",
+     "breadboard": [1100, 1100],
+     "schematic": [1100, 1100],
+     "pcb": [1100, 1100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "h12",
+     "name": "h12",
+     "breadboard": [1100, 500],
+     "schematic": [1100, 500],
+     "pcb": [1100, 500],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "c12",
+     "name": "c12",
+     "breadboard": [1100, 1200],
+     "schematic": [1100, 1200],
+     "pcb": [1100, 1200],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "g12",
+     "name": "g12",
+     "breadboard": [1100, 600],
+     "schematic": [1100, 600],
+     "pcb": [1100, 600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "b12",
+     "name": "b12",
+     "breadboard": [1100, 1300],
+     "schematic": [1100, 1300],
+     "pcb": [1100, 1300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "f12",
+     "name": "f12",
+     "breadboard": [1100, 700],
+     "schematic": [1100, 700],
+     "pcb": [1100, 700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "a12",
+     "name": "a12",
+     "breadboard": [1100, 1400],
+     "schematic": [1100, 1400],
+     "pcb": [1100, 1400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "j13",
+     "name": "j13",
+     "breadboard": [1200, 300],
+     "schematic": [1200, 300],
+     "pcb": [1200, 300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "e13",
+     "name": "e13",
+     "breadboard": [1200, 1000],
+     "schematic": [1200, 1000],
+     "pcb": [1200, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "i13",
+     "name": "i13",
+     "breadboard": [1200, 400],
+     "schematic": [1200, 400],
+     "pcb": [1200, 400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "d13",
+     "name": "d13",
+     "breadboard": [1200, 1100],
+     "schematic": [1200, 1100],
+     "pcb": [1200, 1100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "h13",
+     "name": "h13",
+     "breadboard": [1200, 500],
+     "schematic": [1200, 500],
+     "pcb": [1200, 500],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "c13",
+     "name": "c13",
+     "breadboard": [1200, 1200],
+     "schematic": [1200, 1200],
+     "pcb": [1200, 1200],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "g13",
+     "name": "g13",
+     "breadboard": [1200, 600],
+     "schematic": [1200, 600],
+     "pcb": [1200, 600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "b13",
+     "name": "b13",
+     "breadboard": [1200, 1300],
+     "schematic": [1200, 1300],
+     "pcb": [1200, 1300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "f13",
+     "name": "f13",
+     "breadboard": [1200, 700],
+     "schematic": [1200, 700],
+     "pcb": [1200, 700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "a13",
+     "name": "a13",
+     "breadboard": [1200, 1400],
+     "schematic": [1200, 1400],
+     "pcb": [1200, 1400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "j14",
+     "name": "j14",
+     "breadboard": [1300, 300],
+     "schematic": [1300, 300],
+     "pcb": [1300, 300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "e14",
+     "name": "e14",
+     "breadboard": [1300, 1000],
+     "schematic": [1300, 1000],
+     "pcb": [1300, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "i14",
+     "name": "i14",
+     "breadboard": [1300, 400],
+     "schematic": [1300, 400],
+     "pcb": [1300, 400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "d14",
+     "name": "d14",
+     "breadboard": [1300, 1100],
+     "schematic": [1300, 1100],
+     "pcb": [1300, 1100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "h14",
+     "name": "h14",
+     "breadboard": [1300, 500],
+     "schematic": [1300, 500],
+     "pcb": [1300, 500],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "c14",
+     "name": "c14",
+     "breadboard": [1300, 1200],
+     "schematic": [1300, 1200],
+     "pcb": [1300, 1200],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "g14",
+     "name": "g14",
+     "breadboard": [1300, 600],
+     "schematic": [1300, 600],
+     "pcb": [1300, 600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "b14",
+     "name": "b14",
+     "breadboard": [1300, 1300],
+     "schematic": [1300, 1300],
+     "pcb": [1300, 1300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "f14",
+     "name": "f14",
+     "breadboard": [1300, 700],
+     "schematic": [1300, 700],
+     "pcb": [1300, 700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "a14",
+     "name": "a14",
+     "breadboard": [1300, 1400],
+     "schematic": [1300, 1400],
+     "pcb": [1300, 1400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "j15",
+     "name": "j15",
+     "breadboard": [1400, 300],
+     "schematic": [1400, 300],
+     "pcb": [1400, 300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "e15",
+     "name": "e15",
+     "breadboard": [1400, 1000],
+     "schematic": [1400, 1000],
+     "pcb": [1400, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "i15",
+     "name": "i15",
+     "breadboard": [1400, 400],
+     "schematic": [1400, 400],
+     "pcb": [1400, 400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "d15",
+     "name": "d15",
+     "breadboard": [1400, 1100],
+     "schematic": [1400, 1100],
+     "pcb": [1400, 1100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "h15",
+     "name": "h15",
+     "breadboard": [1400, 500],
+     "schematic": [1400, 500],
+     "pcb": [1400, 500],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "c15",
+     "name": "c15",
+     "breadboard": [1400, 1200],
+     "schematic": [1400, 1200],
+     "pcb": [1400, 1200],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "g15",
+     "name": "g15",
+     "breadboard": [1400, 600],
+     "schematic": [1400, 600],
+     "pcb": [1400, 600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "b15",
+     "name": "b15",
+     "breadboard": [1400, 1300],
+     "schematic": [1400, 1300],
+     "pcb": [1400, 1300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "f15",
+     "name": "f15",
+     "breadboard": [1400, 700],
+     "schematic": [1400, 700],
+     "pcb": [1400, 700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "a15",
+     "name": "a15",
+     "breadboard": [1400, 1400],
+     "schematic": [1400, 1400],
+     "pcb": [1400, 1400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "j16",
+     "name": "j16",
+     "breadboard": [1500, 300],
+     "schematic": [1500, 300],
+     "pcb": [1500, 300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "e16",
+     "name": "e16",
+     "breadboard": [1500, 1000],
+     "schematic": [1500, 1000],
+     "pcb": [1500, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "i16",
+     "name": "i16",
+     "breadboard": [1500, 400],
+     "schematic": [1500, 400],
+     "pcb": [1500, 400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "d16",
+     "name": "d16",
+     "breadboard": [1500, 1100],
+     "schematic": [1500, 1100],
+     "pcb": [1500, 1100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "h16",
+     "name": "h16",
+     "breadboard": [1500, 500],
+     "schematic": [1500, 500],
+     "pcb": [1500, 500],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "c16",
+     "name": "c16",
+     "breadboard": [1500, 1200],
+     "schematic": [1500, 1200],
+     "pcb": [1500, 1200],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "g16",
+     "name": "g16",
+     "breadboard": [1500, 600],
+     "schematic": [1500, 600],
+     "pcb": [1500, 600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "b16",
+     "name": "b16",
+     "breadboard": [1500, 1300],
+     "schematic": [1500, 1300],
+     "pcb": [1500, 1300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "f16",
+     "name": "f16",
+     "breadboard": [1500, 700],
+     "schematic": [1500, 700],
+     "pcb": [1500, 700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "a16",
+     "name": "a16",
+     "breadboard": [1500, 1400],
+     "schematic": [1500, 1400],
+     "pcb": [1500, 1400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "j17",
+     "name": "j17",
+     "breadboard": [1600, 300],
+     "schematic": [1600, 300],
+     "pcb": [1600, 300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "e17",
+     "name": "e17",
+     "breadboard": [1600, 1000],
+     "schematic": [1600, 1000],
+     "pcb": [1600, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "i17",
+     "name": "i17",
+     "breadboard": [1600, 400],
+     "schematic": [1600, 400],
+     "pcb": [1600, 400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "d17",
+     "name": "d17",
+     "breadboard": [1600, 1100],
+     "schematic": [1600, 1100],
+     "pcb": [1600, 1100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "h17",
+     "name": "h17",
+     "breadboard": [1600, 500],
+     "schematic": [1600, 500],
+     "pcb": [1600, 500],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "c17",
+     "name": "c17",
+     "breadboard": [1600, 1200],
+     "schematic": [1600, 1200],
+     "pcb": [1600, 1200],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "g17",
+     "name": "g17",
+     "breadboard": [1600, 600],
+     "schematic": [1600, 600],
+     "pcb": [1600, 600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "b17",
+     "name": "b17",
+     "breadboard": [1600, 1300],
+     "schematic": [1600, 1300],
+     "pcb": [1600, 1300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "f17",
+     "name": "f17",
+     "breadboard": [1600, 700],
+     "schematic": [1600, 700],
+     "pcb": [1600, 700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "a17",
+     "name": "a17",
+     "breadboard": [1600, 1400],
+     "schematic": [1600, 1400],
+     "pcb": [1600, 1400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "j18",
+     "name": "j18",
+     "breadboard": [1700, 300],
+     "schematic": [1700, 300],
+     "pcb": [1700, 300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "e18",
+     "name": "e18",
+     "breadboard": [1700, 1000],
+     "schematic": [1700, 1000],
+     "pcb": [1700, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "i18",
+     "name": "i18",
+     "breadboard": [1700, 400],
+     "schematic": [1700, 400],
+     "pcb": [1700, 400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "d18",
+     "name": "d18",
+     "breadboard": [1700, 1100],
+     "schematic": [1700, 1100],
+     "pcb": [1700, 1100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "h18",
+     "name": "h18",
+     "breadboard": [1700, 500],
+     "schematic": [1700, 500],
+     "pcb": [1700, 500],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "c18",
+     "name": "c18",
+     "breadboard": [1700, 1200],
+     "schematic": [1700, 1200],
+     "pcb": [1700, 1200],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "g18",
+     "name": "g18",
+     "breadboard": [1700, 600],
+     "schematic": [1700, 600],
+     "pcb": [1700, 600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "b18",
+     "name": "b18",
+     "breadboard": [1700, 1300],
+     "schematic": [1700, 1300],
+     "pcb": [1700, 1300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "f18",
+     "name": "f18",
+     "breadboard": [1700, 700],
+     "schematic": [1700, 700],
+     "pcb": [1700, 700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "a18",
+     "name": "a18",
+     "breadboard": [1700, 1400],
+     "schematic": [1700, 1400],
+     "pcb": [1700, 1400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "j19",
+     "name": "j19",
+     "breadboard": [1800, 300],
+     "schematic": [1800, 300],
+     "pcb": [1800, 300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "e19",
+     "name": "e19",
+     "breadboard": [1800, 1000],
+     "schematic": [1800, 1000],
+     "pcb": [1800, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "i19",
+     "name": "i19",
+     "breadboard": [1800, 400],
+     "schematic": [1800, 400],
+     "pcb": [1800, 400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "d19",
+     "name": "d19",
+     "breadboard": [1800, 1100],
+     "schematic": [1800, 1100],
+     "pcb": [1800, 1100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "h19",
+     "name": "h19",
+     "breadboard": [1800, 500],
+     "schematic": [1800, 500],
+     "pcb": [1800, 500],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "c19",
+     "name": "c19",
+     "breadboard": [1800, 1200],
+     "schematic": [1800, 1200],
+     "pcb": [1800, 1200],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "g19",
+     "name": "g19",
+     "breadboard": [1800, 600],
+     "schematic": [1800, 600],
+     "pcb": [1800, 600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "b19",
+     "name": "b19",
+     "breadboard": [1800, 1300],
+     "schematic": [1800, 1300],
+     "pcb": [1800, 1300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "f19",
+     "name": "f19",
+     "breadboard": [1800, 700],
+     "schematic": [1800, 700],
+     "pcb": [1800, 700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "a19",
+     "name": "a19",
+     "breadboard": [1800, 1400],
+     "schematic": [1800, 1400],
+     "pcb": [1800, 1400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "j20",
+     "name": "j20",
+     "breadboard": [1900, 300],
+     "schematic": [1900, 300],
+     "pcb": [1900, 300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "e20",
+     "name": "e20",
+     "breadboard": [1900, 1000],
+     "schematic": [1900, 1000],
+     "pcb": [1900, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "i20",
+     "name": "i20",
+     "breadboard": [1900, 400],
+     "schematic": [1900, 400],
+     "pcb": [1900, 400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "d20",
+     "name": "d20",
+     "breadboard": [1900, 1100],
+     "schematic": [1900, 1100],
+     "pcb": [1900, 1100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "h20",
+     "name": "h20",
+     "breadboard": [1900, 500],
+     "schematic": [1900, 500],
+     "pcb": [1900, 500],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "c20",
+     "name": "c20",
+     "breadboard": [1900, 1200],
+     "schematic": [1900, 1200],
+     "pcb": [1900, 1200],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "g20",
+     "name": "g20",
+     "breadboard": [1900, 600],
+     "schematic": [1900, 600],
+     "pcb": [1900, 600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "b20",
+     "name": "b20",
+     "breadboard": [1900, 1300],
+     "schematic": [1900, 1300],
+     "pcb": [1900, 1300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "f20",
+     "name": "f20",
+     "breadboard": [1900, 700],
+     "schematic": [1900, 700],
+     "pcb": [1900, 700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "a20",
+     "name": "a20",
+     "breadboard": [1900, 1400],
+     "schematic": [1900, 1400],
+     "pcb": [1900, 1400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "j21",
+     "name": "j21",
+     "breadboard": [2000, 300],
+     "schematic": [2000, 300],
+     "pcb": [2000, 300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "e21",
+     "name": "e21",
+     "breadboard": [2000, 1000],
+     "schematic": [2000, 1000],
+     "pcb": [2000, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "i21",
+     "name": "i21",
+     "breadboard": [2000, 400],
+     "schematic": [2000, 400],
+     "pcb": [2000, 400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "d21",
+     "name": "d21",
+     "breadboard": [2000, 1100],
+     "schematic": [2000, 1100],
+     "pcb": [2000, 1100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "h21",
+     "name": "h21",
+     "breadboard": [2000, 500],
+     "schematic": [2000, 500],
+     "pcb": [2000, 500],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "c21",
+     "name": "c21",
+     "breadboard": [2000, 1200],
+     "schematic": [2000, 1200],
+     "pcb": [2000, 1200],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "g21",
+     "name": "g21",
+     "breadboard": [2000, 600],
+     "schematic": [2000, 600],
+     "pcb": [2000, 600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "b21",
+     "name": "b21",
+     "breadboard": [2000, 1300],
+     "schematic": [2000, 1300],
+     "pcb": [2000, 1300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "f21",
+     "name": "f21",
+     "breadboard": [2000, 700],
+     "schematic": [2000, 700],
+     "pcb": [2000, 700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "a21",
+     "name": "a21",
+     "breadboard": [2000, 1400],
+     "schematic": [2000, 1400],
+     "pcb": [2000, 1400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "j22",
+     "name": "j22",
+     "breadboard": [2100, 300],
+     "schematic": [2100, 300],
+     "pcb": [2100, 300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "e22",
+     "name": "e22",
+     "breadboard": [2100, 1000],
+     "schematic": [2100, 1000],
+     "pcb": [2100, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "i22",
+     "name": "i22",
+     "breadboard": [2100, 400],
+     "schematic": [2100, 400],
+     "pcb": [2100, 400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "d22",
+     "name": "d22",
+     "breadboard": [2100, 1100],
+     "schematic": [2100, 1100],
+     "pcb": [2100, 1100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "h22",
+     "name": "h22",
+     "breadboard": [2100, 500],
+     "schematic": [2100, 500],
+     "pcb": [2100, 500],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "c22",
+     "name": "c22",
+     "breadboard": [2100, 1200],
+     "schematic": [2100, 1200],
+     "pcb": [2100, 1200],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "g22",
+     "name": "g22",
+     "breadboard": [2100, 600],
+     "schematic": [2100, 600],
+     "pcb": [2100, 600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "b22",
+     "name": "b22",
+     "breadboard": [2100, 1300],
+     "schematic": [2100, 1300],
+     "pcb": [2100, 1300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "f22",
+     "name": "f22",
+     "breadboard": [2100, 700],
+     "schematic": [2100, 700],
+     "pcb": [2100, 700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "a22",
+     "name": "a22",
+     "breadboard": [2100, 1400],
+     "schematic": [2100, 1400],
+     "pcb": [2100, 1400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "j23",
+     "name": "j23",
+     "breadboard": [2200, 300],
+     "schematic": [2200, 300],
+     "pcb": [2200, 300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "e23",
+     "name": "e23",
+     "breadboard": [2200, 1000],
+     "schematic": [2200, 1000],
+     "pcb": [2200, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "i23",
+     "name": "i23",
+     "breadboard": [2200, 400],
+     "schematic": [2200, 400],
+     "pcb": [2200, 400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "d23",
+     "name": "d23",
+     "breadboard": [2200, 1100],
+     "schematic": [2200, 1100],
+     "pcb": [2200, 1100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "h23",
+     "name": "h23",
+     "breadboard": [2200, 500],
+     "schematic": [2200, 500],
+     "pcb": [2200, 500],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "c23",
+     "name": "c23",
+     "breadboard": [2200, 1200],
+     "schematic": [2200, 1200],
+     "pcb": [2200, 1200],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "g23",
+     "name": "g23",
+     "breadboard": [2200, 600],
+     "schematic": [2200, 600],
+     "pcb": [2200, 600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "b23",
+     "name": "b23",
+     "breadboard": [2200, 1300],
+     "schematic": [2200, 1300],
+     "pcb": [2200, 1300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "f23",
+     "name": "f23",
+     "breadboard": [2200, 700],
+     "schematic": [2200, 700],
+     "pcb": [2200, 700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "a23",
+     "name": "a23",
+     "breadboard": [2200, 1400],
+     "schematic": [2200, 1400],
+     "pcb": [2200, 1400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "j24",
+     "name": "j24",
+     "breadboard": [2300, 300],
+     "schematic": [2300, 300],
+     "pcb": [2300, 300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "e24",
+     "name": "e24",
+     "breadboard": [2300, 1000],
+     "schematic": [2300, 1000],
+     "pcb": [2300, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "i24",
+     "name": "i24",
+     "breadboard": [2300, 400],
+     "schematic": [2300, 400],
+     "pcb": [2300, 400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "d24",
+     "name": "d24",
+     "breadboard": [2300, 1100],
+     "schematic": [2300, 1100],
+     "pcb": [2300, 1100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "h24",
+     "name": "h24",
+     "breadboard": [2300, 500],
+     "schematic": [2300, 500],
+     "pcb": [2300, 500],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "c24",
+     "name": "c24",
+     "breadboard": [2300, 1200],
+     "schematic": [2300, 1200],
+     "pcb": [2300, 1200],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "g24",
+     "name": "g24",
+     "breadboard": [2300, 600],
+     "schematic": [2300, 600],
+     "pcb": [2300, 600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "b24",
+     "name": "b24",
+     "breadboard": [2300, 1300],
+     "schematic": [2300, 1300],
+     "pcb": [2300, 1300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "f24",
+     "name": "f24",
+     "breadboard": [2300, 700],
+     "schematic": [2300, 700],
+     "pcb": [2300, 700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "a24",
+     "name": "a24",
+     "breadboard": [2300, 1400],
+     "schematic": [2300, 1400],
+     "pcb": [2300, 1400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "j25",
+     "name": "j25",
+     "breadboard": [2400, 300],
+     "schematic": [2400, 300],
+     "pcb": [2400, 300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "e25",
+     "name": "e25",
+     "breadboard": [2400, 1000],
+     "schematic": [2400, 1000],
+     "pcb": [2400, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "i25",
+     "name": "i25",
+     "breadboard": [2400, 400],
+     "schematic": [2400, 400],
+     "pcb": [2400, 400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "d25",
+     "name": "d25",
+     "breadboard": [2400, 1100],
+     "schematic": [2400, 1100],
+     "pcb": [2400, 1100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "h25",
+     "name": "h25",
+     "breadboard": [2400, 500],
+     "schematic": [2400, 500],
+     "pcb": [2400, 500],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "c25",
+     "name": "c25",
+     "breadboard": [2400, 1200],
+     "schematic": [2400, 1200],
+     "pcb": [2400, 1200],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "g25",
+     "name": "g25",
+     "breadboard": [2400, 600],
+     "schematic": [2400, 600],
+     "pcb": [2400, 600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "b25",
+     "name": "b25",
+     "breadboard": [2400, 1300],
+     "schematic": [2400, 1300],
+     "pcb": [2400, 1300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "f25",
+     "name": "f25",
+     "breadboard": [2400, 700],
+     "schematic": [2400, 700],
+     "pcb": [2400, 700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "a25",
+     "name": "a25",
+     "breadboard": [2400, 1400],
+     "schematic": [2400, 1400],
+     "pcb": [2400, 1400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "j26",
+     "name": "j26",
+     "breadboard": [2500, 300],
+     "schematic": [2500, 300],
+     "pcb": [2500, 300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "e26",
+     "name": "e26",
+     "breadboard": [2500, 1000],
+     "schematic": [2500, 1000],
+     "pcb": [2500, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "i26",
+     "name": "i26",
+     "breadboard": [2500, 400],
+     "schematic": [2500, 400],
+     "pcb": [2500, 400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "d26",
+     "name": "d26",
+     "breadboard": [2500, 1100],
+     "schematic": [2500, 1100],
+     "pcb": [2500, 1100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "h26",
+     "name": "h26",
+     "breadboard": [2500, 500],
+     "schematic": [2500, 500],
+     "pcb": [2500, 500],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "c26",
+     "name": "c26",
+     "breadboard": [2500, 1200],
+     "schematic": [2500, 1200],
+     "pcb": [2500, 1200],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "g26",
+     "name": "g26",
+     "breadboard": [2500, 600],
+     "schematic": [2500, 600],
+     "pcb": [2500, 600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "b26",
+     "name": "b26",
+     "breadboard": [2500, 1300],
+     "schematic": [2500, 1300],
+     "pcb": [2500, 1300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "f26",
+     "name": "f26",
+     "breadboard": [2500, 700],
+     "schematic": [2500, 700],
+     "pcb": [2500, 700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "a26",
+     "name": "a26",
+     "breadboard": [2500, 1400],
+     "schematic": [2500, 1400],
+     "pcb": [2500, 1400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "j27",
+     "name": "j27",
+     "breadboard": [2600, 300],
+     "schematic": [2600, 300],
+     "pcb": [2600, 300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "e27",
+     "name": "e27",
+     "breadboard": [2600, 1000],
+     "schematic": [2600, 1000],
+     "pcb": [2600, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "i27",
+     "name": "i27",
+     "breadboard": [2600, 400],
+     "schematic": [2600, 400],
+     "pcb": [2600, 400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "d27",
+     "name": "d27",
+     "breadboard": [2600, 1100],
+     "schematic": [2600, 1100],
+     "pcb": [2600, 1100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "h27",
+     "name": "h27",
+     "breadboard": [2600, 500],
+     "schematic": [2600, 500],
+     "pcb": [2600, 500],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "c27",
+     "name": "c27",
+     "breadboard": [2600, 1200],
+     "schematic": [2600, 1200],
+     "pcb": [2600, 1200],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "g27",
+     "name": "g27",
+     "breadboard": [2600, 600],
+     "schematic": [2600, 600],
+     "pcb": [2600, 600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "b27",
+     "name": "b27",
+     "breadboard": [2600, 1300],
+     "schematic": [2600, 1300],
+     "pcb": [2600, 1300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "f27",
+     "name": "f27",
+     "breadboard": [2600, 700],
+     "schematic": [2600, 700],
+     "pcb": [2600, 700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "a27",
+     "name": "a27",
+     "breadboard": [2600, 1400],
+     "schematic": [2600, 1400],
+     "pcb": [2600, 1400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "j28",
+     "name": "j28",
+     "breadboard": [2700, 300],
+     "schematic": [2700, 300],
+     "pcb": [2700, 300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "e28",
+     "name": "e28",
+     "breadboard": [2700, 1000],
+     "schematic": [2700, 1000],
+     "pcb": [2700, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "i28",
+     "name": "i28",
+     "breadboard": [2700, 400],
+     "schematic": [2700, 400],
+     "pcb": [2700, 400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "d28",
+     "name": "d28",
+     "breadboard": [2700, 1100],
+     "schematic": [2700, 1100],
+     "pcb": [2700, 1100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "h28",
+     "name": "h28",
+     "breadboard": [2700, 500],
+     "schematic": [2700, 500],
+     "pcb": [2700, 500],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "c28",
+     "name": "c28",
+     "breadboard": [2700, 1200],
+     "schematic": [2700, 1200],
+     "pcb": [2700, 1200],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "g28",
+     "name": "g28",
+     "breadboard": [2700, 600],
+     "schematic": [2700, 600],
+     "pcb": [2700, 600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "b28",
+     "name": "b28",
+     "breadboard": [2700, 1300],
+     "schematic": [2700, 1300],
+     "pcb": [2700, 1300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "f28",
+     "name": "f28",
+     "breadboard": [2700, 700],
+     "schematic": [2700, 700],
+     "pcb": [2700, 700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "a28",
+     "name": "a28",
+     "breadboard": [2700, 1400],
+     "schematic": [2700, 1400],
+     "pcb": [2700, 1400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "j29",
+     "name": "j29",
+     "breadboard": [2800, 300],
+     "schematic": [2800, 300],
+     "pcb": [2800, 300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "e29",
+     "name": "e29",
+     "breadboard": [2800, 1000],
+     "schematic": [2800, 1000],
+     "pcb": [2800, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "i29",
+     "name": "i29",
+     "breadboard": [2800, 400],
+     "schematic": [2800, 400],
+     "pcb": [2800, 400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "d29",
+     "name": "d29",
+     "breadboard": [2800, 1100],
+     "schematic": [2800, 1100],
+     "pcb": [2800, 1100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "h29",
+     "name": "h29",
+     "breadboard": [2800, 500],
+     "schematic": [2800, 500],
+     "pcb": [2800, 500],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "c29",
+     "name": "c29",
+     "breadboard": [2800, 1200],
+     "schematic": [2800, 1200],
+     "pcb": [2800, 1200],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "g29",
+     "name": "g29",
+     "breadboard": [2800, 600],
+     "schematic": [2800, 600],
+     "pcb": [2800, 600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "b29",
+     "name": "b29",
+     "breadboard": [2800, 1300],
+     "schematic": [2800, 1300],
+     "pcb": [2800, 1300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "f29",
+     "name": "f29",
+     "breadboard": [2800, 700],
+     "schematic": [2800, 700],
+     "pcb": [2800, 700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "a29",
+     "name": "a29",
+     "breadboard": [2800, 1400],
+     "schematic": [2800, 1400],
+     "pcb": [2800, 1400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "j30",
+     "name": "j30",
+     "breadboard": [2900, 300],
+     "schematic": [2900, 300],
+     "pcb": [2900, 300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "e30",
+     "name": "e30",
+     "breadboard": [2900, 1000],
+     "schematic": [2900, 1000],
+     "pcb": [2900, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "i30",
+     "name": "i30",
+     "breadboard": [2900, 400],
+     "schematic": [2900, 400],
+     "pcb": [2900, 400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "d30",
+     "name": "d30",
+     "breadboard": [2900, 1100],
+     "schematic": [2900, 1100],
+     "pcb": [2900, 1100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "h30",
+     "name": "h30",
+     "breadboard": [2900, 500],
+     "schematic": [2900, 500],
+     "pcb": [2900, 500],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "c30",
+     "name": "c30",
+     "breadboard": [2900, 1200],
+     "schematic": [2900, 1200],
+     "pcb": [2900, 1200],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "g30",
+     "name": "g30",
+     "breadboard": [2900, 600],
+     "schematic": [2900, 600],
+     "pcb": [2900, 600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "b30",
+     "name": "b30",
+     "breadboard": [2900, 1300],
+     "schematic": [2900, 1300],
+     "pcb": [2900, 1300],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "f30",
+     "name": "f30",
+     "breadboard": [2900, 700],
+     "schematic": [2900, 700],
+     "pcb": [2900, 700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "a30",
+     "name": "a30",
+     "breadboard": [2900, 1400],
+     "schematic": [2900, 1400],
+     "pcb": [2900, 1400],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tp1",
+     "name": "top + 1",
+     "breadboard": [100, 0],
+     "schematic": [100, 0],
+     "pcb": [100, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tp2",
+     "name": "top + 2",
+     "breadboard": [200, 0],
+     "schematic": [200, 0],
+     "pcb": [200, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tp3",
+     "name": "top + 3",
+     "breadboard": [300, 0],
+     "schematic": [300, 0],
+     "pcb": [300, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tp4",
+     "name": "top + 4",
+     "breadboard": [400, 0],
+     "schematic": [400, 0],
+     "pcb": [400, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tp5",
+     "name": "top + 5",
+     "breadboard": [500, 0],
+     "schematic": [500, 0],
+     "pcb": [500, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tp6",
+     "name": "top + 6",
+     "breadboard": [700, 0],
+     "schematic": [700, 0],
+     "pcb": [700, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tp7",
+     "name": "top + 7",
+     "breadboard": [800, 0],
+     "schematic": [800, 0],
+     "pcb": [800, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tp8",
+     "name": "top + 8",
+     "breadboard": [900, 0],
+     "schematic": [900, 0],
+     "pcb": [900, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tp9",
+     "name": "top + 9",
+     "breadboard": [1000, 0],
+     "schematic": [1000, 0],
+     "pcb": [1000, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tp10",
+     "name": "top + 10",
+     "breadboard": [1100, 0],
+     "schematic": [1100, 0],
+     "pcb": [1100, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tp11",
+     "name": "top + 11",
+     "breadboard": [1300, 0],
+     "schematic": [1300, 0],
+     "pcb": [1300, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tp12",
+     "name": "top + 12",
+     "breadboard": [1400, 0],
+     "schematic": [1400, 0],
+     "pcb": [1400, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tp13",
+     "name": "top + 13",
+     "breadboard": [1500, 0],
+     "schematic": [1500, 0],
+     "pcb": [1500, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tp14",
+     "name": "top + 14",
+     "breadboard": [1600, 0],
+     "schematic": [1600, 0],
+     "pcb": [1600, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tp15",
+     "name": "top + 15",
+     "breadboard": [1700, 0],
+     "schematic": [1700, 0],
+     "pcb": [1700, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tp16",
+     "name": "top + 16",
+     "breadboard": [1900, 0],
+     "schematic": [1900, 0],
+     "pcb": [1900, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tp17",
+     "name": "top + 17",
+     "breadboard": [2000, 0],
+     "schematic": [2000, 0],
+     "pcb": [2000, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tp18",
+     "name": "top + 18",
+     "breadboard": [2100, 0],
+     "schematic": [2100, 0],
+     "pcb": [2100, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tp19",
+     "name": "top + 19",
+     "breadboard": [2200, 0],
+     "schematic": [2200, 0],
+     "pcb": [2200, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tp20",
+     "name": "top + 20",
+     "breadboard": [2300, 0],
+     "schematic": [2300, 0],
+     "pcb": [2300, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tp21",
+     "name": "top + 21",
+     "breadboard": [2500, 0],
+     "schematic": [2500, 0],
+     "pcb": [2500, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tp22",
+     "name": "top + 22",
+     "breadboard": [2600, 0],
+     "schematic": [2600, 0],
+     "pcb": [2600, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tp23",
+     "name": "top + 23",
+     "breadboard": [2700, 0],
+     "schematic": [2700, 0],
+     "pcb": [2700, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tp24",
+     "name": "top + 24",
+     "breadboard": [2800, 0],
+     "schematic": [2800, 0],
+     "pcb": [2800, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tn1",
+     "name": "top − 1",
+     "breadboard": [100, 100],
+     "schematic": [100, 100],
+     "pcb": [100, 100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tn2",
+     "name": "top − 2",
+     "breadboard": [200, 100],
+     "schematic": [200, 100],
+     "pcb": [200, 100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tn3",
+     "name": "top − 3",
+     "breadboard": [300, 100],
+     "schematic": [300, 100],
+     "pcb": [300, 100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tn4",
+     "name": "top − 4",
+     "breadboard": [400, 100],
+     "schematic": [400, 100],
+     "pcb": [400, 100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tn5",
+     "name": "top − 5",
+     "breadboard": [500, 100],
+     "schematic": [500, 100],
+     "pcb": [500, 100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tn6",
+     "name": "top − 6",
+     "breadboard": [700, 100],
+     "schematic": [700, 100],
+     "pcb": [700, 100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tn7",
+     "name": "top − 7",
+     "breadboard": [800, 100],
+     "schematic": [800, 100],
+     "pcb": [800, 100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tn8",
+     "name": "top − 8",
+     "breadboard": [900, 100],
+     "schematic": [900, 100],
+     "pcb": [900, 100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tn9",
+     "name": "top − 9",
+     "breadboard": [1000, 100],
+     "schematic": [1000, 100],
+     "pcb": [1000, 100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tn10",
+     "name": "top − 10",
+     "breadboard": [1100, 100],
+     "schematic": [1100, 100],
+     "pcb": [1100, 100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tn11",
+     "name": "top − 11",
+     "breadboard": [1300, 100],
+     "schematic": [1300, 100],
+     "pcb": [1300, 100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tn12",
+     "name": "top − 12",
+     "breadboard": [1400, 100],
+     "schematic": [1400, 100],
+     "pcb": [1400, 100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tn13",
+     "name": "top − 13",
+     "breadboard": [1500, 100],
+     "schematic": [1500, 100],
+     "pcb": [1500, 100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tn14",
+     "name": "top − 14",
+     "breadboard": [1600, 100],
+     "schematic": [1600, 100],
+     "pcb": [1600, 100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tn15",
+     "name": "top − 15",
+     "breadboard": [1700, 100],
+     "schematic": [1700, 100],
+     "pcb": [1700, 100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tn16",
+     "name": "top − 16",
+     "breadboard": [1900, 100],
+     "schematic": [1900, 100],
+     "pcb": [1900, 100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tn17",
+     "name": "top − 17",
+     "breadboard": [2000, 100],
+     "schematic": [2000, 100],
+     "pcb": [2000, 100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tn18",
+     "name": "top − 18",
+     "breadboard": [2100, 100],
+     "schematic": [2100, 100],
+     "pcb": [2100, 100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tn19",
+     "name": "top − 19",
+     "breadboard": [2200, 100],
+     "schematic": [2200, 100],
+     "pcb": [2200, 100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tn20",
+     "name": "top − 20",
+     "breadboard": [2300, 100],
+     "schematic": [2300, 100],
+     "pcb": [2300, 100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tn21",
+     "name": "top − 21",
+     "breadboard": [2500, 100],
+     "schematic": [2500, 100],
+     "pcb": [2500, 100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tn22",
+     "name": "top − 22",
+     "breadboard": [2600, 100],
+     "schematic": [2600, 100],
+     "pcb": [2600, 100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tn23",
+     "name": "top − 23",
+     "breadboard": [2700, 100],
+     "schematic": [2700, 100],
+     "pcb": [2700, 100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "tn24",
+     "name": "top − 24",
+     "breadboard": [2800, 100],
+     "schematic": [2800, 100],
+     "pcb": [2800, 100],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bp1",
+     "name": "bottom + 1",
+     "breadboard": [100, 1600],
+     "schematic": [100, 1600],
+     "pcb": [100, 1600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bp2",
+     "name": "bottom + 2",
+     "breadboard": [200, 1600],
+     "schematic": [200, 1600],
+     "pcb": [200, 1600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bp3",
+     "name": "bottom + 3",
+     "breadboard": [300, 1600],
+     "schematic": [300, 1600],
+     "pcb": [300, 1600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bp4",
+     "name": "bottom + 4",
+     "breadboard": [400, 1600],
+     "schematic": [400, 1600],
+     "pcb": [400, 1600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bp5",
+     "name": "bottom + 5",
+     "breadboard": [500, 1600],
+     "schematic": [500, 1600],
+     "pcb": [500, 1600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bp6",
+     "name": "bottom + 6",
+     "breadboard": [700, 1600],
+     "schematic": [700, 1600],
+     "pcb": [700, 1600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bp7",
+     "name": "bottom + 7",
+     "breadboard": [800, 1600],
+     "schematic": [800, 1600],
+     "pcb": [800, 1600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bp8",
+     "name": "bottom + 8",
+     "breadboard": [900, 1600],
+     "schematic": [900, 1600],
+     "pcb": [900, 1600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bp9",
+     "name": "bottom + 9",
+     "breadboard": [1000, 1600],
+     "schematic": [1000, 1600],
+     "pcb": [1000, 1600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bp10",
+     "name": "bottom + 10",
+     "breadboard": [1100, 1600],
+     "schematic": [1100, 1600],
+     "pcb": [1100, 1600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bp11",
+     "name": "bottom + 11",
+     "breadboard": [1300, 1600],
+     "schematic": [1300, 1600],
+     "pcb": [1300, 1600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bp12",
+     "name": "bottom + 12",
+     "breadboard": [1400, 1600],
+     "schematic": [1400, 1600],
+     "pcb": [1400, 1600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bp13",
+     "name": "bottom + 13",
+     "breadboard": [1500, 1600],
+     "schematic": [1500, 1600],
+     "pcb": [1500, 1600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bp14",
+     "name": "bottom + 14",
+     "breadboard": [1600, 1600],
+     "schematic": [1600, 1600],
+     "pcb": [1600, 1600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bp15",
+     "name": "bottom + 15",
+     "breadboard": [1700, 1600],
+     "schematic": [1700, 1600],
+     "pcb": [1700, 1600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bp16",
+     "name": "bottom + 16",
+     "breadboard": [1900, 1600],
+     "schematic": [1900, 1600],
+     "pcb": [1900, 1600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bp17",
+     "name": "bottom + 17",
+     "breadboard": [2000, 1600],
+     "schematic": [2000, 1600],
+     "pcb": [2000, 1600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bp18",
+     "name": "bottom + 18",
+     "breadboard": [2100, 1600],
+     "schematic": [2100, 1600],
+     "pcb": [2100, 1600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bp19",
+     "name": "bottom + 19",
+     "breadboard": [2200, 1600],
+     "schematic": [2200, 1600],
+     "pcb": [2200, 1600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bp20",
+     "name": "bottom + 20",
+     "breadboard": [2300, 1600],
+     "schematic": [2300, 1600],
+     "pcb": [2300, 1600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bp21",
+     "name": "bottom + 21",
+     "breadboard": [2500, 1600],
+     "schematic": [2500, 1600],
+     "pcb": [2500, 1600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bp22",
+     "name": "bottom + 22",
+     "breadboard": [2600, 1600],
+     "schematic": [2600, 1600],
+     "pcb": [2600, 1600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bp23",
+     "name": "bottom + 23",
+     "breadboard": [2700, 1600],
+     "schematic": [2700, 1600],
+     "pcb": [2700, 1600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bp24",
+     "name": "bottom + 24",
+     "breadboard": [2800, 1600],
+     "schematic": [2800, 1600],
+     "pcb": [2800, 1600],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bn1",
+     "name": "bottom − 1",
+     "breadboard": [100, 1700],
+     "schematic": [100, 1700],
+     "pcb": [100, 1700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bn2",
+     "name": "bottom − 2",
+     "breadboard": [200, 1700],
+     "schematic": [200, 1700],
+     "pcb": [200, 1700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bn3",
+     "name": "bottom − 3",
+     "breadboard": [300, 1700],
+     "schematic": [300, 1700],
+     "pcb": [300, 1700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bn4",
+     "name": "bottom − 4",
+     "breadboard": [400, 1700],
+     "schematic": [400, 1700],
+     "pcb": [400, 1700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bn5",
+     "name": "bottom − 5",
+     "breadboard": [500, 1700],
+     "schematic": [500, 1700],
+     "pcb": [500, 1700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bn6",
+     "name": "bottom − 6",
+     "breadboard": [700, 1700],
+     "schematic": [700, 1700],
+     "pcb": [700, 1700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bn7",
+     "name": "bottom − 7",
+     "breadboard": [800, 1700],
+     "schematic": [800, 1700],
+     "pcb": [800, 1700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bn8",
+     "name": "bottom − 8",
+     "breadboard": [900, 1700],
+     "schematic": [900, 1700],
+     "pcb": [900, 1700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bn9",
+     "name": "bottom − 9",
+     "breadboard": [1000, 1700],
+     "schematic": [1000, 1700],
+     "pcb": [1000, 1700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bn10",
+     "name": "bottom − 10",
+     "breadboard": [1100, 1700],
+     "schematic": [1100, 1700],
+     "pcb": [1100, 1700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bn11",
+     "name": "bottom − 11",
+     "breadboard": [1300, 1700],
+     "schematic": [1300, 1700],
+     "pcb": [1300, 1700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bn12",
+     "name": "bottom − 12",
+     "breadboard": [1400, 1700],
+     "schematic": [1400, 1700],
+     "pcb": [1400, 1700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bn13",
+     "name": "bottom − 13",
+     "breadboard": [1500, 1700],
+     "schematic": [1500, 1700],
+     "pcb": [1500, 1700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bn14",
+     "name": "bottom − 14",
+     "breadboard": [1600, 1700],
+     "schematic": [1600, 1700],
+     "pcb": [1600, 1700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bn15",
+     "name": "bottom − 15",
+     "breadboard": [1700, 1700],
+     "schematic": [1700, 1700],
+     "pcb": [1700, 1700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bn16",
+     "name": "bottom − 16",
+     "breadboard": [1900, 1700],
+     "schematic": [1900, 1700],
+     "pcb": [1900, 1700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bn17",
+     "name": "bottom − 17",
+     "breadboard": [2000, 1700],
+     "schematic": [2000, 1700],
+     "pcb": [2000, 1700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bn18",
+     "name": "bottom − 18",
+     "breadboard": [2100, 1700],
+     "schematic": [2100, 1700],
+     "pcb": [2100, 1700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bn19",
+     "name": "bottom − 19",
+     "breadboard": [2200, 1700],
+     "schematic": [2200, 1700],
+     "pcb": [2200, 1700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bn20",
+     "name": "bottom − 20",
+     "breadboard": [2300, 1700],
+     "schematic": [2300, 1700],
+     "pcb": [2300, 1700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bn21",
+     "name": "bottom − 21",
+     "breadboard": [2500, 1700],
+     "schematic": [2500, 1700],
+     "pcb": [2500, 1700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bn22",
+     "name": "bottom − 22",
+     "breadboard": [2600, 1700],
+     "schematic": [2600, 1700],
+     "pcb": [2600, 1700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bn23",
+     "name": "bottom − 23",
+     "breadboard": [2700, 1700],
+     "schematic": [2700, 1700],
+     "pcb": [2700, 1700],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "bn24",
+     "name": "bottom − 24",
+     "breadboard": [2800, 1700],
+     "schematic": [2800, 1700],
+     "pcb": [2800, 1700],
+     "pad": 70,
+     "drill": 38
+    }
+   ],
+   "buses": [
+    ["j1", "i1", "h1", "g1", "f1"],
+    ["e1", "d1", "c1", "b1", "a1"],
+    ["j2", "i2", "h2", "g2", "f2"],
+    ["e2", "d2", "c2", "b2", "a2"],
+    ["j3", "i3", "h3", "g3", "f3"],
+    ["e3", "d3", "c3", "b3", "a3"],
+    ["j4", "i4", "h4", "g4", "f4"],
+    ["e4", "d4", "c4", "b4", "a4"],
+    ["j5", "i5", "h5", "g5", "f5"],
+    ["e5", "d5", "c5", "b5", "a5"],
+    ["j6", "i6", "h6", "g6", "f6"],
+    ["e6", "d6", "c6", "b6", "a6"],
+    ["j7", "i7", "h7", "g7", "f7"],
+    ["e7", "d7", "c7", "b7", "a7"],
+    ["j8", "i8", "h8", "g8", "f8"],
+    ["e8", "d8", "c8", "b8", "a8"],
+    ["j9", "i9", "h9", "g9", "f9"],
+    ["e9", "d9", "c9", "b9", "a9"],
+    ["j10", "i10", "h10", "g10", "f10"],
+    ["e10", "d10", "c10", "b10", "a10"],
+    ["j11", "i11", "h11", "g11", "f11"],
+    ["e11", "d11", "c11", "b11", "a11"],
+    ["j12", "i12", "h12", "g12", "f12"],
+    ["e12", "d12", "c12", "b12", "a12"],
+    ["j13", "i13", "h13", "g13", "f13"],
+    ["e13", "d13", "c13", "b13", "a13"],
+    ["j14", "i14", "h14", "g14", "f14"],
+    ["e14", "d14", "c14", "b14", "a14"],
+    ["j15", "i15", "h15", "g15", "f15"],
+    ["e15", "d15", "c15", "b15", "a15"],
+    ["j16", "i16", "h16", "g16", "f16"],
+    ["e16", "d16", "c16", "b16", "a16"],
+    ["j17", "i17", "h17", "g17", "f17"],
+    ["e17", "d17", "c17", "b17", "a17"],
+    ["j18", "i18", "h18", "g18", "f18"],
+    ["e18", "d18", "c18", "b18", "a18"],
+    ["j19", "i19", "h19", "g19", "f19"],
+    ["e19", "d19", "c19", "b19", "a19"],
+    ["j20", "i20", "h20", "g20", "f20"],
+    ["e20", "d20", "c20", "b20", "a20"],
+    ["j21", "i21", "h21", "g21", "f21"],
+    ["e21", "d21", "c21", "b21", "a21"],
+    ["j22", "i22", "h22", "g22", "f22"],
+    ["e22", "d22", "c22", "b22", "a22"],
+    ["j23", "i23", "h23", "g23", "f23"],
+    ["e23", "d23", "c23", "b23", "a23"],
+    ["j24", "i24", "h24", "g24", "f24"],
+    ["e24", "d24", "c24", "b24", "a24"],
+    ["j25", "i25", "h25", "g25", "f25"],
+    ["e25", "d25", "c25", "b25", "a25"],
+    ["j26", "i26", "h26", "g26", "f26"],
+    ["e26", "d26", "c26", "b26", "a26"],
+    ["j27", "i27", "h27", "g27", "f27"],
+    ["e27", "d27", "c27", "b27", "a27"],
+    ["j28", "i28", "h28", "g28", "f28"],
+    ["e28", "d28", "c28", "b28", "a28"],
+    ["j29", "i29", "h29", "g29", "f29"],
+    ["e29", "d29", "c29", "b29", "a29"],
+    ["j30", "i30", "h30", "g30", "f30"],
+    ["e30", "d30", "c30", "b30", "a30"],
+    ["tp1", "tp2", "tp3", "tp4", "tp5", "tp6", "tp7", "tp8", "tp9", "tp10", "tp11", "tp12", "tp13", "tp14", "tp15", "tp16", "tp17", "tp18", "tp19", "tp20", "tp21", "tp22", "tp23", "tp24"],
+    ["tn1", "tn2", "tn3", "tn4", "tn5", "tn6", "tn7", "tn8", "tn9", "tn10", "tn11", "tn12", "tn13", "tn14", "tn15", "tn16", "tn17", "tn18", "tn19", "tn20", "tn21", "tn22", "tn23", "tn24"],
+    ["bp1", "bp2", "bp3", "bp4", "bp5", "bp6", "bp7", "bp8", "bp9", "bp10", "bp11", "bp12", "bp13", "bp14", "bp15", "bp16", "bp17", "bp18", "bp19", "bp20", "bp21", "bp22", "bp23", "bp24"],
+    ["bn1", "bn2", "bn3", "bn4", "bn5", "bn6", "bn7", "bn8", "bn9", "bn10", "bn11", "bn12", "bn13", "bn14", "bn15", "bn16", "bn17", "bn18", "bn19", "bn20", "bn21", "bn22", "bn23", "bn24"]
+   ],
+   "holes": [],
+   "graphics": {
+    "breadboard": [
+     {
+      "k": "rect",
+      "a": [-200, -150],
+      "b": [3100, 1850],
+      "r": 20,
+      "w": 8,
+      "stroke": "#cdcdc8",
+      "fill": "#ececea"
+     },
+     {
+      "k": "rect",
+      "a": [-200, 770],
+      "b": [3100, 830],
+      "fill": "#cdcdc8"
+     },
+     {
+      "k": "rect",
+      "a": [-17, 283],
+      "b": [17, 317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [-17, 983],
+      "b": [17, 1017],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [-17, 383],
+      "b": [17, 417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [-17, 1083],
+      "b": [17, 1117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [-17, 483],
+      "b": [17, 517],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [-17, 1183],
+      "b": [17, 1217],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [-17, 583],
+      "b": [17, 617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [-17, 1283],
+      "b": [17, 1317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [-17, 683],
+      "b": [17, 717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [-17, 1383],
+      "b": [17, 1417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "text",
+      "at": [0, 210],
+      "text": "1",
+      "size": 45,
+      "align": 1,
+      "fill": "#787878"
+     },
+     {
+      "k": "text",
+      "at": [0, 1490],
+      "text": "1",
+      "size": 45,
+      "align": 1,
+      "fill": "#787878"
+     },
+     {
+      "k": "rect",
+      "a": [83, 283],
+      "b": [117, 317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [83, 983],
+      "b": [117, 1017],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [83, 383],
+      "b": [117, 417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [83, 1083],
+      "b": [117, 1117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [83, 483],
+      "b": [117, 517],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [83, 1183],
+      "b": [117, 1217],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [83, 583],
+      "b": [117, 617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [83, 1283],
+      "b": [117, 1317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [83, 683],
+      "b": [117, 717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [83, 1383],
+      "b": [117, 1417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [183, 283],
+      "b": [217, 317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [183, 983],
+      "b": [217, 1017],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [183, 383],
+      "b": [217, 417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [183, 1083],
+      "b": [217, 1117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [183, 483],
+      "b": [217, 517],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [183, 1183],
+      "b": [217, 1217],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [183, 583],
+      "b": [217, 617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [183, 1283],
+      "b": [217, 1317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [183, 683],
+      "b": [217, 717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [183, 1383],
+      "b": [217, 1417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [283, 283],
+      "b": [317, 317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [283, 983],
+      "b": [317, 1017],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [283, 383],
+      "b": [317, 417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [283, 1083],
+      "b": [317, 1117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [283, 483],
+      "b": [317, 517],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [283, 1183],
+      "b": [317, 1217],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [283, 583],
+      "b": [317, 617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [283, 1283],
+      "b": [317, 1317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [283, 683],
+      "b": [317, 717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [283, 1383],
+      "b": [317, 1417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [383, 283],
+      "b": [417, 317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [383, 983],
+      "b": [417, 1017],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [383, 383],
+      "b": [417, 417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [383, 1083],
+      "b": [417, 1117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [383, 483],
+      "b": [417, 517],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [383, 1183],
+      "b": [417, 1217],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [383, 583],
+      "b": [417, 617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [383, 1283],
+      "b": [417, 1317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [383, 683],
+      "b": [417, 717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [383, 1383],
+      "b": [417, 1417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "text",
+      "at": [400, 210],
+      "text": "5",
+      "size": 45,
+      "align": 1,
+      "fill": "#787878"
+     },
+     {
+      "k": "text",
+      "at": [400, 1490],
+      "text": "5",
+      "size": 45,
+      "align": 1,
+      "fill": "#787878"
+     },
+     {
+      "k": "rect",
+      "a": [483, 283],
+      "b": [517, 317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [483, 983],
+      "b": [517, 1017],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [483, 383],
+      "b": [517, 417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [483, 1083],
+      "b": [517, 1117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [483, 483],
+      "b": [517, 517],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [483, 1183],
+      "b": [517, 1217],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [483, 583],
+      "b": [517, 617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [483, 1283],
+      "b": [517, 1317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [483, 683],
+      "b": [517, 717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [483, 1383],
+      "b": [517, 1417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [583, 283],
+      "b": [617, 317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [583, 983],
+      "b": [617, 1017],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [583, 383],
+      "b": [617, 417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [583, 1083],
+      "b": [617, 1117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [583, 483],
+      "b": [617, 517],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [583, 1183],
+      "b": [617, 1217],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [583, 583],
+      "b": [617, 617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [583, 1283],
+      "b": [617, 1317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [583, 683],
+      "b": [617, 717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [583, 1383],
+      "b": [617, 1417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [683, 283],
+      "b": [717, 317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [683, 983],
+      "b": [717, 1017],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [683, 383],
+      "b": [717, 417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [683, 1083],
+      "b": [717, 1117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [683, 483],
+      "b": [717, 517],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [683, 1183],
+      "b": [717, 1217],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [683, 583],
+      "b": [717, 617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [683, 1283],
+      "b": [717, 1317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [683, 683],
+      "b": [717, 717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [683, 1383],
+      "b": [717, 1417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [783, 283],
+      "b": [817, 317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [783, 983],
+      "b": [817, 1017],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [783, 383],
+      "b": [817, 417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [783, 1083],
+      "b": [817, 1117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [783, 483],
+      "b": [817, 517],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [783, 1183],
+      "b": [817, 1217],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [783, 583],
+      "b": [817, 617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [783, 1283],
+      "b": [817, 1317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [783, 683],
+      "b": [817, 717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [783, 1383],
+      "b": [817, 1417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [883, 283],
+      "b": [917, 317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [883, 983],
+      "b": [917, 1017],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [883, 383],
+      "b": [917, 417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [883, 1083],
+      "b": [917, 1117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [883, 483],
+      "b": [917, 517],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [883, 1183],
+      "b": [917, 1217],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [883, 583],
+      "b": [917, 617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [883, 1283],
+      "b": [917, 1317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [883, 683],
+      "b": [917, 717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [883, 1383],
+      "b": [917, 1417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "text",
+      "at": [900, 210],
+      "text": "10",
+      "size": 45,
+      "align": 1,
+      "fill": "#787878"
+     },
+     {
+      "k": "text",
+      "at": [900, 1490],
+      "text": "10",
+      "size": 45,
+      "align": 1,
+      "fill": "#787878"
+     },
+     {
+      "k": "rect",
+      "a": [983, 283],
+      "b": [1017, 317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [983, 983],
+      "b": [1017, 1017],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [983, 383],
+      "b": [1017, 417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [983, 1083],
+      "b": [1017, 1117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [983, 483],
+      "b": [1017, 517],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [983, 1183],
+      "b": [1017, 1217],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [983, 583],
+      "b": [1017, 617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [983, 1283],
+      "b": [1017, 1317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [983, 683],
+      "b": [1017, 717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [983, 1383],
+      "b": [1017, 1417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1083, 283],
+      "b": [1117, 317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1083, 983],
+      "b": [1117, 1017],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1083, 383],
+      "b": [1117, 417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1083, 1083],
+      "b": [1117, 1117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1083, 483],
+      "b": [1117, 517],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1083, 1183],
+      "b": [1117, 1217],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1083, 583],
+      "b": [1117, 617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1083, 1283],
+      "b": [1117, 1317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1083, 683],
+      "b": [1117, 717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1083, 1383],
+      "b": [1117, 1417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1183, 283],
+      "b": [1217, 317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1183, 983],
+      "b": [1217, 1017],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1183, 383],
+      "b": [1217, 417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1183, 1083],
+      "b": [1217, 1117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1183, 483],
+      "b": [1217, 517],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1183, 1183],
+      "b": [1217, 1217],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1183, 583],
+      "b": [1217, 617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1183, 1283],
+      "b": [1217, 1317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1183, 683],
+      "b": [1217, 717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1183, 1383],
+      "b": [1217, 1417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1283, 283],
+      "b": [1317, 317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1283, 983],
+      "b": [1317, 1017],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1283, 383],
+      "b": [1317, 417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1283, 1083],
+      "b": [1317, 1117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1283, 483],
+      "b": [1317, 517],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1283, 1183],
+      "b": [1317, 1217],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1283, 583],
+      "b": [1317, 617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1283, 1283],
+      "b": [1317, 1317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1283, 683],
+      "b": [1317, 717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1283, 1383],
+      "b": [1317, 1417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1383, 283],
+      "b": [1417, 317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1383, 983],
+      "b": [1417, 1017],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1383, 383],
+      "b": [1417, 417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1383, 1083],
+      "b": [1417, 1117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1383, 483],
+      "b": [1417, 517],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1383, 1183],
+      "b": [1417, 1217],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1383, 583],
+      "b": [1417, 617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1383, 1283],
+      "b": [1417, 1317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1383, 683],
+      "b": [1417, 717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1383, 1383],
+      "b": [1417, 1417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "text",
+      "at": [1400, 210],
+      "text": "15",
+      "size": 45,
+      "align": 1,
+      "fill": "#787878"
+     },
+     {
+      "k": "text",
+      "at": [1400, 1490],
+      "text": "15",
+      "size": 45,
+      "align": 1,
+      "fill": "#787878"
+     },
+     {
+      "k": "rect",
+      "a": [1483, 283],
+      "b": [1517, 317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1483, 983],
+      "b": [1517, 1017],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1483, 383],
+      "b": [1517, 417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1483, 1083],
+      "b": [1517, 1117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1483, 483],
+      "b": [1517, 517],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1483, 1183],
+      "b": [1517, 1217],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1483, 583],
+      "b": [1517, 617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1483, 1283],
+      "b": [1517, 1317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1483, 683],
+      "b": [1517, 717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1483, 1383],
+      "b": [1517, 1417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1583, 283],
+      "b": [1617, 317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1583, 983],
+      "b": [1617, 1017],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1583, 383],
+      "b": [1617, 417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1583, 1083],
+      "b": [1617, 1117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1583, 483],
+      "b": [1617, 517],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1583, 1183],
+      "b": [1617, 1217],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1583, 583],
+      "b": [1617, 617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1583, 1283],
+      "b": [1617, 1317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1583, 683],
+      "b": [1617, 717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1583, 1383],
+      "b": [1617, 1417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1683, 283],
+      "b": [1717, 317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1683, 983],
+      "b": [1717, 1017],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1683, 383],
+      "b": [1717, 417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1683, 1083],
+      "b": [1717, 1117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1683, 483],
+      "b": [1717, 517],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1683, 1183],
+      "b": [1717, 1217],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1683, 583],
+      "b": [1717, 617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1683, 1283],
+      "b": [1717, 1317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1683, 683],
+      "b": [1717, 717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1683, 1383],
+      "b": [1717, 1417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1783, 283],
+      "b": [1817, 317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1783, 983],
+      "b": [1817, 1017],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1783, 383],
+      "b": [1817, 417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1783, 1083],
+      "b": [1817, 1117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1783, 483],
+      "b": [1817, 517],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1783, 1183],
+      "b": [1817, 1217],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1783, 583],
+      "b": [1817, 617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1783, 1283],
+      "b": [1817, 1317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1783, 683],
+      "b": [1817, 717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1783, 1383],
+      "b": [1817, 1417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1883, 283],
+      "b": [1917, 317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1883, 983],
+      "b": [1917, 1017],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1883, 383],
+      "b": [1917, 417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1883, 1083],
+      "b": [1917, 1117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1883, 483],
+      "b": [1917, 517],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1883, 1183],
+      "b": [1917, 1217],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1883, 583],
+      "b": [1917, 617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1883, 1283],
+      "b": [1917, 1317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1883, 683],
+      "b": [1917, 717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1883, 1383],
+      "b": [1917, 1417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "text",
+      "at": [1900, 210],
+      "text": "20",
+      "size": 45,
+      "align": 1,
+      "fill": "#787878"
+     },
+     {
+      "k": "text",
+      "at": [1900, 1490],
+      "text": "20",
+      "size": 45,
+      "align": 1,
+      "fill": "#787878"
+     },
+     {
+      "k": "rect",
+      "a": [1983, 283],
+      "b": [2017, 317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1983, 983],
+      "b": [2017, 1017],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1983, 383],
+      "b": [2017, 417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1983, 1083],
+      "b": [2017, 1117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1983, 483],
+      "b": [2017, 517],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1983, 1183],
+      "b": [2017, 1217],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1983, 583],
+      "b": [2017, 617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1983, 1283],
+      "b": [2017, 1317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1983, 683],
+      "b": [2017, 717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1983, 1383],
+      "b": [2017, 1417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2083, 283],
+      "b": [2117, 317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2083, 983],
+      "b": [2117, 1017],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2083, 383],
+      "b": [2117, 417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2083, 1083],
+      "b": [2117, 1117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2083, 483],
+      "b": [2117, 517],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2083, 1183],
+      "b": [2117, 1217],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2083, 583],
+      "b": [2117, 617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2083, 1283],
+      "b": [2117, 1317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2083, 683],
+      "b": [2117, 717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2083, 1383],
+      "b": [2117, 1417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2183, 283],
+      "b": [2217, 317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2183, 983],
+      "b": [2217, 1017],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2183, 383],
+      "b": [2217, 417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2183, 1083],
+      "b": [2217, 1117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2183, 483],
+      "b": [2217, 517],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2183, 1183],
+      "b": [2217, 1217],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2183, 583],
+      "b": [2217, 617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2183, 1283],
+      "b": [2217, 1317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2183, 683],
+      "b": [2217, 717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2183, 1383],
+      "b": [2217, 1417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2283, 283],
+      "b": [2317, 317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2283, 983],
+      "b": [2317, 1017],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2283, 383],
+      "b": [2317, 417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2283, 1083],
+      "b": [2317, 1117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2283, 483],
+      "b": [2317, 517],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2283, 1183],
+      "b": [2317, 1217],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2283, 583],
+      "b": [2317, 617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2283, 1283],
+      "b": [2317, 1317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2283, 683],
+      "b": [2317, 717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2283, 1383],
+      "b": [2317, 1417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2383, 283],
+      "b": [2417, 317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2383, 983],
+      "b": [2417, 1017],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2383, 383],
+      "b": [2417, 417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2383, 1083],
+      "b": [2417, 1117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2383, 483],
+      "b": [2417, 517],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2383, 1183],
+      "b": [2417, 1217],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2383, 583],
+      "b": [2417, 617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2383, 1283],
+      "b": [2417, 1317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2383, 683],
+      "b": [2417, 717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2383, 1383],
+      "b": [2417, 1417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "text",
+      "at": [2400, 210],
+      "text": "25",
+      "size": 45,
+      "align": 1,
+      "fill": "#787878"
+     },
+     {
+      "k": "text",
+      "at": [2400, 1490],
+      "text": "25",
+      "size": 45,
+      "align": 1,
+      "fill": "#787878"
+     },
+     {
+      "k": "rect",
+      "a": [2483, 283],
+      "b": [2517, 317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2483, 983],
+      "b": [2517, 1017],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2483, 383],
+      "b": [2517, 417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2483, 1083],
+      "b": [2517, 1117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2483, 483],
+      "b": [2517, 517],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2483, 1183],
+      "b": [2517, 1217],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2483, 583],
+      "b": [2517, 617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2483, 1283],
+      "b": [2517, 1317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2483, 683],
+      "b": [2517, 717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2483, 1383],
+      "b": [2517, 1417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2583, 283],
+      "b": [2617, 317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2583, 983],
+      "b": [2617, 1017],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2583, 383],
+      "b": [2617, 417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2583, 1083],
+      "b": [2617, 1117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2583, 483],
+      "b": [2617, 517],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2583, 1183],
+      "b": [2617, 1217],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2583, 583],
+      "b": [2617, 617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2583, 1283],
+      "b": [2617, 1317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2583, 683],
+      "b": [2617, 717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2583, 1383],
+      "b": [2617, 1417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2683, 283],
+      "b": [2717, 317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2683, 983],
+      "b": [2717, 1017],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2683, 383],
+      "b": [2717, 417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2683, 1083],
+      "b": [2717, 1117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2683, 483],
+      "b": [2717, 517],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2683, 1183],
+      "b": [2717, 1217],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2683, 583],
+      "b": [2717, 617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2683, 1283],
+      "b": [2717, 1317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2683, 683],
+      "b": [2717, 717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2683, 1383],
+      "b": [2717, 1417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2783, 283],
+      "b": [2817, 317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2783, 983],
+      "b": [2817, 1017],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2783, 383],
+      "b": [2817, 417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2783, 1083],
+      "b": [2817, 1117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2783, 483],
+      "b": [2817, 517],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2783, 1183],
+      "b": [2817, 1217],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2783, 583],
+      "b": [2817, 617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2783, 1283],
+      "b": [2817, 1317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2783, 683],
+      "b": [2817, 717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2783, 1383],
+      "b": [2817, 1417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2883, 283],
+      "b": [2917, 317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2883, 983],
+      "b": [2917, 1017],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2883, 383],
+      "b": [2917, 417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2883, 1083],
+      "b": [2917, 1117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2883, 483],
+      "b": [2917, 517],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2883, 1183],
+      "b": [2917, 1217],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2883, 583],
+      "b": [2917, 617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2883, 1283],
+      "b": [2917, 1317],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2883, 683],
+      "b": [2917, 717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2883, 1383],
+      "b": [2917, 1417],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "text",
+      "at": [2900, 210],
+      "text": "30",
+      "size": 45,
+      "align": 1,
+      "fill": "#787878"
+     },
+     {
+      "k": "text",
+      "at": [2900, 1490],
+      "text": "30",
+      "size": 45,
+      "align": 1,
+      "fill": "#787878"
+     },
+     {
+      "k": "text",
+      "at": [-110, 300],
+      "text": "j",
+      "size": 45,
+      "align": 1,
+      "fill": "#787878"
+     },
+     {
+      "k": "text",
+      "at": [3010, 300],
+      "text": "j",
+      "size": 45,
+      "align": 1,
+      "fill": "#787878"
+     },
+     {
+      "k": "text",
+      "at": [-110, 1000],
+      "text": "e",
+      "size": 45,
+      "align": 1,
+      "fill": "#787878"
+     },
+     {
+      "k": "text",
+      "at": [3010, 1000],
+      "text": "e",
+      "size": 45,
+      "align": 1,
+      "fill": "#787878"
+     },
+     {
+      "k": "text",
+      "at": [-110, 400],
+      "text": "i",
+      "size": 45,
+      "align": 1,
+      "fill": "#787878"
+     },
+     {
+      "k": "text",
+      "at": [3010, 400],
+      "text": "i",
+      "size": 45,
+      "align": 1,
+      "fill": "#787878"
+     },
+     {
+      "k": "text",
+      "at": [-110, 1100],
+      "text": "d",
+      "size": 45,
+      "align": 1,
+      "fill": "#787878"
+     },
+     {
+      "k": "text",
+      "at": [3010, 1100],
+      "text": "d",
+      "size": 45,
+      "align": 1,
+      "fill": "#787878"
+     },
+     {
+      "k": "text",
+      "at": [-110, 500],
+      "text": "h",
+      "size": 45,
+      "align": 1,
+      "fill": "#787878"
+     },
+     {
+      "k": "text",
+      "at": [3010, 500],
+      "text": "h",
+      "size": 45,
+      "align": 1,
+      "fill": "#787878"
+     },
+     {
+      "k": "text",
+      "at": [-110, 1200],
+      "text": "c",
+      "size": 45,
+      "align": 1,
+      "fill": "#787878"
+     },
+     {
+      "k": "text",
+      "at": [3010, 1200],
+      "text": "c",
+      "size": 45,
+      "align": 1,
+      "fill": "#787878"
+     },
+     {
+      "k": "text",
+      "at": [-110, 600],
+      "text": "g",
+      "size": 45,
+      "align": 1,
+      "fill": "#787878"
+     },
+     {
+      "k": "text",
+      "at": [3010, 600],
+      "text": "g",
+      "size": 45,
+      "align": 1,
+      "fill": "#787878"
+     },
+     {
+      "k": "text",
+      "at": [-110, 1300],
+      "text": "b",
+      "size": 45,
+      "align": 1,
+      "fill": "#787878"
+     },
+     {
+      "k": "text",
+      "at": [3010, 1300],
+      "text": "b",
+      "size": 45,
+      "align": 1,
+      "fill": "#787878"
+     },
+     {
+      "k": "text",
+      "at": [-110, 700],
+      "text": "f",
+      "size": 45,
+      "align": 1,
+      "fill": "#787878"
+     },
+     {
+      "k": "text",
+      "at": [3010, 700],
+      "text": "f",
+      "size": 45,
+      "align": 1,
+      "fill": "#787878"
+     },
+     {
+      "k": "text",
+      "at": [-110, 1400],
+      "text": "a",
+      "size": 45,
+      "align": 1,
+      "fill": "#787878"
+     },
+     {
+      "k": "text",
+      "at": [3010, 1400],
+      "text": "a",
+      "size": 45,
+      "align": 1,
+      "fill": "#787878"
+     },
+     {
+      "k": "rect",
+      "a": [83, -17],
+      "b": [117, 17],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [183, -17],
+      "b": [217, 17],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [283, -17],
+      "b": [317, 17],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [383, -17],
+      "b": [417, 17],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [483, -17],
+      "b": [517, 17],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [683, -17],
+      "b": [717, 17],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [783, -17],
+      "b": [817, 17],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [883, -17],
+      "b": [917, 17],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [983, -17],
+      "b": [1017, 17],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1083, -17],
+      "b": [1117, 17],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1283, -17],
+      "b": [1317, 17],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1383, -17],
+      "b": [1417, 17],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1483, -17],
+      "b": [1517, 17],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1583, -17],
+      "b": [1617, 17],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1683, -17],
+      "b": [1717, 17],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1883, -17],
+      "b": [1917, 17],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1983, -17],
+      "b": [2017, 17],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2083, -17],
+      "b": [2117, 17],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2183, -17],
+      "b": [2217, 17],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2283, -17],
+      "b": [2317, 17],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2483, -17],
+      "b": [2517, 17],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2583, -17],
+      "b": [2617, 17],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2683, -17],
+      "b": [2717, 17],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2783, -17],
+      "b": [2817, 17],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [83, 83],
+      "b": [117, 117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [183, 83],
+      "b": [217, 117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [283, 83],
+      "b": [317, 117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [383, 83],
+      "b": [417, 117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [483, 83],
+      "b": [517, 117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [683, 83],
+      "b": [717, 117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [783, 83],
+      "b": [817, 117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [883, 83],
+      "b": [917, 117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [983, 83],
+      "b": [1017, 117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1083, 83],
+      "b": [1117, 117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1283, 83],
+      "b": [1317, 117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1383, 83],
+      "b": [1417, 117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1483, 83],
+      "b": [1517, 117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1583, 83],
+      "b": [1617, 117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1683, 83],
+      "b": [1717, 117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1883, 83],
+      "b": [1917, 117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1983, 83],
+      "b": [2017, 117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2083, 83],
+      "b": [2117, 117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2183, 83],
+      "b": [2217, 117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2283, 83],
+      "b": [2317, 117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2483, 83],
+      "b": [2517, 117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2583, 83],
+      "b": [2617, 117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2683, 83],
+      "b": [2717, 117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2783, 83],
+      "b": [2817, 117],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [83, 1583],
+      "b": [117, 1617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [183, 1583],
+      "b": [217, 1617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [283, 1583],
+      "b": [317, 1617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [383, 1583],
+      "b": [417, 1617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [483, 1583],
+      "b": [517, 1617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [683, 1583],
+      "b": [717, 1617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [783, 1583],
+      "b": [817, 1617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [883, 1583],
+      "b": [917, 1617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [983, 1583],
+      "b": [1017, 1617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1083, 1583],
+      "b": [1117, 1617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1283, 1583],
+      "b": [1317, 1617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1383, 1583],
+      "b": [1417, 1617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1483, 1583],
+      "b": [1517, 1617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1583, 1583],
+      "b": [1617, 1617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1683, 1583],
+      "b": [1717, 1617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1883, 1583],
+      "b": [1917, 1617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1983, 1583],
+      "b": [2017, 1617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2083, 1583],
+      "b": [2117, 1617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2183, 1583],
+      "b": [2217, 1617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2283, 1583],
+      "b": [2317, 1617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2483, 1583],
+      "b": [2517, 1617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2583, 1583],
+      "b": [2617, 1617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2683, 1583],
+      "b": [2717, 1617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2783, 1583],
+      "b": [2817, 1617],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [83, 1683],
+      "b": [117, 1717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [183, 1683],
+      "b": [217, 1717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [283, 1683],
+      "b": [317, 1717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [383, 1683],
+      "b": [417, 1717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [483, 1683],
+      "b": [517, 1717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [683, 1683],
+      "b": [717, 1717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [783, 1683],
+      "b": [817, 1717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [883, 1683],
+      "b": [917, 1717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [983, 1683],
+      "b": [1017, 1717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1083, 1683],
+      "b": [1117, 1717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1283, 1683],
+      "b": [1317, 1717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1383, 1683],
+      "b": [1417, 1717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1483, 1683],
+      "b": [1517, 1717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1583, 1683],
+      "b": [1617, 1717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1683, 1683],
+      "b": [1717, 1717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1883, 1683],
+      "b": [1917, 1717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [1983, 1683],
+      "b": [2017, 1717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2083, 1683],
+      "b": [2117, 1717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2183, 1683],
+      "b": [2217, 1717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2283, 1683],
+      "b": [2317, 1717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2483, 1683],
+      "b": [2517, 1717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2583, 1683],
+      "b": [2617, 1717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2683, 1683],
+      "b": [2717, 1717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "rect",
+      "a": [2783, 1683],
+      "b": [2817, 1717],
+      "r": 3,
+      "fill": "#464646"
+     },
+     {
+      "k": "line",
+      "a": [0, -80],
+      "b": [2900, -80],
+      "w": 8,
+      "stroke": "#dc3c3c"
+     },
+     {
+      "k": "line",
+      "a": [0, 180],
+      "b": [2900, 180],
+      "w": 8,
+      "stroke": "#3c5ad2"
+     },
+     {
+      "k": "line",
+      "a": [0, 1520],
+      "b": [2900, 1520],
+      "w": 8,
+      "stroke": "#dc3c3c"
+     },
+     {
+      "k": "line",
+      "a": [0, 1780],
+      "b": [2900, 1780],
+      "w": 8,
+      "stroke": "#3c5ad2"
+     },
+     {
+      "k": "text",
+      "at": [-110, 0],
+      "text": "+",
+      "size": 60,
+      "align": 1,
+      "fill": "#dc3c3c"
+     },
+     {
+      "k": "text",
+      "at": [-110, 100],
+      "text": "−",
+      "size": 60,
+      "align": 1,
+      "fill": "#3c5ad2"
+     },
+     {
+      "k": "text",
+      "at": [-110, 1600],
+      "text": "+",
+      "size": 60,
+      "align": 1,
+      "fill": "#dc3c3c"
+     },
+     {
+      "k": "text",
+      "at": [-110, 1700],
+      "text": "−",
+      "size": 60,
+      "align": 1,
+      "fill": "#3c5ad2"
+     }
+    ],
+    "schematic": [],
+    "pcb": []
+   }
+  },
+  {
+   "type": "esp32_devkit",
+   "title": "ESP32 DevKitC (38-pin)",
+   "category": "Microcontroller",
+   "description": "Espressif ESP32 dual-core Wi-Fi + Bluetooth microcontroller board. 3.3 V logic. In simulation the board is USB-powered: its power pins supply voltage, and the pins listed under \"Pin outputs\" are driven — e.g. GPIO2=HIGH, GPIO4=LOW, GPIO5=BLINK:500 (toggle every 500 ms) or GPIO18=PWM:30 (30% duty). Firmware itself is not executed.",
+   "labelPrefix": "U",
+   "sim": "board",
+   "simParams": "GND=GND;RAIL 3V3=3.3;RAIL 5V=5;IO=3.3;ROUT=40",
+   "views": ["breadboard", "schematic", "pcb"],
+   "properties": {
+    "outputs": "GPIO2=BLINK:500"
+   },
+   "propertyDefs": [
+    {
+     "key": "outputs",
+     "label": "Pin outputs (simulation)",
+     "options": ["GPIO2=BLINK:500", "", "GPIO2=HIGH", "GPIO2=BLINK:250"]
+    }
+   ],
+   "pins": [
+    {
+     "id": "5V",
+     "name": "5V",
+     "breadboard": [0, 0],
+     "schematic": [0, 100],
+     "pcb": [0, 0],
+     "pad": 70,
+     "drill": 38,
+     "square": true
+    },
+    {
+     "id": "GPIO11",
+     "name": "GPIO11",
+     "breadboard": [100, 0],
+     "schematic": [0, 200],
+     "pcb": [100, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "GPIO10",
+     "name": "GPIO10",
+     "breadboard": [200, 0],
+     "schematic": [0, 300],
+     "pcb": [200, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "GPIO9",
+     "name": "GPIO9",
+     "breadboard": [300, 0],
+     "schematic": [0, 400],
+     "pcb": [300, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "GPIO13",
+     "name": "GPIO13",
+     "breadboard": [400, 0],
+     "schematic": [0, 500],
+     "pcb": [400, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "GND",
+     "name": "GND",
+     "breadboard": [500, 0],
+     "schematic": [0, 600],
+     "pcb": [500, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "GPIO12",
+     "name": "GPIO12",
+     "breadboard": [600, 0],
+     "schematic": [0, 700],
+     "pcb": [600, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "GPIO14",
+     "name": "GPIO14",
+     "breadboard": [700, 0],
+     "schematic": [0, 800],
+     "pcb": [700, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "GPIO27",
+     "name": "GPIO27",
+     "breadboard": [800, 0],
+     "schematic": [0, 900],
+     "pcb": [800, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "GPIO26",
+     "name": "GPIO26",
+     "breadboard": [900, 0],
+     "schematic": [0, 1000],
+     "pcb": [900, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "GPIO25",
+     "name": "GPIO25",
+     "breadboard": [1000, 0],
+     "schematic": [0, 1100],
+     "pcb": [1000, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "GPIO33",
+     "name": "GPIO33",
+     "breadboard": [1100, 0],
+     "schematic": [0, 1200],
+     "pcb": [1100, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "GPIO32",
+     "name": "GPIO32",
+     "breadboard": [1200, 0],
+     "schematic": [0, 1300],
+     "pcb": [1200, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "GPIO35",
+     "name": "GPIO35",
+     "breadboard": [1300, 0],
+     "schematic": [0, 1400],
+     "pcb": [1300, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "GPIO34",
+     "name": "GPIO34",
+     "breadboard": [1400, 0],
+     "schematic": [0, 1500],
+     "pcb": [1400, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "GPIO39",
+     "name": "GPIO39",
+     "breadboard": [1500, 0],
+     "schematic": [0, 1600],
+     "pcb": [1500, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "GPIO36",
+     "name": "GPIO36",
+     "breadboard": [1600, 0],
+     "schematic": [0, 1700],
+     "pcb": [1600, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "EN",
+     "name": "EN",
+     "breadboard": [1700, 0],
+     "schematic": [0, 1800],
+     "pcb": [1700, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "3V3",
+     "name": "3V3",
+     "breadboard": [1800, 0],
+     "schematic": [0, 1900],
+     "pcb": [1800, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "CLK",
+     "name": "CLK",
+     "breadboard": [0, 1000],
+     "schematic": [1300, 100],
+     "pcb": [0, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "SD0",
+     "name": "SD0",
+     "breadboard": [100, 1000],
+     "schematic": [1300, 200],
+     "pcb": [100, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "SD1",
+     "name": "SD1",
+     "breadboard": [200, 1000],
+     "schematic": [1300, 300],
+     "pcb": [200, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "GPIO15",
+     "name": "GPIO15",
+     "breadboard": [300, 1000],
+     "schematic": [1300, 400],
+     "pcb": [300, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "GPIO2",
+     "name": "GPIO2",
+     "breadboard": [400, 1000],
+     "schematic": [1300, 500],
+     "pcb": [400, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "GPIO0",
+     "name": "GPIO0",
+     "breadboard": [500, 1000],
+     "schematic": [1300, 600],
+     "pcb": [500, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "GPIO4",
+     "name": "GPIO4",
+     "breadboard": [600, 1000],
+     "schematic": [1300, 700],
+     "pcb": [600, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "GPIO16",
+     "name": "GPIO16",
+     "breadboard": [700, 1000],
+     "schematic": [1300, 800],
+     "pcb": [700, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "GPIO17",
+     "name": "GPIO17",
+     "breadboard": [800, 1000],
+     "schematic": [1300, 900],
+     "pcb": [800, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "GPIO5",
+     "name": "GPIO5",
+     "breadboard": [900, 1000],
+     "schematic": [1300, 1000],
+     "pcb": [900, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "GPIO18",
+     "name": "GPIO18",
+     "breadboard": [1000, 1000],
+     "schematic": [1300, 1100],
+     "pcb": [1000, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "GPIO19",
+     "name": "GPIO19",
+     "breadboard": [1100, 1000],
+     "schematic": [1300, 1200],
+     "pcb": [1100, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "GND_2",
+     "name": "GND",
+     "breadboard": [1200, 1000],
+     "schematic": [1300, 1300],
+     "pcb": [1200, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "GPIO21",
+     "name": "GPIO21",
+     "breadboard": [1300, 1000],
+     "schematic": [1300, 1400],
+     "pcb": [1300, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "GPIO3",
+     "name": "GPIO3",
+     "breadboard": [1400, 1000],
+     "schematic": [1300, 1500],
+     "pcb": [1400, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "GPIO1",
+     "name": "GPIO1",
+     "breadboard": [1500, 1000],
+     "schematic": [1300, 1600],
+     "pcb": [1500, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "GPIO22",
+     "name": "GPIO22",
+     "breadboard": [1600, 1000],
+     "schematic": [1300, 1700],
+     "pcb": [1600, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "GPIO23",
+     "name": "GPIO23",
+     "breadboard": [1700, 1000],
+     "schematic": [1300, 1800],
+     "pcb": [1700, 1000],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "GND_3",
+     "name": "GND",
+     "breadboard": [1800, 1000],
+     "schematic": [1300, 1900],
+     "pcb": [1800, 1000],
+     "pad": 70,
+     "drill": 38
+    }
+   ],
+   "buses": [
+    ["GND", "GND_2", "GND_3"]
+   ],
+   "holes": [],
+   "graphics": {
+    "breadboard": [
+     {
+      "k": "rect",
+      "a": [-160, -150],
+      "b": [1960, 1150],
+      "r": 40,
+      "w": 6,
+      "stroke": "#0000003c",
+      "fill": "#19191c"
+     },
+     {
+      "k": "rect",
+      "a": [-300, 390],
+      "b": [-100, 610],
+      "r": 12,
+      "w": 6,
+      "stroke": "#8c8c91",
+      "fill": "#cdcdd2"
+     },
+     {
+      "k": "rect",
+      "a": [-50, -50],
+      "b": [1850, 50],
+      "r": 6,
+      "fill": "#191919"
+     },
+     {
+      "k": "rect",
+      "a": [-50, 950],
+      "b": [1850, 1050],
+      "r": 6,
+      "fill": "#191919"
+     },
+     {
+      "k": "rect",
+      "a": [-18, -18],
+      "b": [18, 18],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [82, -18],
+      "b": [118, 18],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [182, -18],
+      "b": [218, 18],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [282, -18],
+      "b": [318, 18],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [382, -18],
+      "b": [418, 18],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [482, -18],
+      "b": [518, 18],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [582, -18],
+      "b": [618, 18],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [682, -18],
+      "b": [718, 18],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [782, -18],
+      "b": [818, 18],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [882, -18],
+      "b": [918, 18],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [982, -18],
+      "b": [1018, 18],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [1082, -18],
+      "b": [1118, 18],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [1182, -18],
+      "b": [1218, 18],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [1282, -18],
+      "b": [1318, 18],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [1382, -18],
+      "b": [1418, 18],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [1482, -18],
+      "b": [1518, 18],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [1582, -18],
+      "b": [1618, 18],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [1682, -18],
+      "b": [1718, 18],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [1782, -18],
+      "b": [1818, 18],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [-18, 982],
+      "b": [18, 1018],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [82, 982],
+      "b": [118, 1018],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [182, 982],
+      "b": [218, 1018],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [282, 982],
+      "b": [318, 1018],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [382, 982],
+      "b": [418, 1018],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [482, 982],
+      "b": [518, 1018],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [582, 982],
+      "b": [618, 1018],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [682, 982],
+      "b": [718, 1018],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [782, 982],
+      "b": [818, 1018],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [882, 982],
+      "b": [918, 1018],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [982, 982],
+      "b": [1018, 1018],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [1082, 982],
+      "b": [1118, 1018],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [1182, 982],
+      "b": [1218, 1018],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [1282, 982],
+      "b": [1318, 1018],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [1382, 982],
+      "b": [1418, 1018],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [1482, 982],
+      "b": [1518, 1018],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [1582, 982],
+      "b": [1618, 1018],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [1682, 982],
+      "b": [1718, 1018],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "rect",
+      "a": [1782, 982],
+      "b": [1818, 1018],
+      "fill": "#dcb43c"
+     },
+     {
+      "k": "text",
+      "at": [0, 95],
+      "text": "5V",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [100, 95],
+      "text": "11",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [200, 95],
+      "text": "10",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [300, 95],
+      "text": "9",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [400, 95],
+      "text": "13",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [500, 95],
+      "text": "GND",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [600, 95],
+      "text": "12",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [700, 95],
+      "text": "14",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [800, 95],
+      "text": "27",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [900, 95],
+      "text": "26",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [1000, 95],
+      "text": "25",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [1100, 95],
+      "text": "33",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [1200, 95],
+      "text": "32",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [1300, 95],
+      "text": "35",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [1400, 95],
+      "text": "34",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [1500, 95],
+      "text": "39",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [1600, 95],
+      "text": "36",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [1700, 95],
+      "text": "EN",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [1800, 95],
+      "text": "3V3",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [0, 905],
+      "text": "CLK",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [100, 905],
+      "text": "SD0",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [200, 905],
+      "text": "SD1",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [300, 905],
+      "text": "15",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [400, 905],
+      "text": "2",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [500, 905],
+      "text": "0",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [600, 905],
+      "text": "4",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [700, 905],
+      "text": "16",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [800, 905],
+      "text": "17",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [900, 905],
+      "text": "5",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [1000, 905],
+      "text": "18",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [1100, 905],
+      "text": "19",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [1200, 905],
+      "text": "GND",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [1300, 905],
+      "text": "21",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [1400, 905],
+      "text": "3",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [1500, 905],
+      "text": "1",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [1600, 905],
+      "text": "22",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [1700, 905],
+      "text": "23",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "text",
+      "at": [1800, 905],
+      "text": "GND",
+      "size": 34,
+      "align": 1,
+      "fill": "#ffffffdc"
+     },
+     {
+      "k": "rect",
+      "a": [405, 180],
+      "b": [1395, 820],
+      "r": 14,
+      "w": 6,
+      "stroke": "#00000050",
+      "fill": "#afb2b9"
+     },
+     {
+      "k": "text",
+      "at": [900, 500],
+      "text": "ESP32-WROOM-32",
+      "size": 90,
+      "align": 1,
+      "fill": "#e6e6e6"
+     }
+    ],
+    "schematic": [
+     {
+      "k": "rect",
+      "a": [200, 0],
+      "b": [1100, 2000],
+      "w": 10,
+      "stroke": "#1e1e1e",
+      "fill": "#ffffff"
+     },
+     {
+      "k": "line",
+      "a": [0, 100],
+      "b": [200, 100],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [225, 100],
+      "text": "5V",
+      "size": 45,
+      "align": 0,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [0, 200],
+      "b": [200, 200],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [225, 200],
+      "text": "GPIO11",
+      "size": 45,
+      "align": 0,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [0, 300],
+      "b": [200, 300],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [225, 300],
+      "text": "GPIO10",
+      "size": 45,
+      "align": 0,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [0, 400],
+      "b": [200, 400],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [225, 400],
+      "text": "GPIO9",
+      "size": 45,
+      "align": 0,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [0, 500],
+      "b": [200, 500],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [225, 500],
+      "text": "GPIO13",
+      "size": 45,
+      "align": 0,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [0, 600],
+      "b": [200, 600],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [225, 600],
+      "text": "GND",
+      "size": 45,
+      "align": 0,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [0, 700],
+      "b": [200, 700],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [225, 700],
+      "text": "GPIO12",
+      "size": 45,
+      "align": 0,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [0, 800],
+      "b": [200, 800],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [225, 800],
+      "text": "GPIO14",
+      "size": 45,
+      "align": 0,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [0, 900],
+      "b": [200, 900],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [225, 900],
+      "text": "GPIO27",
+      "size": 45,
+      "align": 0,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [0, 1000],
+      "b": [200, 1000],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [225, 1000],
+      "text": "GPIO26",
+      "size": 45,
+      "align": 0,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [0, 1100],
+      "b": [200, 1100],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [225, 1100],
+      "text": "GPIO25",
+      "size": 45,
+      "align": 0,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [0, 1200],
+      "b": [200, 1200],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [225, 1200],
+      "text": "GPIO33",
+      "size": 45,
+      "align": 0,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [0, 1300],
+      "b": [200, 1300],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [225, 1300],
+      "text": "GPIO32",
+      "size": 45,
+      "align": 0,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [0, 1400],
+      "b": [200, 1400],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [225, 1400],
+      "text": "GPIO35",
+      "size": 45,
+      "align": 0,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [0, 1500],
+      "b": [200, 1500],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [225, 1500],
+      "text": "GPIO34",
+      "size": 45,
+      "align": 0,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [0, 1600],
+      "b": [200, 1600],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [225, 1600],
+      "text": "GPIO39",
+      "size": 45,
+      "align": 0,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [0, 1700],
+      "b": [200, 1700],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [225, 1700],
+      "text": "GPIO36",
+      "size": 45,
+      "align": 0,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [0, 1800],
+      "b": [200, 1800],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [225, 1800],
+      "text": "EN",
+      "size": 45,
+      "align": 0,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [0, 1900],
+      "b": [200, 1900],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [225, 1900],
+      "text": "3V3",
+      "size": 45,
+      "align": 0,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [1100, 100],
+      "b": [1300, 100],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [1075, 100],
+      "text": "CLK",
+      "size": 45,
+      "align": 2,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [1100, 200],
+      "b": [1300, 200],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [1075, 200],
+      "text": "SD0",
+      "size": 45,
+      "align": 2,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [1100, 300],
+      "b": [1300, 300],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [1075, 300],
+      "text": "SD1",
+      "size": 45,
+      "align": 2,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [1100, 400],
+      "b": [1300, 400],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [1075, 400],
+      "text": "GPIO15",
+      "size": 45,
+      "align": 2,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [1100, 500],
+      "b": [1300, 500],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [1075, 500],
+      "text": "GPIO2",
+      "size": 45,
+      "align": 2,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [1100, 600],
+      "b": [1300, 600],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [1075, 600],
+      "text": "GPIO0",
+      "size": 45,
+      "align": 2,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [1100, 700],
+      "b": [1300, 700],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [1075, 700],
+      "text": "GPIO4",
+      "size": 45,
+      "align": 2,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [1100, 800],
+      "b": [1300, 800],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [1075, 800],
+      "text": "GPIO16",
+      "size": 45,
+      "align": 2,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [1100, 900],
+      "b": [1300, 900],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [1075, 900],
+      "text": "GPIO17",
+      "size": 45,
+      "align": 2,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [1100, 1000],
+      "b": [1300, 1000],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [1075, 1000],
+      "text": "GPIO5",
+      "size": 45,
+      "align": 2,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [1100, 1100],
+      "b": [1300, 1100],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [1075, 1100],
+      "text": "GPIO18",
+      "size": 45,
+      "align": 2,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [1100, 1200],
+      "b": [1300, 1200],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [1075, 1200],
+      "text": "GPIO19",
+      "size": 45,
+      "align": 2,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [1100, 1300],
+      "b": [1300, 1300],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [1075, 1300],
+      "text": "GND",
+      "size": 45,
+      "align": 2,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [1100, 1400],
+      "b": [1300, 1400],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [1075, 1400],
+      "text": "GPIO21",
+      "size": 45,
+      "align": 2,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [1100, 1500],
+      "b": [1300, 1500],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [1075, 1500],
+      "text": "GPIO3",
+      "size": 45,
+      "align": 2,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [1100, 1600],
+      "b": [1300, 1600],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [1075, 1600],
+      "text": "GPIO1",
+      "size": 45,
+      "align": 2,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [1100, 1700],
+      "b": [1300, 1700],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [1075, 1700],
+      "text": "GPIO22",
+      "size": 45,
+      "align": 2,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [1100, 1800],
+      "b": [1300, 1800],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [1075, 1800],
+      "text": "GPIO23",
+      "size": 45,
+      "align": 2,
+      "fill": "#323232"
+     },
+     {
+      "k": "line",
+      "a": [1100, 1900],
+      "b": [1300, 1900],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "text",
+      "at": [1075, 1900],
+      "text": "GND",
+      "size": 45,
+      "align": 2,
+      "fill": "#323232"
+     },
+     {
+      "k": "text",
+      "at": [650, -60],
+      "text": "ESP32 DevKitC (38-pin)",
+      "size": 60,
+      "align": 1,
+      "fill": "#323232"
+     }
+    ],
+    "pcb": [
+     {
+      "k": "rect",
+      "a": [-160, -150],
+      "b": [1960, 1150],
+      "r": 40,
+      "w": 10,
+      "stroke": "#ffffff"
+     },
+     {
+      "k": "text",
+      "at": [900, 500],
+      "text": "ESP32 DevKitC (38-pin)",
+      "size": 70,
+      "align": 1,
+      "fill": "#ffffff"
+     }
+    ]
+   }
+  },
+  {
+   "type": "resistor",
+   "title": "Resistor",
+   "category": "Core",
+   "description": "A resistor limits current. Edit the resistance in the Inspector; the color bands update automatically.",
+   "labelPrefix": "R",
+   "valueProp": "resistance",
+   "sim": "resistor",
+   "views": ["breadboard", "schematic", "pcb"],
+   "properties": {
+    "power": "1/4W",
+    "resistance": "220Ω",
+    "tolerance": "±5%"
+   },
+   "propertyDefs": [
+    {
+     "key": "resistance",
+     "label": "Resistance",
+     "options": ["100Ω", "220Ω", "330Ω", "470Ω", "1kΩ", "2.2kΩ", "4.7kΩ", "10kΩ", "47kΩ", "100kΩ", "1MΩ"]
+    },
+    {
+     "key": "power",
+     "label": "Power",
+     "options": ["1/8W", "1/4W", "1/2W", "1W"]
+    },
+    {
+     "key": "tolerance",
+     "label": "Tolerance",
+     "options": ["±1%", "±5%", "±10%"]
+    }
+   ],
+   "pins": [
+    {
+     "id": "pin0",
+     "name": "Pin 0",
+     "breadboard": [0, 0],
+     "schematic": [0, 0],
+     "pcb": [0, 0],
+     "pad": 70,
+     "drill": 38
+    },
+    {
+     "id": "pin1",
+     "name": "Pin 1",
+     "breadboard": [400, 0],
+     "schematic": [400, 0],
+     "pcb": [400, 0],
+     "pad": 70,
+     "drill": 38
+    }
+   ],
+   "buses": [],
+   "holes": [],
+   "graphics": {
+    "breadboard": [
+     {
+      "k": "line",
+      "a": [0, 0],
+      "b": [110, 0],
+      "w": 18,
+      "stroke": "#a0a0a5"
+     },
+     {
+      "k": "line",
+      "a": [290, 0],
+      "b": [400, 0],
+      "w": 18,
+      "stroke": "#a0a0a5"
+     },
+     {
+      "k": "circle",
+      "c": [115, 0],
+      "r": 46,
+      "w": 6,
+      "stroke": "#aa915f",
+      "fill": "#dec896"
+     },
+     {
+      "k": "circle",
+      "c": [285, 0],
+      "r": 46,
+      "w": 6,
+      "stroke": "#aa915f",
+      "fill": "#dec896"
+     },
+     {
+      "k": "rect",
+      "a": [115, -38],
+      "b": [285, 38],
+      "fill": "#dec896"
+     },
+     {
+      "k": "line",
+      "a": [115, -38],
+      "b": [285, -38],
+      "w": 6,
+      "stroke": "#aa915f"
+     },
+     {
+      "k": "line",
+      "a": [115, 38],
+      "b": [285, 38],
+      "w": 6,
+      "stroke": "#aa915f"
+     },
+     {
+      "k": "rect",
+      "a": [110, -46],
+      "b": [132, 46],
+      "fill": "#d21e1e"
+     },
+     {
+      "k": "rect",
+      "a": [150, -38],
+      "b": [172, 38],
+      "fill": "#d21e1e"
+     },
+     {
+      "k": "rect",
+      "a": [190, -38],
+      "b": [212, 38],
+      "fill": "#78461e"
+     },
+     {
+      "k": "rect",
+      "a": [255, -38],
+      "b": [277, 38],
+      "fill": "#c8a028"
+     }
+    ],
+    "schematic": [
+     {
+      "k": "line",
+      "a": [0, 0],
+      "b": [100, 0],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "line",
+      "a": [300, 0],
+      "b": [400, 0],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "poly",
+      "pts": [
+       [100, 0],
+       [116.667, -40],
+       [150, 40],
+       [183.333, -40],
+       [216.667, 40],
+       [250, -40],
+       [283.333, 40],
+       [300, 0]
+      ],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     }
+    ],
+    "pcb": [
+     {
+      "k": "rect",
+      "a": [70, -45],
+      "b": [330, 45],
+      "w": 10,
+      "stroke": "#ffffff"
+     }
+    ]
+   }
+  },
+  {
+   "type": "led",
+   "title": "Red LED",
+   "category": "Core",
+   "description": "Light-emitting diode. The longer leg (anode, +) goes to the positive side; always use a series resistor.",
+   "labelPrefix": "LED",
+   "valueProp": "color",
+   "sim": "led",
+   "views": ["breadboard", "schematic", "pcb"],
+   "properties": {
+    "color": "Red",
+    "package": "5 mm [THT]"
+   },
+   "propertyDefs": [
+    {
+     "key": "color",
+     "label": "Color",
+     "options": ["Red", "Green", "Blue", "Yellow", "White", "Orange"]
+    },
+    {
+     "key": "package",
+     "label": "Package",
+     "options": ["5 mm [THT]", "3 mm [THT]"]
+    }
+   ],
+   "pins": [
+    {
+     "id": "cathode",
+     "name": "cathode (−)",
+     "breadboard": [0, 0],
+     "schematic": [300, 0],
+     "pcb": [0, 0],
+     "pad": 70,
+     "drill": 38,
+     "square": true
+    },
+    {
+     "id": "anode",
+     "name": "anode (+)",
+     "breadboard": [100, 0],
+     "schematic": [0, 0],
+     "pcb": [100, 0],
+     "pad": 70,
+     "drill": 38
+    }
+   ],
+   "buses": [],
+   "holes": [],
+   "graphics": {
+    "breadboard": [
+     {
+      "k": "line",
+      "a": [0, -150],
+      "b": [0, 0],
+      "w": 16,
+      "stroke": "#a0a0a5"
+     },
+     {
+      "k": "poly",
+      "pts": [
+       [100, -150],
+       [100, -90],
+       [135, -60],
+       [100, -30],
+       [100, 0]
+      ],
+      "w": 16,
+      "stroke": "#a0a0a5"
+     },
+     {
+      "k": "rect",
+      "a": [-50, -320],
+      "b": [150, -150],
+      "fill": "#eb2828d8",
+      "tag": 1
+     },
+     {
+      "k": "circle",
+      "c": [50, -320],
+      "r": 100,
+      "fill": "#eb2828d8",
+      "tag": 1
+     },
+     {
+      "k": "rect",
+      "a": [-68, -175],
+      "b": [168, -149],
+      "r": 6,
+      "fill": "#a41c1c"
+     },
+     {
+      "k": "rect",
+      "a": [-5, -360],
+      "b": [20, -240],
+      "r": 10,
+      "fill": "#ffffff5a"
+     }
+    ],
+    "schematic": [
+     {
+      "k": "line",
+      "a": [0, 0],
+      "b": [100, 0],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "line",
+      "a": [200, 0],
+      "b": [300, 0],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "poly",
+      "pts": [
+       [100, -60],
+       [100, 60],
+       [200, 0]
+      ],
+      "w": 10,
+      "stroke": "#1e1e1e",
+      "fill": "#ffffff"
+     },
+     {
+      "k": "line",
+      "a": [200, -60],
+      "b": [200, 60],
+      "w": 10,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "line",
+      "a": [130, -80],
+      "b": [180, -130],
+      "w": 8,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "line",
+      "a": [170, -70],
+      "b": [220, -120],
+      "w": 8,
+      "stroke": "#1e1e1e"
+     },
+     {
+      "k": "poly",
+      "pts": [
+       [185, -135],
+       [173.333, -104.241],
+       [154.241, -123.333]
+      ],
+      "fill": "#1e1e1e"
+     },
+     {
+      "k": "poly",
+      "pts": [
+       [225, -125],
+       [213.333, -94.2409],
+       [194.241, -113.333]
+      ],
+      "fill": "#1e1e1e"
+     }
+    ],
+    "pcb": [
+     {
+      "k": "arc",
+      "c": [50, 0],
+      "r": 120,
+      "a0": 30,
+      "a1": 330,
+      "w": 10,
+      "stroke": "#ffffff"
+     },
+     {
+      "k": "line",
+      "a": [153.92, -60],
+      "b": [153.92, 60],
+      "w": 10,
+      "stroke": "#ffffff"
+     }
+    ]
+   }
+  }
+ ]
+}

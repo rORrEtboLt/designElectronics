@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/x-designelectronics">
+    <comment>designElectronics project</comment>
+    <sub-class-of type="application/json"/>
+    <glob pattern="*.dez"/>
+  </mime-type>
+  <mime-type type="application/x-designelectronics-part">
+    <comment>designElectronics part</comment>
+    <sub-class-of type="application/json"/>
+    <glob pattern="*.dezpart"/>
+  </mime-type>
+</mime-info>
