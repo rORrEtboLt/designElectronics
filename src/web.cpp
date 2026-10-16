@@ -4,6 +4,8 @@
 // a full editor (/app/) and as a read-only viewer for <iframe> embeds (/embed/).
 // A design travels inside the link itself: its compact JSON is deflated and
 // base64url-encoded into "#d=…", so embedding needs no server or upload.
+#include <cstdio>
+#include <functional>
 #include <cstring>
 
 #include "app.h"

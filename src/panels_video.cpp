@@ -1,6 +1,8 @@
 // designElectronics — Export ▸ Video or GIF: record the circuit (optionally
 // simulating) in Instagram / YouTube formats. Frames are rendered off-screen at
 // the target size with a fixed simulation step, so the timing is real.
+#include <cctype>
+#include <cstdio>
 #include <algorithm>
 #include <cmath>
 

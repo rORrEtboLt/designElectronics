@@ -1,6 +1,8 @@
 // designElectronics — upload a board's sketch to real hardware with arduino-cli
 // (the command-line tool behind Arduino IDE 2, which also ships inside the IDE).
 // Desktop only: compiling needs the real toolchains for each board family.
+#include <cctype>
+#include <cstring>
 #include <algorithm>
 #include <memory>
 #include <mutex>

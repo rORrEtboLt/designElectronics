@@ -1,5 +1,6 @@
 // designElectronics — version history and GitHub screens (File ▸ Version History,
 // Commit to GitHub, GitHub Account). The storage and network code is in history.cpp.
+#include <cctype>
 #include <ctime>
 #include <memory>
 

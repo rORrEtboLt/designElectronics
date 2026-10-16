@@ -2,6 +2,7 @@
 // and a Photoshop-style list of everything in the design, with parts plugged
 // into a breadboard grouped under it. Rows select, double-click zooms, and each
 // part can be hidden in this view or locked.
+#include <cstdio>
 #include <algorithm>
 #include <cctype>
 

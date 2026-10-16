@@ -1,6 +1,8 @@
 // designElectronics — the Program panel: edit a board's Arduino sketch, run it
 // in the simulator (executing line highlighted), read its Serial output, and
 // upload it to a real board.
+#include <cctype>
+#include <cstring>
 #include <algorithm>
 #include <cmath>
 

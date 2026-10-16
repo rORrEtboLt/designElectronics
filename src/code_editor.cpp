@@ -1,6 +1,8 @@
 // designElectronics — multi-line code editor widget (UI::codeEditor): monospace
 // text with line numbers, C/Arduino syntax colours, selection, undo, clipboard,
 // auto-indent, and highlights for the executing line and errors.
+#include <cctype>
+#include <string>
 #include <algorithm>
 #include <cmath>
 #include <set>
