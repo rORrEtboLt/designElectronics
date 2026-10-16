@@ -120,6 +120,10 @@ tr:last-child td { border-bottom: 0; }
 .subtab { padding: 7px 14px; border-radius: 99px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); font: inherit; font-weight: 600; font-size: .9rem; cursor: pointer; }
 .subtab[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
 
+a.card.dl { display: block; color: var(--text); text-decoration: none; transition: border-color .15s, transform .15s; }
+a.card.dl:hover { border-color: var(--accent); transform: translateY(-2px); }
+a.card.dl .btn { margin-top: 14px; }
+a.card.dl.recommended { border: 2px solid var(--accent); }
 .os { display: flex; gap: 6px; margin: 10px 0 0; }
 .os button { padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); font: inherit; font-weight: 600; font-size: .88rem; cursor: pointer; }
 .os button[aria-selected="true"] { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
@@ -165,7 +169,7 @@ footer .inner { max-width: 1120px; margin: 0 auto; padding: 22px 16px 40px; disp
     </div>
     <nav class="tabs" role="tablist" aria-label="Documentation sections">
       <button class="tab" role="tab" data-tab="overview">Overview</button>
-      <button class="tab" role="tab" data-tab="install">Install</button>
+      <button class="tab" role="tab" data-tab="install">Download</button>
       <button class="tab" role="tab" data-tab="quickstart">Quick start</button>
       <button class="tab" role="tab" data-tab="design">Design</button>
       <button class="tab" role="tab" data-tab="simulate">Simulate</button>
@@ -186,11 +190,11 @@ footer .inner { max-width: 1120px; margin: 0 auto; padding: 22px 16px 40px; disp
       <h1>Design electronics on any screen.</h1>
       <p class="lead">Build a circuit on a virtual breadboard, draw the schematic, lay out a PCB and watch it run in a live simulator — on your laptop or your phone. Free and open source.</p>
       <div class="actions">
-        <a class="btn primary" href="#install">Get started</a>
+        <a class="btn primary" href="#install">Download free</a>
         <a class="btn" href="#quickstart">Build your first circuit</a>
         <a class="btn" href="https://github.com/rORrEtboLt/designElectronics">★ Star on GitHub</a>
       </div>
-      <ul class="badges"><li>MIT licensed</li><li>macOS · Linux · Windows</li><li>iOS · Android</li><li>Works offline</li><li>No account</li></ul>
+      <ul class="badges"><li>MIT licensed</li><li>Downloads for macOS · Windows · Linux</li><li>iOS · Android</li><li>Works offline</li><li>No account</li></ul>
     </div>
     <img class="shot" src="assets/img/breadboard.webp" width="1600" height="1000" alt="A 555 timer blinker on a virtual breadboard with the simulator running; the red LED is lit">
   </div>
@@ -224,8 +228,25 @@ footer .inner { max-width: 1120px; margin: 0 auto; padding: 22px 16px 40px; disp
 
 <!-- ============================== INSTALL ============================== -->
 <section class="panel doc" role="tabpanel" id="install" hidden>
-  <h2>Install</h2>
-  <p>designElectronics is a native app written in C++ with <a href="https://libsdl.org">SDL3</a>. Prebuilt downloads are on the way; today you build it from source, which takes a few minutes.</p>
+  <h2>Download</h2>
+  <p>Free, about 3–7 MB, no installer and no account. Built automatically from the source on GitHub and tested on every platform.</p>
+  <div class="grid cols-3 downloads">
+    <a class="card dl" data-dl="mac" href="https://github.com/rORrEtboLt/designElectronics/releases/latest/download/designElectronics-macOS.zip"><div class="ic">🍎</div><h3>macOS</h3><p>macOS 11 or newer · Apple Silicon &amp; Intel</p><span class="btn primary">Download .zip</span></a>
+    <a class="card dl" data-dl="win" href="https://github.com/rORrEtboLt/designElectronics/releases/latest/download/designElectronics-Windows-x64.zip"><div class="ic">🪟</div><h3>Windows</h3><p>Windows 10 / 11 · 64-bit</p><span class="btn primary">Download .zip</span></a>
+    <a class="card dl" data-dl="linux" href="https://github.com/rORrEtboLt/designElectronics/releases/latest/download/designElectronics-Linux-x86_64.tar.gz"><div class="ic">🐧</div><h3>Linux</h3><p>x86_64 · Ubuntu 22.04+ or similar · X11 / Wayland</p><span class="btn primary">Download .tar.gz</span></a>
+  </div>
+  <p style="margin-top:14px"><a href="https://github.com/rORrEtboLt/designElectronics/releases">All releases and release notes →</a></p>
+  <h3>First launch</h3>
+  <p>The downloads aren't code-signed yet, so your system asks once before opening them:</p>
+  <ul>
+    <li><b>macOS</b> — unzip, move <code>designElectronics.app</code> to Applications, then <b>right-click ▸ Open ▸ Open</b>. If macOS says the app is damaged, run <code>xattr -dr com.apple.quarantine /Applications/designElectronics.app</code> once.</li>
+    <li><b>Windows</b> — unzip and run <code>designElectronics.exe</code>; if SmartScreen appears, choose <b>More info ▸ Run anyway</b>. Keep the <code>assets</code> folder next to the exe.</li>
+    <li><b>Linux</b> — <code>tar xzf designElectronics-Linux-x86_64.tar.gz &amp;&amp; ./designElectronics/designElectronics</code></li>
+  </ul>
+  <p>Then open <b>File ▸ Examples</b> or follow the <a href="#quickstart">quick start</a>.</p>
+
+  <h2 style="margin-top:2em">Build from source</h2>
+  <p>designElectronics is a native app written in C++ with <a href="https://libsdl.org">SDL3</a>. Building takes a few minutes.</p>
   <div class="note">You need CMake 3.20+, a C++17 compiler, and SDL3 + SDL3_ttf. libcurl is optional — it enables GitHub sync and is already part of macOS and most Linux systems.</div>
   <div class="os" role="tablist" aria-label="Operating system">
     <button role="tab" data-os="mac">macOS</button><button role="tab" data-os="linux">Linux</button><button role="tab" data-os="win">Windows</button><button role="tab" data-os="mobile">iOS &amp; Android</button>
@@ -567,7 +588,9 @@ designElectronics --export-examples DIR   write the example designs as .dez file
   }
   osBtns.forEach(b => b.addEventListener('click', () => pickOs(b.dataset.os)));
   const ua = navigator.userAgent;
-  pickOs(/Android|iPhone|iPad/.test(ua) ? 'mobile' : /Win/.test(ua) ? 'win' : /Linux|X11/.test(ua) ? 'linux' : 'mac');
+  const myOs = /Android|iPhone|iPad/.test(ua) ? 'mobile' : /Win/.test(ua) ? 'win' : /Linux|X11/.test(ua) ? 'linux' : 'mac';
+  pickOs(myOs);
+  document.querySelectorAll('[data-dl]').forEach(c => c.classList.toggle('recommended', c.dataset.dl === myOs));
 
   // screenshots open full size
   const lb = document.getElementById('lightbox');

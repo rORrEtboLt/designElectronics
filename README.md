@@ -35,6 +35,14 @@ Built in C++17 with **SDL3** and SDL3_ttf. No other dependencies.
 | **AI assistants (MCP)** | Run `designElectronics --mcp` and Claude, Cursor or any MCP client can design for you: search parts, add and wire them, plug them into breadboards, simulate, autoroute, run DRC and export Gerbers. Works offline over stdio. See [docs/MCP.md](docs/MCP.md). |
 | **Desktop niceties** | Menus, shortcuts, tooltips, trackpad pinch/scroll, drag-and-drop of `.dez` files onto the window, file associations (macOS, Linux). |
 
+## Download
+
+| macOS 11+ (Apple Silicon & Intel) | Windows 10/11 (64-bit) | Linux x86_64 |
+| --- | --- | --- |
+| [designElectronics-macOS.zip](https://github.com/rORrEtboLt/designElectronics/releases/latest/download/designElectronics-macOS.zip) | [designElectronics-Windows-x64.zip](https://github.com/rORrEtboLt/designElectronics/releases/latest/download/designElectronics-Windows-x64.zip) | [designElectronics-Linux-x86_64.tar.gz](https://github.com/rORrEtboLt/designElectronics/releases/latest/download/designElectronics-Linux-x86_64.tar.gz) |
+
+The builds aren't code-signed yet: on macOS right-click the app ▸ **Open** the first time; on Windows choose **More info ▸ Run anyway**. See the [release notes](https://github.com/rORrEtboLt/designElectronics/releases) for details.
+
 ## Build & run (desktop)
 
 You need CMake ≥ 3.20, a C++17 compiler, and SDL3 + SDL3_ttf.
