@@ -21,6 +21,7 @@
 #include "app.h"
 #include "history.h"
 #include "logo.h"
+#include "mcp.h"
 #include "video.h"
 
 namespace {
@@ -584,6 +585,8 @@ struct Screenshot {
     std::string menu;
     std::string sheet;  // history | commit | account
     bool openCode = false;  // open the program panel of the first board
+    std::string ai;         // --ai "prompt": run the AI tab with this message, capture when it finishes
+    bool aiStarted = false;
     // scripted pointer events: frame -> (type, x, y) in window points
     struct Ev { int frame; char type; float x, y; };
     std::vector<Ev> events;
@@ -619,7 +622,15 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
         }
         if (a == "--export-logo") return exportLogo(next()) == 0 ? SDL_APP_SUCCESS : SDL_APP_FAILURE;
         if (a == "--github-selftest") return githubSelftest() == 0 ? SDL_APP_SUCCESS : SDL_APP_FAILURE;
-        if (a == "--mcp") return runMcpServer() == 0 ? SDL_APP_SUCCESS : SDL_APP_FAILURE;
+        if (a == "--mcp") {
+            int port = 0;
+            std::string token;
+            for (int k = i + 1; k + 1 < argc; k++) {
+                if (std::string(argv[k]) == "--connect") port = std::atoi(argv[k + 1]);
+                if (std::string(argv[k]) == "--token") token = argv[k + 1];
+            }
+            return runMcpServer(port, token) == 0 ? SDL_APP_SUCCESS : SDL_APP_FAILURE;
+        }
         if (a == "--selftest") return selftest() == 0 ? SDL_APP_SUCCESS : SDL_APP_FAILURE;
         if (a == "--export-examples") return exportExamples(next()) == 0 ? SDL_APP_SUCCESS : SDL_APP_FAILURE;
         if (a == "--screenshot") g_shot.out = next();
@@ -633,6 +644,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
         else if (a == "--menu") g_shot.menu = next();
         else if (a == "--sheet") g_shot.sheet = next();
         else if (a == "--open-code") g_shot.openCode = true;
+        else if (a == "--ai") g_shot.ai = next();
         else if (a == "--events") {
             // "frame:d:x:y,frame:m:x:y,frame:u:x:y,frame:k:keycode:0"
             std::string spec = next() + ",";
@@ -762,7 +774,26 @@ SDL_AppResult SDL_AppIterate(void* appstate) {
             }
             app->event(e);
         }
-        if (g_frame >= g_shot.frames) {
+        bool waitAI = false;
+        if (!g_shot.ai.empty()) {
+            app->rightTab = 2;
+            bool running = false, detected = false;
+            std::map<std::string, std::string> paths;
+            auto msgs = app->agentMessages(running, detected, paths);
+            if (!g_shot.aiStarted) {
+                if (!app->agent) app->detectAgents();
+                if (detected) {
+                    g_shot.aiStarted = true;
+                    app->startAgent(g_shot.ai);
+                }
+                waitAI = true;
+            } else {
+                waitAI = running;
+                if (!running) for (auto& m : msgs) if (m.role != App::ChatMsg::R_USER) printf("  [%d] %s\n", (int)m.role, m.text.substr(0, 160).c_str());
+            }
+            if (g_frame > 60 * 240) waitAI = false;  // give up after ~4 minutes
+        }
+        if (g_frame >= g_shot.frames && !waitAI) {
             // Render one more frame and capture it before presenting.
             app->capturePath = g_shot.out;
             app->iterate();

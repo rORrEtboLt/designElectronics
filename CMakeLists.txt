@@ -50,6 +50,9 @@ set(DE_SOURCES
   src/panels_video.cpp
   src/codec_h264.c
   src/codec_mp4.c
+  src/net.cpp
+  src/agent.cpp
+  src/panels_ai.cpp
 )
 
 if(ANDROID)

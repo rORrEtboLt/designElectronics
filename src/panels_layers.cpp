@@ -90,9 +90,7 @@ void App::drawLayers(Rect r) {
         Rect cb(r.r() - 40 * s, y - 4 * s, 32 * s, 32 * s);
         if (ui.iconButton("closelayers", cb, "close", "")) drawerLayers = false;
     } else {
-        float w0 = g.textWidth("Parts", 15 * s) + 24 * s, w1 = g.textWidth("Layers", 15 * s) + 24 * s;
-        if (ui.button("rtab-parts-l", Rect(r.x + pad - 6 * s, y - 6 * s, w0, 30 * s), "Parts", BTN_TAB, false)) rightTab = 0;
-        ui.button("rtab-layers-l", Rect(r.x + pad - 6 * s + w0, y - 6 * s, w1, 30 * s), "Layers", BTN_TAB, true);
+        drawRightTabs(r, y);
     }
     y += 32 * s;
 

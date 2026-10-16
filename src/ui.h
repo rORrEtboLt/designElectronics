@@ -125,6 +125,7 @@ public:
     // scroll region: content drawn between begin/end is clipped; returns content origin offset
     float beginScroll(const std::string& id, Rect r, float contentH);
     void endScroll();
+    void scrollTo(const std::string& id, float y) { scrollY_[hashId(id)] = y; }  // clamped on the next beginScroll
     bool scrollDragging() const { return scrollDrag_; }
 
     // overlays

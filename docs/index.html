@@ -192,7 +192,7 @@ footer .inner { max-width: 1120px; margin: 0 auto; padding: 22px 16px 40px; disp
       <button class="tab" role="tab" data-tab="parts">Parts</button>
       <button class="tab" role="tab" data-tab="history">History &amp; GitHub</button>
       <button class="tab" role="tab" data-tab="embed">Share</button>
-      <button class="tab" role="tab" data-tab="ai">AI (MCP)</button>
+      <button class="tab" role="tab" data-tab="ai">AI</button>
       <button class="tab" role="tab" data-tab="reference">Reference</button>
       <button class="tab" role="tab" data-tab="faq">FAQ</button>
     </nav>
@@ -224,7 +224,7 @@ footer .inner { max-width: 1120px; margin: 0 auto; padding: 22px 16px 40px; disp
     <div class="card"><div class="ic">📦</div><h3>177 real parts</h3><p>Arduino, ESP32, Raspberry Pi &amp; Pico boards, 74HC/CD4000 logic, op-amps, regulators, drivers, sensors and displays — true to size.</p></div>
     <div class="card"><div class="ic">🕘</div><h3>Version history &amp; GitHub</h3><p>Every save is a version you can restore. Optionally commit designs to your own private GitHub repository.</p></div>
     <div class="card"><div class="ic">💻</div><h3>Program the boards</h3><p>Write an Arduino sketch for an Uno, ESP32 or Pico, watch it run line by line with a Serial Monitor, then upload it to the real board.</p></div>
-    <div class="card"><div class="ic">🤖</div><h3>AI-ready</h3><p>A built-in MCP server lets Claude, Cursor and other assistants design, simulate and route circuits for you.</p></div>
+    <div class="card"><div class="ic">🤖</div><h3>Build by chatting</h3><p>The AI tab drives Claude Code (or Codex, Gemini…) to build circuits live in your design — and an MCP server lets any AI app do the same.</p></div>
     <div class="card"><div class="ic">📱</div><h3>Made for touch too</h3><p>On phones the panels become drawers; pan with a finger, pinch to zoom, long-press for menus.</p></div>
     <div class="card"><div class="ic">🗂️</div><h3>Layers</h3><p>A Photoshop-style Layers panel: toggle copper and silkscreen, hide or lock parts, find anything by name.</p></div>
     <div class="card"><div class="ic">🔗</div><h3>One shareable file</h3><p>A <code>.dez</code> design is plain JSON that embeds every part it uses. It opens offline in any copy of the app.</p></div>
@@ -573,8 +573,24 @@ D9=PWM:30           # 30 % duty, simulated as the average voltage</code></pre>
 
 <!-- ============================== AI / MCP ============================== -->
 <section class="panel doc" role="tabpanel" id="ai" hidden>
-  <h2>Use it from an AI assistant (MCP)</h2>
-  <p>designElectronics has a built-in <a href="https://modelcontextprotocol.io">Model Context Protocol</a> server. Start the app with <code>--mcp</code> and Claude, Cursor, VS Code or any MCP client can search parts, wire circuits, plug parts into a breadboard, simulate, autoroute, run DRC and export Gerbers — and save a <code>.dez</code> you open in the app. It runs locally; nothing goes over the network.</p>
+  <h2>Build circuits by chatting with your AI</h2>
+  <p>Open the <b>AI</b> tab (next to Parts and Layers) and describe what you want — <i>“a traffic light with an Arduino Nano”</i>, <i>“add a button that turns the LED on”</i>, <i>“make a PCB for this”</i>. The AI tool you already use on your computer builds it in the open design while you watch: it picks parts, plugs them into the breadboard, wires them, writes the board's sketch and runs the simulation to check its work.</p>
+  <figure><img src="assets/img/ai.webp" width="1600" height="1013" loading="lazy" alt="The AI tab: Claude Code built a traffic light with an Arduino Nano and reports its simulation results"><figcaption>Claude Code built this traffic light from one sentence in 85 s — parts, wiring, sketch and a simulation check</figcaption></figure>
+  <div class="table-wrap"><table>
+    <tr><th>Agent</th><th>Setup</th></tr>
+    <tr><td><b>Claude Code</b> (recommended)</td><td><code>npm install -g @anthropic-ai/claude-code</code>, then run <code>claude</code> once to sign in. Conversations continue across messages.</td></tr>
+    <tr><td>Codex CLI <i>(experimental)</i></td><td><code>npm install -g @openai/codex</code>, then <code>codex login</code>.</td></tr>
+    <tr><td>Gemini CLI <i>(experimental)</i></td><td><code>npm install -g @google/gemini-cli</code>, then run <code>gemini</code> once.</td></tr>
+    <tr><td>Custom</td><td>Any command that accepts an MCP config: e.g. <code>mytool --mcp-config {mcp_config} -p {prompt}</code></td></tr>
+  </table></div>
+  <ul>
+    <li><b>Live:</b> every change appears on the canvas as it happens, and each one is a normal edit — press <kbd>Ctrl/⌘</kbd>+<kbd>Z</kbd> to undo anything.</li>
+    <li><b>Safe by design:</b> the agent runs in an empty folder and may only use designElectronics' tools — no shell, no file access. It connects to the app over <code>127.0.0.1</code> with a one-time token.</li>
+    <li><b>Your account:</b> it uses your own AI subscription or API key; the chat shows the time and cost of each request. Nothing goes through a designElectronics server.</li>
+    <li>The AI tab is in the desktop apps (it needs a command-line AI installed). The app finds tools from your terminal's PATH automatically.</li>
+  </ul>
+  <h2 style="margin-top:1.6em">Use designElectronics from other AI apps (MCP)</h2>
+  <p>Prefer Claude Desktop, Cursor, VS Code, Conductor or another MCP client? designElectronics has a built-in <a href="https://modelcontextprotocol.io">Model Context Protocol</a> server — the AI tab's <b>Copy MCP config for other apps</b> button copies the setup below. Started with <code>--mcp</code>, any MCP client can search parts, wire circuits, plug parts into a breadboard, simulate, autoroute, run DRC and export Gerbers — and save a <code>.dez</code> you open in the app. It runs locally; nothing goes over the network.</p>
   <h3>Set up</h3>
   <p><b>Claude Code</b></p>
 <pre><code>claude mcp add designElectronics -- /path/to/designElectronics --mcp

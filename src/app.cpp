@@ -145,7 +145,7 @@ void App::layout() {
         float rw = std::min(330 * s, (float)safe.w * 0.32f);
         rRight = Rect((float)(safe.x + safe.w) - rw, rTop.b(), rw, mid);
         rCanvas = Rect((float)safe.x, rTop.b(), rRight.x - safe.x, mid);
-        float binH = std::floor(mid * (rightTab == 1 ? 0.68f : 0.54f));  // the layers list gets more room
+        float binH = std::floor(mid * (rightTab == 2 ? 0.8f : rightTab == 1 ? 0.68f : 0.54f));  // layers and AI chat get more room
         rBin = Rect(rRight.x, rRight.y, rRight.w, binH);
         rInspector = Rect(rRight.x, rRight.y + binH, rRight.w, mid - binH);
     } else {
@@ -944,7 +944,7 @@ SDL_AppResult App::event(const SDL_Event& e) {
             if (e.key.key == SDLK_SPACE && !ui.editingText()) spaceDown = true;
             if (e.key.key == SDLK_AC_BACK) {  // Android back button
                 if (ui.hasMenu()) ui.closeMenus();
-                else if (drawerParts || drawerInspector || drawerLayers) drawerParts = drawerInspector = drawerLayers = false;
+                else if (drawerParts || drawerInspector || drawerLayers || drawerAI) drawerParts = drawerInspector = drawerLayers = drawerAI = false;
             }
             break;
         case SDL_EVENT_KEY_UP:
@@ -1006,17 +1006,19 @@ SDL_AppResult App::iterate() {
     drawTopBar();
     if (!compact) {
         if (rightTab == 1) drawLayers(rBin);
+        else if (rightTab == 2) drawAIPanel(rBin);
         else drawPartsBin(rBin);
         drawInspector(rInspector);
-    } else if (drawerParts || drawerInspector || drawerLayers) {
+    } else if (drawerParts || drawerInspector || drawerLayers || drawerAI) {
         // drawers slide over the canvas
         g.fillRect(rCanvas, rgba(0, 0, 0, 50));
         g.fillRect({rRight.x - 6 * ui.s, rRight.y, 6 * ui.s, rRight.h}, rgba(0, 0, 0, 25));
         if (drawerParts) drawPartsBin(rRight);
         else if (drawerLayers) drawLayers(rRight);
+        else if (drawerAI) drawAIPanel(rRight);
         else drawInspector(rRight);
         if (in.pressed && rCanvas.contains(in.mouse) && !rRight.contains(in.mouse) && !ui.blocking() && binDrag < 0)
-            drawerParts = drawerInspector = drawerLayers = false;
+            drawerParts = drawerInspector = drawerLayers = drawerAI = false;
     }
     if (codeOpen && rCode.h > 0) drawCodePanel(rCode);
     drawToolbar();

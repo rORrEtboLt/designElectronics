@@ -239,6 +239,30 @@ public:
     void stepVideoExport();
     ~App();
 
+    // ---- agent.cpp + panels_ai.cpp: the AI tab (Claude Code & other CLI agents) ----
+    struct ChatMsg {
+        enum Role { R_USER, R_ASSISTANT, R_TOOL, R_TOOL_ERROR, R_ERROR, R_INFO } role;
+        std::string text;
+        bool streaming = false;
+    };
+    struct AgentState;
+    std::shared_ptr<AgentState> agent;
+    std::string agentKind = "claude", agentCustomCommand, agentInput;
+    bool drawerAI = false;
+    size_t agentSeen = 0;  // messages already scrolled to
+    bool agentWasRunning = false;
+    int agentStartRev = 0;
+    bool agentsSupported() const;
+    void detectAgents();
+    void ensureAgentBridge();
+    void startAgent(const std::string& prompt);
+    void stopAgent();
+    void newAgentChat();
+    std::vector<ChatMsg> agentMessages(bool& running, bool& detected, std::map<std::string, std::string>& paths);
+    std::string standaloneMcpConfig() const;
+    void drawAIPanel(Rect r);
+    void drawRightTabs(Rect r, float y);
+
     // ---- web.cpp: browser build + embeddable viewer ----
     bool embedMode = false;      // <iframe> viewer: canvas + small bar only
     bool readOnly = false;       // no editing (pan, zoom, simulate, press buttons)

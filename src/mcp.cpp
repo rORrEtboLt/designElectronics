@@ -11,6 +11,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
+#include <memory>
 #include <set>
 #include <string>
 
@@ -30,6 +31,8 @@
 
 #include "doc.h"
 #include "history.h"
+#include "mcp.h"
+#include "net.h"
 #include "tools.h"
 
 namespace {
@@ -82,14 +85,21 @@ Json schema(std::initializer_list<std::pair<const char*, Json>> props, std::init
 
 class Server {
 public:
+    Server() : doc_(ownDoc_) {}
+    explicit Server(Document& live) : doc_(live), live_(true) {}
     Json handle(const Json& msg, bool& reply);
-
-private:
-    Document doc_;
-    std::string path_;
-
     Json tools() const;
     Json call(const std::string& name, const Json& a);
+    // hooks (in-app session) and forwarding (proxy to the app)
+    std::function<void()> beforeEdit, afterEdit, onReplaced;
+    std::function<bool(const std::string& name, const Json& args, std::string& text, bool& isError)> forward;
+
+private:
+    Document ownDoc_;
+    Document& doc_;
+    bool live_ = false;
+    std::string path_;
+    Json callImpl(const std::string& name, const Json& a);
 
     // ---- lookups ----
     PartInst& findPart(const Json& ref) {
@@ -111,6 +121,17 @@ private:
         }
         for (size_t i = 0; i < pins.size(); i++) if (lower(pins[i].name) == lower(tok) || lower(pins[i].id) == lower(tok)) return (int)i;
         if (ref.isNumber() && ref.i() >= 1 && ref.i() <= (int)pins.size()) return ref.i() - 1;
+        if (p.def->isBreadboard) {
+            int cols = 0, rail = 0;
+            for (auto& pin : pins) {
+                if (pin.id[0] == 'a') cols = std::max(cols, std::atoi(pin.id.c_str() + 1));
+                if (pin.id.rfind("tp", 0) == 0) rail = std::max(rail, std::atoi(pin.id.c_str() + 2));
+            }
+            fail("breadboard " + p.label + " has no hole '" + tok + "'. Holes are a1…j" + std::to_string(cols) +
+                 (rail ? "; power rails are tp1…tp" + std::to_string(rail) + ", tn1…tn" + std::to_string(rail) + ", bp1…bp" + std::to_string(rail) +
+                             ", bn1…bn" + std::to_string(rail) + " (rail holes are numbered on their own, not by column)"
+                       : ""));
+        }
         std::string list;
         for (size_t i = 0; i < pins.size() && i < 60; i++) list += (i ? ", " : "") + pins[i].id;
         fail("part " + p.label + " has no pin '" + tok + "'. Pins: " + list + (pins.size() > 60 ? ", …" : ""));
@@ -330,7 +351,24 @@ Json Server::tools() const {
     return t;
 }
 
+// Tools that change the design get undo checkpoints / redraws in the app.
 Json Server::call(const std::string& name, const Json& a) {
+    static const std::set<std::string> readOnly = {"list_parts", "get_part_info", "get_design", "simulate", "run_drc", "export"};
+    bool edits = !readOnly.count(name);
+    bool replaces = name == "new_design" || name == "open_design" || name == "load_example";
+    if (edits && beforeEdit) beforeEdit();
+    struct After {
+        Server* s;
+        bool edits, replaces;
+        ~After() {
+            if (edits && s->afterEdit) s->afterEdit();
+            if (replaces && s->onReplaced) s->onReplaced();
+        }
+    } after{this, edits, replaces};
+    return callImpl(name, a);
+}
+
+Json Server::callImpl(const std::string& name, const Json& a) {
     if (name == "list_parts") {
         std::string q = lower(a["query"].str()), cat = lower(a["category"].str());
         std::vector<std::string> words;
@@ -563,7 +601,7 @@ Json Server::call(const std::string& name, const Json& a) {
         if (!bb.def->isBreadboard) fail(bb.label + " is not a breadboard");
         int pin = findPin(p, a["pin"]);
         int hole = bb.def->pinIndex(a["hole"].str());
-        if (hole < 0) fail("breadboard has no hole '" + a["hole"].str() + "' (holes a1…j30, rails tp1/tn1/bp1/bn1)");
+        if (hole < 0) findPin(bb, a["hole"]);  // throws with the list of valid holes
         if (a.has("rotation")) p.place[BB].rot = ((a["rotation"].i() / 90) % 4 + 4) % 4;
         Vec2 target = bb.pinPos(hole, BB), cur = p.pinPos(pin, BB);
         p.place[BB].pos = p.place[BB].pos + (target - cur);
@@ -786,7 +824,8 @@ Json Server::handle(const Json& msg, bool& reply) {
         info.set("name", "designElectronics");
         info.set("version", kAppVersion);
         r.set("serverInfo", info);
-        r.set("instructions",
+        r.set("instructions", std::string(forward ? "You are connected to the designElectronics app the user has open: every change "
+                                                   "appears live on their screen. Start with get_design to see the current design. " : "") +
               "Design electronics: breadboard, schematic and PCB views that share one netlist. Find parts with list_parts, add them "
               "with add_part, wire pins with connect (or plug parts into a breadboard with place_on_breadboard), check behaviour with "
               "simulate, then for a PCB add a pcb_board, autoroute, run_drc and export gerber. Save with save_design to a .dez file "
@@ -808,9 +847,18 @@ Json Server::handle(const Json& msg, bool& reply) {
         item.set("type", "text");
         Json r = Json::object();
         try {
-            Json out = call(p["name"].str(), p["arguments"].isObject() ? p["arguments"] : Json::object());
-            item.set("text", text(out));
-            r.set("isError", false);
+            const Json& args = p["arguments"].isObject() ? p["arguments"] : Json::object();
+            if (forward) {
+                std::string out;
+                bool isErr = false;
+                if (!forward(p["name"].str(), args, out, isErr)) out = "Error: couldn't reach the designElectronics app (is it still open?)", isErr = true;
+                item.set("text", out);
+                r.set("isError", isErr);
+            } else {
+                Json out = call(p["name"].str(), args);
+                item.set("text", text(out));
+                r.set("isError", false);
+            }
         } catch (const ToolError& e) {
             item.set("text", "Error: " + e.msg);
             r.set("isError", true);
@@ -826,7 +874,30 @@ Json Server::handle(const Json& msg, bool& reply) {
 
 }  // namespace
 
-int runMcpServer() {
+struct McpSession::Impl {
+    std::unique_ptr<Server> server;
+    explicit Impl(Document* live) : server(live ? std::make_unique<Server>(*live) : std::make_unique<Server>()) {}
+};
+McpSession::McpSession(Document* live) {
+    impl_ = std::make_unique<Impl>(live);
+}
+McpSession::~McpSession() = default;
+std::string McpSession::callTool(const std::string& name, const Json& args, bool& isError) {
+    Server& s = *impl_->server;
+    s.beforeEdit = beforeEdit;
+    s.afterEdit = afterEdit;
+    s.onReplaced = onReplaced;
+    try {
+        Json out = s.call(name, args);
+        isError = false;
+        return out.dump(1);
+    } catch (const ToolError& e) {
+        isError = true;
+        return "Error: " + e.msg;
+    }
+}
+
+int runMcpServer(int connectPort, const std::string& token) {
     // Protocol messages go to the real stdout; anything else printed by the
     // library code (diagnostics) is redirected to stderr so it can't corrupt
     // the JSON-RPC stream.
@@ -837,6 +908,33 @@ int runMcpServer() {
     if (!proto) return 1;
 
     Server server;
+#ifdef DE_HAVE_NET
+    // proxy mode: tool calls go to the running app over 127.0.0.1
+    net::Sock appSock = net::kInvalid;
+    std::string appBuf;
+    if (connectPort > 0) {
+        server.forward = [&](const std::string& name, const Json& args, std::string& text, bool& isError) {
+            if (appSock == net::kInvalid) appSock = net::connectLocal(connectPort);
+            if (appSock == net::kInvalid) return false;
+            Json req = Json::object();
+            req.set("token", token);
+            req.set("name", name);
+            req.set("arguments", args);
+            std::string line;
+            if (!net::sendAll(appSock, req.dump(-1) + "\n") || !net::readLine(appSock, appBuf, line)) {
+                net::closeSock(appSock);
+                appSock = net::kInvalid;
+                return false;
+            }
+            Json resp = Json::parse(line);
+            text = resp["text"].str();
+            isError = resp["isError"].boolean();
+            return true;
+        };
+    }
+#else
+    (void)connectPort; (void)token;
+#endif
     std::string line;
     while (std::getline(std::cin, line)) {
         if (!line.empty() && line.back() == '\r') line.pop_back();

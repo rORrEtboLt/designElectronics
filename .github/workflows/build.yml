@@ -90,6 +90,11 @@ jobs:
         shell: bash
         run: python3 tests/mcp_smoke_test.py "${{ steps.bin.outputs.exe }}"
 
+      - name: AI agent bridge test
+        if: runner.os != 'Windows'
+        shell: bash
+        run: python3 tests/agent_bridge_test.py "${{ steps.bin.outputs.exe }}"
+
       - name: Share link test
         if: runner.os != 'Windows'
         shell: bash

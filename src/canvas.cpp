@@ -351,7 +351,7 @@ void App::finishPointer() {
 void App::canvasInput() {
     Vec2 m = in.mouse;
     float s = ui.s;
-    bool drawerOpen = compact && (drawerParts || drawerInspector || drawerLayers);
+    bool drawerOpen = compact && (drawerParts || drawerInspector || drawerLayers || drawerAI);
     bool overCanvas = rCanvas.contains(m) && !ui.overBlocking(m) && !(drawerOpen && rRight.contains(m));
     Camera& c = cam[view];
 
