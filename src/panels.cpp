@@ -56,6 +56,7 @@ std::vector<MenuItem> App::fileMenu() {
         MenuItem::sep(),
         item("Save", [this]() { save(); }, sc("S")),
         item("Save As / Share…", [this]() { saveAs(); }, sc("⇧S")),
+        item("Embed in a Website…", [this]() { openEmbedSheet(); }),
         MenuItem::sep(),
         item("Version History…", [this]() { openHistory(); }, sc("⇧H")),
         item("Commit to GitHub…", [this]() { openCommitSheet(); }, sc("⇧K")),
@@ -708,7 +709,7 @@ void App::drawCanvasOverlay() {
     Rect c = rCanvas;
     bool empty = true;
     for (auto& p : doc.parts) if (p.inView(view) && !p.def->isBoard && !p.def->isBreadboard) { empty = false; break; }
-    if (empty) {
+    if (empty && !readOnly) {
         std::string hint = compact ? "Tap Parts below to add components" : "Drag parts from the Parts bin onto the canvas";
         float w = g.textWidth(hint, 15 * s) + 36 * s;
         Rect r(c.center().x - w / 2, c.y + 18 * s, w, 38 * s);
@@ -737,7 +738,7 @@ void App::drawCanvasOverlay() {
             if (y > c.b() - 80 * s) break;
         }
     }
-    if (view == PCB) {
+    if (view == PCB && !readOnly) {
         std::string lt = std::string("Active layer: ") + (activeLayer == TOP ? "Top" : "Bottom");
         float w = g.textWidth(lt, 12.5f * s) + 24 * s;
         Rect r(c.r() - w - 12 * s, c.y + 12 * s, w, 26 * s);
@@ -748,7 +749,7 @@ void App::drawCanvasOverlay() {
         ensureConn();
         RoutingStatus st;
         conn.ratsnest(doc, view, &st);
-        if (st.connectionsToRoute > 0) {
+        if (st.connectionsToRoute > 0 && !readOnly) {
             std::string m = std::to_string(st.connectionsToRoute) + " to route";
             float w = g.textWidth(m, 12.5f * s) + 24 * s;
             Rect r(c.x + 10 * s, c.b() - 38 * s, w, 28 * s);
@@ -756,7 +757,7 @@ void App::drawCanvasOverlay() {
             g.text(r.center(), m, 12.5f * s, rgba(255, 255, 255), 1);
         }
         Rect fit(c.r() - 50 * s, c.b() - 50 * s, 40 * s, 40 * s);
-        if (!(drawerParts || drawerInspector || drawerLayers)) {
+        if (!(drawerParts || drawerInspector || drawerLayers) && !embedMode) {
             g.fillRoundRect(fit, 20 * s, rgba(255, 255, 255, 235));
             g.strokeRoundRect(fit, 20 * s, std::max(1.f, s), ui.th.border);
             if (ui.iconButton("cfit", fit.inset(4 * s), "fit", "")) fitView(view, rCanvas);

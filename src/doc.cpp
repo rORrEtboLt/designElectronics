@@ -240,6 +240,19 @@ Json Document::toJson(bool full) const {
     return j;
 }
 
+std::string Document::compactJson() const {
+    Json j = toJson(false);
+    Json lib = Json::array();
+    std::set<std::string> seen;
+    for (auto& p : parts) {
+        if (!p.def || seen.count(p.type) || !isCustomType(p.type)) continue;
+        seen.insert(p.type);
+        lib.push(partDefToJson(*p.def));
+    }
+    if (lib.size()) j.set("library", lib);
+    return j.dump(-1);
+}
+
 static int viewFromKey(const std::string& s) {
     for (int v = 0; v < NUM_VIEWS; v++) if (s == viewKey(v)) return v;
     return -1;

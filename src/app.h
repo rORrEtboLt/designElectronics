@@ -18,6 +18,12 @@
 // Per-view drawing layers (toggled in the Layers panel; visual only, not saved).
 enum CanvasLayer { LY_PARTS, LY_WIRES, LY_LABELS, LY_NOTES, LY_RATSNEST, LY_BOARD, LY_COPPER_BOTTOM, LY_COPPER_TOP, LY_PADS, LY_SILK, LY_COUNT };
 
+class App;
+// web.cpp — browser glue (no-ops on native builds)
+void webRegisterApp(App* app);
+void webSaveAndDownload(const std::string& name, const std::function<void(const std::string&)>& write);
+void webPickFile(const char* accept);
+
 struct Camera {
     Vec2 pan;          // screen position of world origin (pixels)
     float zoom = 0.15f;  // pixels per mil
@@ -190,6 +196,15 @@ public:
     void toggleSim();
     void setView(int v);
     void handleShortcuts();
+
+    // ---- web.cpp: browser build + embeddable viewer ----
+    bool embedMode = false;      // <iframe> viewer: canvas + small bar only
+    bool readOnly = false;       // no editing (pan, zoom, simulate, press buttons)
+    std::string editorUrl;       // "Open in designElectronics" target (set by the web page)
+    void drawEmbedBar();
+    void handleViewerKeys();
+    void openEmbedSheet();       // Share ▸ Embed in a website…
+    std::string shareFragment(); // "#d=…" with the design packed into the link
 
     // ---- app_history.cpp: version history + GitHub ----
     GitHubSettings gh;

@@ -145,6 +145,7 @@ Hit App::hitTest(Vec2 s) {
 // ---------------------------------------------------------------------------
 
 void App::startDrag() {
+    if (readOnly) { drag = DRAG_PAN; return; }  // viewers can only pan
     Vec2 w = toWorld(in.mouse);
     switch (pressHit.kind) {
         case Hit::PIN: {
@@ -263,6 +264,12 @@ void App::finishPointer() {
         case DRAG_PENDING: {
             const Hit& h = pressHit;
             bool add = in.shift();
+            if (readOnly) {  // clicks only select (and show) parts
+                if (h.kind == Hit::PART || h.kind == Hit::PIN) selParts = {h.part};
+                else selParts.clear();
+                selWires.clear(); selNotes.clear();
+                break;
+            }
             if (h.kind == Hit::PART || h.kind == Hit::PIN) {
                 if (add) { if (!selParts.erase(h.part)) selParts.insert(h.part); }
                 else { selParts = {h.part}; selWires.clear(); selNotes.clear(); }
@@ -373,7 +380,7 @@ void App::canvasInput() {
     if (drag == DRAG_NONE && overCanvas && !in.touch && !ui.blocking()) hover = hitTest(m);
 
     // right-click context menu
-    if (in.rightPressed && overCanvas && !ui.blocking() && drag == DRAG_NONE) {
+    if (in.rightPressed && overCanvas && !ui.blocking() && drag == DRAG_NONE && !readOnly) {
         Hit h = hitTest(m);
         if ((h.kind == Hit::PART || h.kind == Hit::PIN) && !selParts.count(h.part)) { selParts = {h.part}; selWires.clear(); selNotes.clear(); }
         if ((h.kind == Hit::WIRE_SEG || h.kind == Hit::WIRE_BEND || h.kind == Hit::WIRE_END) && !selWires.count(h.wire)) { selWires = {h.wire}; selParts.clear(); selNotes.clear(); }
@@ -403,7 +410,7 @@ void App::canvasInput() {
         Vec2 w = toWorld(m);
         float moved = dist(m, in.pressPos);
         if (drag == DRAG_PENDING) {
-            if (in.touch && moved < 12 * s && SDL_GetTicks() - in.pressTime > 550 && !longPressFired) {
+            if (in.touch && moved < 12 * s && SDL_GetTicks() - in.pressTime > 550 && !longPressFired && !readOnly) {
                 longPressFired = true;
                 Hit h = pressHit;
                 if ((h.kind == Hit::PART || h.kind == Hit::PIN) && !selParts.count(h.part)) { selParts = {h.part}; selWires.clear(); selNotes.clear(); }

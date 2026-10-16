@@ -175,6 +175,7 @@ footer .inner { max-width: 1120px; margin: 0 auto; padding: 22px 16px 40px; disp
       <button class="tab" role="tab" data-tab="simulate">Simulate</button>
       <button class="tab" role="tab" data-tab="parts">Parts</button>
       <button class="tab" role="tab" data-tab="history">History &amp; GitHub</button>
+      <button class="tab" role="tab" data-tab="embed">Embed</button>
       <button class="tab" role="tab" data-tab="ai">AI (MCP)</button>
       <button class="tab" role="tab" data-tab="reference">Reference</button>
       <button class="tab" role="tab" data-tab="faq">FAQ</button>
@@ -191,7 +192,7 @@ footer .inner { max-width: 1120px; margin: 0 auto; padding: 22px 16px 40px; disp
       <p class="lead">Build a circuit on a virtual breadboard, draw the schematic, lay out a PCB and watch it run in a live simulator — on your laptop or your phone. Free and open source.</p>
       <div class="actions">
         <a class="btn primary" href="#install">Download free</a>
-        <a class="btn" href="#quickstart">Build your first circuit</a>
+        <a class="btn" href="app/" target="_blank" rel="noopener">Try it in your browser</a>
         <a class="btn" href="https://github.com/rORrEtboLt/designElectronics">★ Star on GitHub</a>
       </div>
       <ul class="badges"><li>MIT licensed</li><li>Downloads for macOS · Windows · Linux</li><li>iOS · Android</li><li>Works offline</li><li>No account</li></ul>
@@ -443,6 +444,33 @@ D9=PWM:30           # 30 % duty, simulated as the average voltage</code></pre>
     <li><b>Browse.</b> The <b>GitHub</b> tab in Version History lists every commit of the design — restore one or open it as a copy, from any device.</li>
   </ol>
   <div class="note">Designs go to a <b>private</b> repository you own (<code>electronics-designs</code> by default), each design in <b>its own folder</b>. You can also give a design its <b>own repository</b>. Turn on <i>Commit automatically every time I save</i> in the account window if you like. Your token is stored only on your device.</div>
+</section>
+
+<!-- ============================== EMBED ============================== -->
+<section class="panel doc" role="tabpanel" id="embed" hidden>
+  <h2>Embed circuits in your blog</h2>
+  <p>Put a live, interactive circuit in any web page with an <code>&lt;iframe&gt;</code>. Readers can switch between breadboard, schematic and PCB, pan and zoom, and press <b>Simulate</b> — right in your post. <a href="embed/demo.html">See a demo blog post →</a></p>
+  <ol class="steps">
+    <li>In the app, open your design and choose <b>File ▸ Embed in a Website…</b></li>
+    <li>Pick the view it should start in, whether it starts simulating, and the size.</li>
+    <li>Click <b>Copy embed code</b> and paste it into your page's HTML (WordPress “Custom HTML” block, Ghost/Hugo/Jekyll markdown, Notion embed…).</li>
+  </ol>
+<pre><code>&lt;iframe src="https://rorretbolt.github.io/designElectronics/embed/#d=…&amp;view=breadboard"
+        width="800" height="500" style="border:1px solid #ddd;border-radius:8px"
+        loading="lazy" allowfullscreen&gt;&lt;/iframe&gt;</code></pre>
+  <div class="note">The whole design is packed into the link (a typical circuit is 1–3&nbsp;KB), so nothing is uploaded anywhere and the embed keeps working as long as the page exists.</div>
+  <h3>Link options</h3>
+  <div class="table-wrap"><table>
+    <tr><th>After <code>#</code></th><th>Meaning</th></tr>
+    <tr><td><code>d=…</code></td><td>The design itself (made by <i>Embed in a Website</i>)</td></tr>
+    <tr><td><code>src=https://…/design.dez</code></td><td>Load a hosted <code>.dez</code> file instead — e.g. from a GitHub repo (<code>raw.githubusercontent.com</code>) or a gist. Handy for very large designs, and the embed updates when you update the file.</td></tr>
+    <tr><td><code>example=0</code>…<code>6</code></td><td>A built-in example</td></tr>
+    <tr><td><code>view=breadboard|schematic|pcb</code></td><td>Start view</td></tr>
+    <tr><td><code>sim=1</code></td><td>Start simulating</td></tr>
+  </table></div>
+  <p>Join options with <code>&amp;</code>, for example <code>embed/#example=4&amp;view=pcb</code>. The embed's <b>Open in editor</b> button opens the same design in the <a href="app/" target="_blank" rel="noopener">web editor</a>, where readers can change it and save their own copy.</p>
+  <h3>The web editor</h3>
+  <p>The full app also runs in the browser at <a href="app/" target="_blank" rel="noopener">rorretbolt.github.io/designElectronics/app/</a> — the same code compiled to WebAssembly. Open and Save use your browser's file picker and downloads. Share a design with <b>Copy editor link</b> in the embed window.</p>
 </section>
 
 <!-- ============================== AI / MCP ============================== -->

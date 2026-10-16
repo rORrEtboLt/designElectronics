@@ -90,6 +90,11 @@ jobs:
         shell: bash
         run: python3 tests/mcp_smoke_test.py "${{ steps.bin.outputs.exe }}"
 
+      - name: Share link test
+        if: runner.os != 'Windows'
+        shell: bash
+        run: python3 tests/share_link_test.py "${{ steps.bin.outputs.exe }}"
+
       - name: GitHub sync test (local mock API)
         if: runner.os != 'Windows'
         shell: bash

@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en" data-mode="embed">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>designElectronics viewer</title>
+<link rel="icon" type="image/svg+xml" href="../assets/logo.svg">
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #e2e2e4; }
+  canvas { display: block; width: 100vw; height: 100vh; outline: none; touch-action: none; }
+  #status { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); font: 14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: #444; background: #fff; padding: 10px 16px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,.12); max-width: 80vw; text-align: center; }
+  #status.error { color: #b42318; }
+</style>
+</head>
+<body>
+<canvas id="canvas" tabindex="-1"></canvas>
+<div id="status">Loading circuit…</div>
+<script src="../app/loader.js"></script>
+</body>
+</html>

@@ -474,6 +474,9 @@ struct Screenshot {
 };
 
 App* g_app = nullptr;
+bool g_embed = false;
+std::string g_editorUrl;
+int g_loadExample = -1;
 Screenshot g_shot;
 int g_frame = 0;
 
@@ -485,6 +488,15 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
     for (int i = 1; i < argc; i++) {
         std::string a = argv[i];
         auto next = [&]() -> std::string { return i + 1 < argc ? argv[++i] : ""; };
+        if (a == "--share-fragment") {  // print the "#d=…" link fragment for a .dez (or an example index)
+            std::string arg = next();
+            App tmp;
+            if (!arg.empty() && std::isdigit((unsigned char)arg[0])) examples()[(size_t)std::atoi(arg.c_str()) % examples().size()].build(tmp.doc);
+            else if (!tmp.doc.deserialize(readTextFile(arg), nullptr)) return SDL_APP_FAILURE;
+            if (i + 1 < argc && std::string(argv[i + 1]) == "--json") printf("%s\n", tmp.doc.compactJson().c_str());
+            else printf("%s\n", tmp.shareFragment().c_str());
+            return SDL_APP_SUCCESS;
+        }
         if (a == "--export-logo") return exportLogo(next()) == 0 ? SDL_APP_SUCCESS : SDL_APP_FAILURE;
         if (a == "--github-selftest") return githubSelftest() == 0 ? SDL_APP_SUCCESS : SDL_APP_FAILURE;
         if (a == "--mcp") return runMcpServer() == 0 ? SDL_APP_SUCCESS : SDL_APP_FAILURE;
@@ -492,7 +504,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
         if (a == "--export-examples") return exportExamples(next()) == 0 ? SDL_APP_SUCCESS : SDL_APP_FAILURE;
         if (a == "--screenshot") g_shot.out = next();
         else if (a == "--example") g_shot.example = std::atoi(next().c_str());
-        else if (a == "--view") { std::string v = next(); g_shot.view = v == "sch" ? SCH : v == "pcb" ? PCB : BB; }
+        else if (a == "--view") { std::string v = next(); g_shot.view = (v == "sch" || v == "schematic") ? SCH : v == "pcb" ? PCB : BB; }
         else if (a == "--sim") g_shot.sim = true;
         else if (a == "--autoroute") g_shot.route = true;
         else if (a == "--frames") g_shot.frames = std::atoi(next().c_str());
@@ -512,13 +524,35 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
                 cur.clear();
             }
         }
+        else if (a == "--embed") g_embed = true;
+        else if (a == "--editor-url") g_editorUrl = next();
+        else if (a == "--load-example") g_loadExample = std::atoi(next().c_str());
         else if (a == "--size") { std::string s = next(); sscanf(s.c_str(), "%dx%d", &g_shot.w, &g_shot.h); }
         else if (a.rfind("-psn", 0) == 0) continue;  // macOS Finder launch argument
         else rest.push_back(argv[i]);
     }
     g_app = new App();
     *appstate = g_app;
+    g_app->embedMode = g_app->readOnly = g_embed;
+    g_app->editorUrl = g_editorUrl;
     if (!g_app->init((int)rest.size(), rest.data())) return SDL_APP_FAILURE;
+    if (g_loadExample >= 0 && g_loadExample < (int)examples().size()) {
+        g_app->doc.clear();
+        examples()[(size_t)g_loadExample].build(g_app->doc);
+        g_app->doc.syncWireEnds();
+        g_app->doc.touch();
+        g_app->savedRevision = g_app->doc.revision;
+    }
+#ifdef __EMSCRIPTEN__
+    // a design opened from a link isn't a file on this device: Save downloads it under its title
+    g_app->filePath.clear();
+    g_app->savedRevision = g_app->doc.revision;
+#endif
+    // start view / simulation (web links: #view=pcb&sim=1)
+    if (g_shot.out.empty()) {
+        if (g_shot.view >= 0) g_app->view = g_shot.view;
+        if (g_shot.sim) g_app->simOn = true;
+    }
     if (!g_shot.out.empty()) {
         if (g_shot.w > 0) SDL_SetWindowSize(g_app->win, g_shot.w, g_shot.h);
         if (g_shot.example >= 0) {
@@ -539,6 +573,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
         if (g_shot.sheet == "history") g_app->openHistory();
         else if (g_shot.sheet == "commit") g_app->openCommitSheet();
         else if (g_shot.sheet == "account") g_app->openGitHubAccount();
+        else if (g_shot.sheet == "embed") g_app->openEmbedSheet();
     }
     return SDL_APP_CONTINUE;
 }

@@ -24,10 +24,17 @@ bool App::init(int argc, char** argv) {
         SDL_Log("SDL_Init failed: %s", SDL_GetError());
         return false;
     }
-    win = SDL_CreateWindow("designElectronics", 1360, 860, SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
+    SDL_WindowFlags wflags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY;
+#ifdef __EMSCRIPTEN__
+    wflags |= SDL_WINDOW_FILL_DOCUMENT;  // the canvas follows the page / iframe size
+#endif
+    win = SDL_CreateWindow("designElectronics", 1360, 860, wflags);
     if (!win) { SDL_Log("CreateWindow failed: %s", SDL_GetError()); return false; }
+#ifndef __EMSCRIPTEN__
     SDL_SetWindowMinimumSize(win, 360, 480);
+#endif
     loadGitHubSettings();
+    webRegisterApp(this);
     if (SDL_Surface* icon = makeLogoSurface(256)) {
         SDL_SetWindowIcon(win, icon);
         SDL_DestroySurface(icon);
@@ -49,7 +56,7 @@ bool App::init(int argc, char** argv) {
     }
     bool loaded = false;
     if (!openPath.empty()) loaded = loadFile(openPath);
-    if (!loaded) {
+    if (!loaded && !readOnly) {
         bool ok = false;
         std::string text = readTextFile(autosavePath(), &ok);
         if (ok) {
@@ -87,7 +94,7 @@ std::string App::autosavePath() const {
 }
 
 void App::autosave(bool force) {
-    if (doc.revision == autosaveRevision) return;
+    if (readOnly || doc.revision == autosaveRevision) return;
     Uint64 now = SDL_GetTicks();
     if (!force && now - lastAutosave < 2500) return;
     if (!force && drag != DRAG_NONE) return;
@@ -122,6 +129,14 @@ void App::layout() {
         safe.w = (int)(safe.w * density); safe.h = (int)(safe.h * density);
     } else safe = {0, 0, winW, winH};
     float top = (float)safe.y, bottom = (float)(safe.y + safe.h);
+    if (embedMode) {
+        // viewer: a slim bar on top, the rest is canvas
+        rTop = Rect((float)safe.x, top, (float)safe.w, 44 * s);
+        rBottom = Rect((float)safe.x, bottom, (float)safe.w, 0);
+        rRight = rBin = rInspector = Rect((float)(safe.x + safe.w), rTop.b(), 0, 0);
+        rCanvas = Rect((float)safe.x, rTop.b(), (float)safe.w, bottom - rTop.b());
+        return;
+    }
     rTop = Rect((float)safe.x, top, (float)safe.w, 48 * s);
     float tbH = (compact ? 62.f : 60.f) * s;
     rBottom = Rect((float)safe.x, bottom - tbH, (float)safe.w, tbH);
@@ -346,6 +361,11 @@ static void SDLCALL dialogCallback(void* userdata, const char* const* filelist, 
 
 static void showSave(App* app, const std::string& defName, const SDL_DialogFileFilter* filters, int n,
                      std::function<void(const std::string&)> onPath) {
+#ifdef __EMSCRIPTEN__
+    (void)app; (void)filters; (void)n;
+    webSaveAndDownload(defName, onPath);  // browsers: the file becomes a download
+    return;
+#endif
     std::string def = documentsDir();
     if (!def.empty() && def.back() != '/' && def.back() != '\\') def += "/";
     def += defName;
@@ -366,6 +386,10 @@ void App::saveAs() {
 
 void App::openDialog() {
     confirmDiscard([this]() {
+#ifdef __EMSCRIPTEN__
+        webPickFile(".dez,.dezpart,.json");
+        return;
+#endif
         static const SDL_DialogFileFilter f[] = {{"designElectronics files", "dez;dezpart;json"}, {"All files", "*"}};
         auto* ctx = new DialogCtx{this, [this](const std::string& p) { loadFile(p); }, nullptr};
         std::string dir = documentsDir();
@@ -374,6 +398,10 @@ void App::openDialog() {
 }
 
 void App::importPartDialog() {
+#ifdef __EMSCRIPTEN__
+    webPickFile(".dezpart,.json");
+    return;
+#endif
     static const SDL_DialogFileFilter f[] = {{"designElectronics part", "dezpart;json"}};
     auto* ctx = new DialogCtx{this, [this](const std::string& p) { loadFile(p); }, nullptr};
     SDL_ShowOpenFileDialog(dialogCallback, ctx, win, f, 1, documentsDir().c_str(), false);
@@ -948,13 +976,16 @@ SDL_AppResult App::iterate() {
     for (int v = 0; v < NUM_VIEWS; v++) if (!cam[v].valid) fitView(v, rCanvas);
 
     ui.begin();
-    if (!ui.editingText() && !ui.blocking()) handleShortcuts();
+    if (!ui.editingText() && !ui.blocking()) { if (readOnly) handleViewerKeys(); else handleShortcuts(); }
     canvasInput();
 
     SDL_SetRenderDrawColor(ren, 226, 226, 228, 255);
     SDL_RenderClear(ren);
     drawCanvas(view, cam[view], rCanvas, false);
     drawCanvasOverlay();
+    if (embedMode) {
+        drawEmbedBar();
+    } else {
     drawTopBar();
     if (!compact) {
         if (rightTab == 1) drawLayers(rBin);
@@ -981,6 +1012,7 @@ SDL_AppResult App::iterate() {
             g.fillRoundRect(r, 8 * ui.s, rgba(255, 255, 255, 200));
             if (def) drawPartIcon(def, r.inset(6 * ui.s));
         }
+    }
     }
     ui.end();
     g.flush();

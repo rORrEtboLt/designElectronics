@@ -8,7 +8,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # SDL3 + SDL3_ttf: use installed packages, or vendor them with
 #   cmake -DDE_VENDOR_SDL=ON   (expects external/SDL and external/SDL_ttf checkouts)
 option(DE_VENDOR_SDL "Build SDL3/SDL3_ttf from external/ sources" OFF)
-if(DE_VENDOR_SDL OR ANDROID OR IOS)
+if(DE_VENDOR_SDL OR ANDROID OR IOS OR EMSCRIPTEN)
   set(SDL_SHARED OFF CACHE BOOL "" FORCE)
   set(SDL_STATIC ON CACHE BOOL "" FORCE)
   add_subdirectory(external/SDL EXCLUDE_FROM_ALL)
@@ -41,6 +41,7 @@ set(DE_SOURCES
   src/history.cpp
   src/app_history.cpp
   src/panels_layers.cpp
+  src/web.cpp
 )
 
 if(ANDROID)
@@ -54,7 +55,7 @@ endif()
 target_include_directories(${DE_TARGET} PRIVATE src)
 
 # HTTPS for GitHub sync (desktop). Without it, local version history still works.
-if(NOT ANDROID AND NOT IOS)
+if(NOT ANDROID AND NOT IOS AND NOT EMSCRIPTEN)
   find_package(CURL QUIET)
   if(CURL_FOUND)
     target_link_libraries(${DE_TARGET} PRIVATE CURL::libcurl)
@@ -90,6 +91,14 @@ if(APPLE)
     MACOSX_BUNDLE_BUNDLE_NAME designElectronics
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION}
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION})
+elseif(EMSCRIPTEN)
+  # Web build: designElectronics.js/.wasm/.data, started by docs/app and docs/embed pages.
+  # INVOKE_RUN=0: the page writes the design into the virtual FS first, then calls callMain(args).
+  target_link_options(${DE_TARGET} PRIVATE
+    -sALLOW_MEMORY_GROWTH=1 -sFORCE_FILESYSTEM=1 -sINVOKE_RUN=0 -sEXIT_RUNTIME=0
+    "-sEXPORTED_RUNTIME_METHODS=['FS','ccall','callMain']"
+    "-sEXPORTED_FUNCTIONS=['_main','_de_web_opened']"
+    "--preload-file=${CMAKE_SOURCE_DIR}/assets/fonts@/assets/fonts")
 elseif(NOT ANDROID)
   add_custom_command(TARGET ${DE_TARGET} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${DE_TARGET}>/assets/fonts

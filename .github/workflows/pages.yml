@@ -1,0 +1,53 @@
+# Publishes the documentation site plus the WebAssembly build of the app
+# (docs/app = web editor, docs/embed = <iframe> viewer) to GitHub Pages.
+name: Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch SDL3 and SDL3_ttf sources
+        run: |
+          git clone --depth 1 -b release-3.4.x https://github.com/libsdl-org/SDL.git external/SDL
+          git clone --depth 1 --recursive -b release-3.2.x https://github.com/libsdl-org/SDL_ttf.git external/SDL_ttf
+
+      - uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: 5.0.7
+
+      - name: Build the web app
+        run: |
+          emcmake cmake -S . -B build-web -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-web --parallel
+          cp build-web/designElectronics.js build-web/designElectronics.wasm build-web/designElectronics.data docs/app/
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

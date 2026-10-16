@@ -10,3 +10,9 @@ CLAUDE.md
 CLAUDE.local.md
 *.dez.autosave
 .gstack/
+
+# web build output (built by CI for GitHub Pages)
+docs/app/designElectronics.js
+docs/app/designElectronics.wasm
+docs/app/designElectronics.data
+build-web/
