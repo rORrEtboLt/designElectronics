@@ -1,10 +1,10 @@
 {
  "format": "designElectronics",
  "version": 1,
- "app": "designElectronics 0.2.0",
+ "app": "designElectronics 0.2.1",
  "title": "LED with battery",
  "notes": "A 9V battery lights an LED through a 470Ω current-limiting resistor.",
- "saved": "2026-10-16T17:05:51Z",
+ "saved": "2026-10-16T17:34:52Z",
  "rules": {
   "traceWidth": 24,
   "clearance": 12,
