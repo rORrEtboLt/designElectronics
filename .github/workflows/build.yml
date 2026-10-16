@@ -1,0 +1,153 @@
+# Builds designElectronics on macOS, Windows and Linux and runs the self-tests.
+# Pushing a tag like v0.1.0 also publishes a GitHub Release with the downloads.
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  SDL_BRANCH: release-3.4.x
+  SDL_TTF_BRANCH: release-3.2.x
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS
+            os: macos-14
+            asset: designElectronics-macOS.zip
+          - name: Windows
+            os: windows-2022
+            asset: designElectronics-Windows-x64.zip
+          - name: Linux
+            os: ubuntu-22.04
+            asset: designElectronics-Linux-x86_64.tar.gz
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch SDL3 and SDL3_ttf sources
+        shell: bash
+        run: |
+          git clone --depth 1 -b "$SDL_BRANCH" https://github.com/libsdl-org/SDL.git external/SDL
+          git clone --depth 1 --recursive -b "$SDL_TTF_BRANCH" https://github.com/libsdl-org/SDL_ttf.git external/SDL_ttf
+
+      - name: Install Linux build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake ninja-build libcurl4-openssl-dev \
+            libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxi-dev libxss-dev libxfixes-dev libxtst-dev \
+            libxkbcommon-dev libwayland-dev wayland-protocols libegl1-mesa-dev libgl1-mesa-dev libgles2-mesa-dev \
+            libdrm-dev libgbm-dev libdbus-1-dev libudev-dev libasound2-dev libpulse-dev
+
+      - name: Configure (macOS, universal arm64 + x86_64)
+        if: runner.os == 'macOS'
+        run: >
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DDE_VENDOR_SDL=ON
+          -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0
+
+      - name: Configure (Windows, static runtime)
+        if: runner.os == 'Windows'
+        run: >
+          cmake -S . -B build -DDE_VENDOR_SDL=ON -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
+
+      - name: Configure (Linux)
+        if: runner.os == 'Linux'
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DDE_VENDOR_SDL=ON
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      - name: Locate the binary
+        id: bin
+        shell: bash
+        run: |
+          case "$RUNNER_OS" in
+            macOS)   echo "exe=build/designElectronics.app/Contents/MacOS/designElectronics" >> "$GITHUB_OUTPUT" ;;
+            Windows) echo "exe=build/Release/designElectronics.exe" >> "$GITHUB_OUTPUT" ;;
+            Linux)   echo "exe=build/designElectronics" >> "$GITHUB_OUTPUT" ;;
+          esac
+
+      - name: Self-test
+        shell: bash
+        run: |
+          "${{ steps.bin.outputs.exe }}" --selftest > selftest.log 2>&1 || { cat selftest.log; exit 1; }
+          tail -n 3 selftest.log
+
+      - name: MCP smoke test
+        if: runner.os != 'Windows'
+        shell: bash
+        run: python3 tests/mcp_smoke_test.py "${{ steps.bin.outputs.exe }}"
+
+      - name: GitHub sync test (local mock API)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: python3 tests/github_mock_test.py "${{ steps.bin.outputs.exe }}"
+
+      - name: Package (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          mkdir -p dist
+          ditto -c -k --keepParent build/designElectronics.app "dist/${{ matrix.asset }}"
+
+      - name: Package (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $d = "dist/designElectronics"
+          New-Item -ItemType Directory -Force -Path "$d/assets/fonts", "$d/examples" | Out-Null
+          Copy-Item build/Release/designElectronics.exe $d
+          Copy-Item assets/fonts/* "$d/assets/fonts"
+          Copy-Item examples/*.dez "$d/examples"
+          Copy-Item README.md, LICENSE $d
+          Compress-Archive -Path $d -DestinationPath "dist/${{ matrix.asset }}"
+
+      - name: Package (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          d=dist/designElectronics
+          mkdir -p "$d/assets/fonts" "$d/examples"
+          cp build/designElectronics "$d/"
+          cp assets/fonts/* "$d/assets/fonts/"
+          cp examples/*.dez "$d/examples/"
+          cp assets/icon/icon_256.png "$d/designelectronics.png"
+          cp platform/linux/designelectronics.desktop platform/linux/designelectronics-mime.xml README.md LICENSE "$d/"
+          tar -C dist -czf "dist/${{ matrix.asset }}" designElectronics
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.name }}
+          path: dist/${{ matrix.asset }}
+          if-no-files-found: error
+
+  release:
+    name: Publish release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" dist/* \
+            --title "designElectronics ${GITHUB_REF_NAME#v}" \
+            --notes-file .github/release-notes.md
