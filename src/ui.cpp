@@ -46,7 +46,7 @@ void UI::begin() {
 }
 
 bool UI::overBlocking(Vec2 p) const {
-    if (!dialogs_.empty()) return true;
+    if (!dialogs_.empty() || !sheets_.empty()) return true;
     for (auto& m : menus_) if (m.rect.contains(p)) return true;
     return false;
 }
@@ -465,7 +465,39 @@ void UI::drawDialogs() {
     }
 }
 
+void UI::openSheet(const std::string& id, const std::string& title, float w, float h, std::function<void(Rect)> draw) {
+    sheets_.clear();
+    sheets_.push_back({id, title, w, h, std::move(draw)});
+    clearFocus();
+}
+
+void UI::drawSheet() {
+    if (sheets_.empty()) return;
+    Sheet sh = sheets_.back();
+    int ww = 0, wh = 0;
+    SDL_GetWindowSizeInPixels(window, &ww, &wh);
+    g->fillRect({0, 0, (float)ww, (float)wh}, rgba(0, 0, 0, 90));
+    float w = std::min(sh.w * s, (float)ww - 24 * s), h = std::min(sh.h * s, (float)wh - 24 * s);
+    Rect r((float)ww / 2 - w / 2, (float)wh / 2 - h / 2, w, h);
+    g->fillRoundRect(Rect(r.x, r.y + 6 * s, r.w, r.h), 12 * s, rgba(0, 0, 0, 50));
+    g->fillRoundRect(r, 12 * s, th.panel);
+    float pad = 18 * s;
+    g->text({r.x + pad, r.y + pad + 11 * s}, sh.title, 18 * s, th.text, 0);
+    inSheet_ = true;
+    bool closeNow = false;
+    if (!blocking()) {
+        Rect cb(r.r() - pad - 30 * s, r.y + pad - 4 * s, 30 * s, 30 * s);
+        if (iconButton("sheet-close-" + sh.id, cb, "close", "", false, true, "Close")) closeNow = true;
+        if (in->key(SDLK_ESCAPE) && !editingText()) closeNow = true;
+    }
+    Rect body(r.x + pad, r.y + pad + 36 * s, r.w - 2 * pad, r.h - 2 * pad - 36 * s);
+    if (sh.draw) sh.draw(body);
+    inSheet_ = false;
+    if (closeNow && !sheets_.empty() && sheets_.back().id == sh.id) sheets_.pop_back();
+}
+
 void UI::end() {
+    drawSheet();
     drawMenus();
     drawDialogs();
     int ww = 0, wh = 0;

@@ -93,7 +93,7 @@ public:
     // Is the pointer free for this widget (not blocked by a popup/dialog/capture)?
     bool interactive(Rect r) const;
     bool hovered(Rect r) const { return interactive(r) && r.contains(in->mouse); }
-    bool blocking() const { return !menus_.empty() || !dialogs_.empty(); }
+    bool blocking() const { return !menus_.empty() || !dialogs_.empty() || (!sheets_.empty() && !inSheet_); }
     bool overBlocking(Vec2 p) const;
     bool editingText() const { return focus_ != 0; }
 
@@ -118,6 +118,11 @@ public:
     void closeMenus() { menus_.clear(); }
     void dialog(const std::string& title, const std::vector<std::string>& lines, std::vector<DialogButton> buttons);
     void toast(const std::string& msg, float seconds = 3.0f);
+    // Modal sheet: a titled panel drawn over everything (below menus/dialogs). `draw`
+    // is called every frame with the body rect and lays out its own widgets.
+    void openSheet(const std::string& id, const std::string& title, float w, float h, std::function<void(Rect)> draw);
+    void closeSheet() { sheets_.clear(); }
+    bool sheetOpen(const std::string& id = "") const { return !sheets_.empty() && (id.empty() || sheets_.back().id == id); }
     void clearFocus();
 
     bool hasMenu() const { return !menus_.empty(); }
@@ -125,6 +130,10 @@ public:
 private:
     struct Menu { Rect rect; std::vector<MenuItem> items; int open = -1; };
     struct Dialog { std::string title; std::vector<std::string> lines; std::vector<DialogButton> buttons; };
+    struct Sheet { std::string id, title; float w, h; std::function<void(Rect)> draw; };
+    std::vector<Sheet> sheets_;
+    bool inSheet_ = false;
+    void drawSheet();
     std::vector<Menu> menus_;
     std::vector<Dialog> dialogs_;
     std::string toastMsg_;

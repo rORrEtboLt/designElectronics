@@ -11,6 +11,7 @@
 
 #include "doc.h"
 #include "gfx.h"
+#include "history.h"
 #include "tools.h"
 #include "ui.h"
 
@@ -140,7 +141,7 @@ public:
     void newDoc();
     void confirmDiscard(std::function<void()> then);
     bool loadFile(const std::string& path);
-    bool saveFile(const std::string& path);
+    bool saveFile(const std::string& path, const std::string& versionMessage = "");
     void save();
     void saveAs();
     void openDialog();
@@ -168,6 +169,26 @@ public:
     void toggleSim();
     void setView(int v);
     void handleShortcuts();
+
+    // ---- app_history.cpp: version history + GitHub ----
+    GitHubSettings gh;
+    bool ghBusy = false;
+    std::string ghStatus, ghCommitsErr, lastCommitUrl;
+    std::vector<GitCommit> ghCommits;
+    bool ghCommitsLoaded = false;
+    int historyTab = 0;
+    std::string commitMsg, commitRepo, commitPath, tokenInput, repoInput;
+    bool githubConnected() const;
+    void loadGitHubSettings();
+    void recordVersion(const std::string& data, const std::string& message);
+    void pushToGitHub(const std::string& message);
+    void refreshGitHubHistory();
+    void restoreVersionText(const std::string& text, const std::string& label);
+    void openVersionCopy(const std::string& text, const std::string& label);
+    void fetchGitHubVersion(const GitCommit& c, bool asCopy);
+    void openHistory();
+    void openCommitSheet();
+    void openGitHubAccount();
 
     // ---- canvas.cpp ----
     Vec2 toWorld(Vec2 s) const { return (s - cam[view].pan) / cam[view].zoom; }

@@ -35,9 +35,16 @@ void finish(PartDef& d, const std::string& title, const std::string& desc, const
     if (sim.empty()) d.description += " Pinout only — wire it, route it and export it; the simulator treats it as unconnected.";
 }
 
+// Real outline of a dev board, in mm: length along the pin rows, width across
+// them, and the distance from the USB end of the board to the first pin.
+struct BoardSize {
+    float len = 0, wid = 0, first = 0;
+    bool usb = true;
+};
+
 // ---- two-row development boards (horizontal, straddling the breadboard gap) ----
 void makeModule(PartDef& d, const std::string& label, const std::vector<std::string>& top, const std::vector<std::string>& bottom,
-                float spacing, uint32_t color, const std::string& chip, uint32_t chipColor) {
+                float spacing, uint32_t color, const std::string& chip, uint32_t chipColor, const BoardSize* size = nullptr) {
     d.labelPrefix = "U";
     std::map<std::string, int> used;
     std::vector<int> topIdx, botIdx;
@@ -57,9 +64,23 @@ void makeModule(PartDef& d, const std::string& label, const std::vector<std::str
         if (same[pw].size() > 1) d.buses.push_back(same[pw]);
     size_t n = std::max(top.size(), bottom.size());
     float w = (n - 1) * 100.f;
+    // board outline: true to size when known, otherwise a margin around the pins
+    const float mm = 1000.f / 25.4f;
+    float x0 = -160, x1 = w + 160, y0 = -150, y1 = spacing + 150;
+    bool usb = true;
+    if (size) {
+        x0 = -size->first * mm;
+        x1 = x0 + size->len * mm;
+        y0 = spacing / 2 - size->wid * mm / 2;
+        y1 = spacing / 2 + size->wid * mm / 2;
+        usb = size->usb;
+    }
     G bb{d.gfx[BB]};
-    bb.rect(-160, -150, w + 320, spacing + 300, color, rgba(0, 0, 0, 60), 6, 40);
-    bb.rect(-300, spacing / 2 - 110, 200, 220, rgba(205, 205, 210), rgba(140, 140, 145), 6, 12);  // USB
+    bb.rect(x0, y0, x1 - x0, y1 - y0, color, rgba(0, 0, 0, 60), 6, std::min(40.f, (y1 - y0) * 0.06f));
+    if (usb) {
+        float uw = std::min(320.f, (y1 - y0) * 0.36f);
+        bb.rect(x0 - (size ? 50.f : 140.f), spacing / 2 - uw / 2, 250, uw, rgba(205, 205, 210), rgba(140, 140, 145), 6, 12);  // USB
+    }
     for (float y : {0.f, spacing}) {
         bb.rect(-50, y - 50, w + 100, 100, rgba(25, 25, 25), 0, 0, 6);
     }
@@ -76,8 +97,8 @@ void makeModule(PartDef& d, const std::string& label, const std::vector<std::str
     bb.text(w / 2, spacing / 2, chip, std::min(90.f, std::min(ch * 0.4f, cw / std::max<size_t>(chip.size(), 1) * 1.5f)), rgba(230, 230, 230));
     schBox(d, label, topIdx, botIdx, 900);
     G pc{d.gfx[PCB]};
-    pc.rect(-160, -150, w + 320, spacing + 300, 0, SILK, SKW, 40);
-    pc.text(w / 2, spacing / 2, label, 70, SILK);
+    pc.rect(x0, y0, x1 - x0, y1 - y0, 0, SILK, SKW, 40);
+    pc.text(w / 2, spacing / 2, label, std::min(70.f, (x1 - x0) / std::max<size_t>(label.size(), 1) * 1.6f), SILK);
 }
 
 // ---- single-row breakout modules (sensors, displays, small boards) ----
@@ -220,10 +241,7 @@ void makeTo92(PartDef& d, const std::string& label, const std::vector<std::strin
         idx.push_back(i);
     }
     G bb{d.gfx[BB]};
-    for (int i = 0; i < 3; i++) bb.line(i * 100.f, -110, i * 100.f, 0, 14, LEG);
-    bb.circle(100, -330, 160, rgba(35, 35, 35));
-    bb.rect(-60, -330, 320, 220, rgba(35, 35, 35));
-    bb.text(100, -230, label, std::min(42.f, 400.f / std::max<size_t>(label.size(), 1)), rgba(200, 200, 200));
+    drawTo92(bb, label);
     schBox(d, label, idx, {}, 600);
     G pc{d.gfx[PCB]};
     pc.arc(100, 30, 170, 180, 360, SKW, SILK);
@@ -343,8 +361,24 @@ std::vector<Item>& items() {
     auto board = [&](const std::string& type, const std::string& title, const char* top, const char* bot, float spacing, uint32_t color,
                      const std::string& chipText, uint32_t chipColor, const std::string& params, const std::string& outputs, const std::string& desc) {
         std::string t = top, b = bot;
+        // real board outlines (length × width mm, USB end → first pin mm)
+        static const std::map<std::string, BoardSize> sizes = {
+            {"esp32_devkit", {54.4f, 27.9f, 2.4f}},     {"esp32_devkit30", {51.5f, 28.3f, 2.6f}},
+            {"esp32c3_supermini", {22.5f, 18.0f, 2.4f}}, {"nodemcu_esp8266", {48.3f, 25.8f, 3.0f}},
+            {"rpi_pico", {51.0f, 21.0f, 1.37f}},       {"rpi_pico2", {51.0f, 21.0f, 1.37f}},
+            {"arduino_nano", {45.0f, 18.0f, 4.7f}},    {"arduino_nano_every", {45.0f, 18.0f, 4.7f}},
+            {"nano_33_iot", {45.0f, 18.0f, 4.7f}},     {"nano_33_ble", {45.0f, 18.0f, 4.7f}},
+            {"nano_esp32", {45.0f, 18.0f, 4.7f}},      {"nano_rp2040", {45.0f, 18.0f, 4.7f}},
+            {"arduino_pro_micro", {33.0f, 18.0f, 2.5f}}, {"arduino_pro_mini", {33.0f, 18.0f, 2.5f, false}},
+            {"arduino_micro", {48.0f, 18.0f, 3.7f}},   {"stm32_bluepill", {53.0f, 22.6f, 2.4f}},
+            {"stm32_blackpill", {53.0f, 21.0f, 2.4f}}, {"teensy40", {35.6f, 17.8f, 1.3f}},
+            {"xiao", {21.0f, 17.8f, 3.0f}},            {"wemos_d1_mini", {34.2f, 25.6f, 3.0f}},
+            {"esp32_cam", {40.5f, 27.0f, 2.5f, false}}, {"feather", {50.8f, 22.8f, 6.3f}},
+            {"mkr_wifi_1010", {61.5f, 25.0f, 14.0f}},
+        };
         add(type, title, "Microcontroller", {{"outputs", outputs}}, [=](PartDef& d, const Props&) {
-            makeModule(d, title, names(t.c_str()), names(b.c_str()), spacing, color, chipText, chipColor);
+            auto it = sizes.find(type);
+            makeModule(d, title, names(t.c_str()), names(b.c_str()), spacing, color, chipText, chipColor, it == sizes.end() ? nullptr : &it->second);
             finish(d, title, desc, "board", params);
             d.labelPrefix = "U";
             d.propDefs = {{"outputs", "Pin outputs (simulation)", {outputs, "", "GPIO2=HIGH", "GPIO2=BLINK:250"}}};
@@ -365,7 +399,7 @@ std::vector<Item>& items() {
           "Popular 30-pin ESP32 board (DOIT DevKit V1). Wi-Fi + Bluetooth, 3.3 V logic. On-board LED on GPIO2." + mcuNote);
     board("esp32c3_supermini", "ESP32-C3 SuperMini",
           "GPIO5,GPIO6,GPIO7,GPIO8,GPIO9,GPIO10,GPIO20,GPIO21", "5V,GND,3V3,GPIO4,GPIO3,GPIO2,GPIO1,GPIO0",
-          700, rgba(30, 30, 34), "ESP32-C3", rgba(60, 60, 65), "GND=GND;RAIL 3V3=3.3;RAIL 5V=5;IO=3.3;ROUT=40", "GPIO8=BLINK:500",
+          600, rgba(30, 30, 34), "ESP32-C3", rgba(60, 60, 65), "GND=GND;RAIL 3V3=3.3;RAIL 5V=5;IO=3.3;ROUT=40", "GPIO8=BLINK:500",
           "Tiny RISC-V ESP32-C3 board with Wi-Fi and BLE." + mcuNote);
     board("esp32s3_devkit", "ESP32-S3 DevKitC-1",
           "GND,5V,GPIO14,GPIO13,GPIO12,GPIO11,GPIO10,GPIO9,GPIO46,GPIO3,GPIO8,GPIO18,GPIO17,GPIO16,GPIO15,GPIO7,GPIO6,GPIO5,GPIO4,RST,3V3,3V3",
@@ -405,11 +439,11 @@ std::vector<Item>& items() {
           "72 MHz ARM Cortex-M3 board. On-board LED on C13." + mcuNote);
     board("teensy40", "Teensy 4.0",
           "VIN,GND,3.3V,23,22,21,20,19,18,17,16,15,14,13", "GND,0,1,2,3,4,5,6,7,8,9,10,11,12",
-          700, rgba(30, 110, 50), "iMXRT1062", rgba(35, 35, 38), "GND=GND;RAIL 3.3V=3.3;RAIL VIN=5;IO=3.3;ROUT=40", "13=BLINK:500",
+          600, rgba(30, 110, 50), "iMXRT1062", rgba(35, 35, 38), "GND=GND;RAIL 3.3V=3.3;RAIL VIN=5;IO=3.3;ROUT=40", "13=BLINK:500",
           "600 MHz Cortex-M7 board from PJRC." + mcuNote);
     board("xiao", "Seeed XIAO (ESP32-C3 / RP2040 / SAMD21)",
           "5V,GND,3V3,D10,D9,D8,D7", "D0,D1,D2,D3,D4,D5,D6",
-          700, rgba(40, 40, 44), "XIAO", rgba(175, 178, 185), "GND=GND;RAIL 3V3=3.3;RAIL 5V=5;IO=3.3;ROUT=40", "D0=BLINK:500",
+          600, rgba(40, 40, 44), "XIAO", rgba(175, 178, 185), "GND=GND;RAIL 3V3=3.3;RAIL 5V=5;IO=3.3;ROUT=40", "D0=BLINK:500",
           "Thumb-sized XIAO boards share this pinout." + mcuNote);
     board("nano_33_iot", "Arduino Nano 33 IoT",
           "D13,3V3,AREF,A0,A1,A2,A3,A4,A5,A6,A7,VUSB,RST,GND,VIN", NANO_BOT,

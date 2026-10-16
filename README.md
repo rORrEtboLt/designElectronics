@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/icon/logo.svg" width="128" alt="designElectronics logo"></p>
+
 # designElectronics
 
 An open-source electronics design app for **desktop and mobile**, inspired by
@@ -25,6 +27,9 @@ Built in C++17 with **SDL3** and SDL3_ttf. No other dependencies.
 | **Export** | Gerber RS-274X + Excellon drill (zipped, ready to upload to a fab), SVG and PNG of any view, Bill of Materials (CSV), XML netlist, SPICE netlist. |
 | **Editing** | Undo/redo, copy/cut/paste (clipboard is JSON, so you can paste between windows or apps), duplicate, rotate, flip, z-order, rubber-band selection, notes, snap-to-grid, keyboard nudging. |
 | **Mobile-friendly** | Adaptive layout: on narrow screens the parts bin and inspector become slide-over drawers and the toolbar grows larger. One finger pans, two fingers pinch-zoom, long-press opens context menus. Respects safe areas. Autosaves continuously, so nothing is lost if the OS kills the app. |
+| **Version history** | Every save keeps a version on your device, with a summary of what changed ("R1 resistance 220Ω → 330Ω · Added LED2"). **File ▸ Version History** lets you restore any version or open it as a copy — offline, on every platform. |
+| **GitHub sync (optional)** | Connect GitHub and **File ▸ Commit to GitHub** commits the design to a private repository you own (each design in its own folder, or its own repo), optionally on every save. Older commits show up in Version History and can be restored from any device. Desktop builds; uses the system's libcurl. |
+| **AI assistants (MCP)** | Run `designElectronics --mcp` and Claude, Cursor or any MCP client can design for you: search parts, add and wire them, plug them into breadboards, simulate, autoroute, run DRC and export Gerbers. Works offline over stdio. See [docs/MCP.md](docs/MCP.md). |
 | **Desktop niceties** | Menus, shortcuts, tooltips, trackpad pinch/scroll, drag-and-drop of `.dez` files onto the window, file associations (macOS, Linux). |
 
 ## Build & run (desktop)
@@ -49,6 +54,16 @@ open build/designElectronics.app
 Open an example: `File ▸ Examples`, or `designElectronics examples/LED_with_battery.dez`.
 
 To build for **iOS and Android**, see [docs/BUILDING.md](docs/BUILDING.md).
+
+### Use it from an AI assistant
+
+```sh
+# Claude Code
+claude mcp add designElectronics -- "$PWD/build/designElectronics.app/Contents/MacOS/designElectronics" --mcp
+```
+
+Then ask: *"Design an ESP32 circuit that blinks an LED on GPIO2, simulate it and save it to ~/blink.dez."*
+Setup for Claude Desktop, Cursor and other clients is in [docs/MCP.md](docs/MCP.md).
 
 ### Self-test
 
@@ -89,13 +104,19 @@ src/
   partlib.*      part definitions and the built-in library
   doc.*          document model, .dez format, connectivity / ratsnest
   router.cpp     PCB autorouter        drc.cpp     design rules check
-  sim.cpp        DC simulator          export.cpp  Gerber/SVG/BOM/netlist/SPICE
+  sim.cpp        simulator             export.cpp  Gerber/SVG/BOM/netlist/SPICE
   examples.cpp   built-in example projects
+  mcp.cpp        MCP server for AI assistants (--mcp)
+  logo.cpp       the logo, a blue LED (top bar, window icon, --export-logo)
+  history.cpp    local version history + GitHub REST client
+  app_history.cpp Version History / Commit / GitHub Account screens
   json.*         tiny JSON parser/writer
 assets/fonts/    Lato + Source Code Pro (SIL OFL)
+assets/icon/     logo (SVG) and app icon PNGs
 platform/        Info.plist (macOS/iOS), Linux .desktop + MIME, Android notes
 examples/        example .dez projects
-docs/            file format spec, build guide
+docs/            file format spec, build guide, MCP guide
+tests/           MCP smoke test, GitHub sync test (local mock API)
 ```
 
 ## Contributing

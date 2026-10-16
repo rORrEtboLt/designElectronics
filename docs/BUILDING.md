@@ -90,3 +90,21 @@ designElectronics --screenshot out.png [--example N] [--view bb|sch|pcb] [--sim]
                   [--autoroute] [--size WxH] [--drawer parts|inspector] [--select N]
                   [--events "frame:d|m|u:x:y,…"]   # scripted pointer events for UI tests
 ```
+
+## App icon
+
+The logo is drawn in code (`src/logo.cpp`). After changing it, regenerate the
+icon files:
+
+```sh
+DE=./build/designElectronics.app/Contents/MacOS/designElectronics   # or ./build/designElectronics
+$DE --export-logo /tmp/de-icon          # logo.svg + icon_16 … icon_1024.png
+cp /tmp/de-icon/logo.svg /tmp/de-icon/icon_256.png /tmp/de-icon/icon_512.png /tmp/de-icon/icon_1024.png assets/icon/
+# macOS .icns
+mkdir -p AppIcon.iconset
+for s in 16 32 128 256 512; do
+  cp /tmp/de-icon/icon_$s.png AppIcon.iconset/icon_${s}x${s}.png
+  cp /tmp/de-icon/icon_$((s*2)).png AppIcon.iconset/icon_${s}x${s}@2x.png
+done
+iconutil -c icns AppIcon.iconset -o platform/apple/AppIcon.icns && rm -r AppIcon.iconset
+```

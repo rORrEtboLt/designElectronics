@@ -36,6 +36,10 @@ set(DE_SOURCES
   src/sim.cpp
   src/export.cpp
   src/examples.cpp
+  src/mcp.cpp
+  src/logo.cpp
+  src/history.cpp
+  src/app_history.cpp
 )
 
 if(ANDROID)
@@ -47,6 +51,17 @@ else()
 endif()
 
 target_include_directories(${DE_TARGET} PRIVATE src)
+
+# HTTPS for GitHub sync (desktop). Without it, local version history still works.
+if(NOT ANDROID AND NOT IOS)
+  find_package(CURL QUIET)
+  if(CURL_FOUND)
+    target_link_libraries(${DE_TARGET} PRIVATE CURL::libcurl)
+    target_compile_definitions(${DE_TARGET} PRIVATE DE_HAVE_CURL=1)
+  else()
+    message(STATUS "libcurl not found: GitHub sync disabled (local history still works)")
+  endif()
+endif()
 target_link_libraries(${DE_TARGET} PRIVATE SDL3_ttf::SDL3_ttf SDL3::SDL3)
 
 if(MSVC)
@@ -64,7 +79,11 @@ set(DE_FONTS
 if(APPLE)
   target_sources(${DE_TARGET} PRIVATE ${DE_FONTS})
   set_source_files_properties(${DE_FONTS} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/assets/fonts)
+  # App icon (regenerate with --export-logo + iconutil, see docs/BUILDING.md)
+  target_sources(${DE_TARGET} PRIVATE ${CMAKE_SOURCE_DIR}/platform/apple/AppIcon.icns)
+  set_source_files_properties(${CMAKE_SOURCE_DIR}/platform/apple/AppIcon.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
   set_target_properties(${DE_TARGET} PROPERTIES
+    MACOSX_BUNDLE_ICON_FILE AppIcon
     MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/platform/apple/Info.plist.in
     MACOSX_BUNDLE_GUI_IDENTIFIER org.designelectronics.app
     MACOSX_BUNDLE_BUNDLE_NAME designElectronics
@@ -79,5 +98,7 @@ elseif(NOT ANDROID)
   if(UNIX)
     install(FILES platform/linux/designelectronics.desktop DESTINATION share/applications)
     install(FILES platform/linux/designelectronics-mime.xml DESTINATION share/mime/packages)
+    install(FILES assets/icon/icon_256.png DESTINATION share/icons/hicolor/256x256/apps RENAME designelectronics.png)
+    install(FILES assets/icon/logo.svg DESTINATION share/icons/hicolor/scalable/apps RENAME designelectronics.svg)
   endif()
 endif()

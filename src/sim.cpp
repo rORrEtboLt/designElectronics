@@ -173,11 +173,12 @@ struct Simulator::Impl {
         int& B(size_t i) { if (b.size() <= i) b.resize(i + 1, 0); return b[i]; }
     };
     std::map<int, PState> st;
+    std::map<int, double> lastNetV;  // previous solution, the starting point of the next step
 };
 
 Simulator::Simulator() : impl_(new Impl) {}
 Simulator::~Simulator() { delete impl_; }
-void Simulator::reset() { impl_->st.clear(); time = 0; }
+void Simulator::reset() { impl_->st.clear(); impl_->lastNetV.clear(); time = 0; }
 
 SimResult Simulator::step(const Document& doc, const Connectivity& conn, const std::set<int>& pressed, double seconds) {
     SimResult res;
@@ -260,7 +261,13 @@ SimResult Simulator::step(const Document& doc, const Connectivity& conn, const s
     int steps = dynamic ? (int)std::clamp(std::ceil(seconds / dt), 1.0, 60.0) : 1;
     if (!dynamic) dt = std::max(seconds, 1e-3);
 
+    // Start from the previous solution: models that check their supply (op-amps,
+    // logic, MCUs) then see the circuit as it was, not as all zeros.
     std::vector<double> x((size_t)n, 0);
+    for (auto& kv : nodeOf) {
+        auto it = impl_->lastNetV.find(kv.first);
+        if (it != impl_->lastNetV.end()) x[(size_t)kv.second] = it->second;
+    }
     auto V = [&](int node) { return node >= 0 ? x[(size_t)node] : 0.0; };
     Stamp S;
     std::map<int, double> ledAccum;
@@ -818,7 +825,9 @@ SimResult Simulator::step(const Document& doc, const Connectivity& conn, const s
                         }
                     }
                 }
-                if (!changed) break;
+                // Stamps read voltages from the previous iteration, so always re-check
+                // at least once against a fresh solution.
+                if (!changed && iter > 0) break;
             }
             finalIters = iter;
             if (solveFailed) break;
@@ -917,6 +926,8 @@ SimResult Simulator::step(const Document& doc, const Connectivity& conn, const s
     }
     res.message = !anySource ? "No power source: add a battery or a microcontroller board." : (finalIters >= 59 ? "Simulating (unstable — oscillating states)" : "Simulating");
     for (auto& kv : nodeOf) res.netVoltage[(size_t)kv.first] = x[(size_t)kv.second];
+    impl_->lastNetV.clear();
+    for (auto& kv : nodeOf) impl_->lastNetV[kv.first] = x[(size_t)kv.second];
     res.time = time;
 
     // -------------------- results --------------------

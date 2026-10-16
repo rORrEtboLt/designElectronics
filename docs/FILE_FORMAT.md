@@ -15,10 +15,16 @@ y axis points down. Breadboard holes are 100 mil apart.
   "format": "designElectronics",   // required, identifies the file
   "version": 1,                    // format version; readers ignore unknown fields
   "app": "designElectronics 0.1.0",
+  "uid": "97b8da3c1e0f4a21",       // optional: stable design id; local version history follows it
   "title": "LED with battery",
   "author": "Ada",                 // optional
   "notes": "Project description",  // optional
   "saved": "2026-10-16T05:36:48Z",
+  "github": {                      // optional: where the design is committed on GitHub
+    "repo": "octocat/electronics-designs",
+    "path": "led-with-battery-97b8da/led-with-battery.dez",
+    "branch": ""                   // empty = the repository's default branch
+  },
   "rules": { "traceWidth": 24, "clearance": 12, "viaPad": 40, "viaDrill": 20 },
   "nextId": 14,
   "parts":   [ ... ],

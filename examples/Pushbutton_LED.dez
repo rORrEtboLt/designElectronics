@@ -4,7 +4,7 @@
  "app": "designElectronics 0.1.0",
  "title": "Pushbutton LED",
  "notes": "Hold the button while simulating to light the LED.",
- "saved": "2026-10-16T08:12:32Z",
+ "saved": "2026-10-16T08:46:04Z",
  "rules": {
   "traceWidth": 24,
   "clearance": 12,

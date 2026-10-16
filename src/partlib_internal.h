@@ -57,6 +57,7 @@ void schBox(PartDef& d, const std::string& title, const std::vector<int>& left, 
             float boxW = 600, float topPad = 100);
 void zigzag(G& g, float x0, float x1, float y, float amp);
 void arrowHead(G& g, Vec2 tip, Vec2 dir, float size, uint32_t c);
+void drawTo92(G& bb, const std::string& label);
 void makeDip(PartDef& d, int n, const std::string& chip, const std::vector<std::string>& names);
 std::vector<std::string> splitNames(const std::string& s);
 uint32_t ledColorOf(const std::string& n);

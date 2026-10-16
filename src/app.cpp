@@ -1,4 +1,5 @@
 #include "app.h"
+#include "logo.h"
 
 #include <algorithm>
 #include <cmath>
@@ -15,7 +16,7 @@ static void newProjectContents(Document& d) {
 
 bool App::init(int argc, char** argv) {
     SDL_SetAppMetadata("designElectronics", kAppVersion, "org.designelectronics.app");
-    SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_URL_STRING, "https://github.com/designElectronics/designElectronics");
+    SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_URL_STRING, "https://github.com/rORrEtboLt/designElectronics");
     SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, "application");
     SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
     SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "1");
@@ -26,6 +27,11 @@ bool App::init(int argc, char** argv) {
     win = SDL_CreateWindow("designElectronics", 1360, 860, SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
     if (!win) { SDL_Log("CreateWindow failed: %s", SDL_GetError()); return false; }
     SDL_SetWindowMinimumSize(win, 360, 480);
+    loadGitHubSettings();
+    if (SDL_Surface* icon = makeLogoSurface(256)) {
+        SDL_SetWindowIcon(win, icon);
+        SDL_DestroySurface(icon);
+    }
     ren = SDL_CreateRenderer(win, nullptr);
     if (!ren) { SDL_Log("CreateRenderer failed: %s", SDL_GetError()); return false; }
     SDL_SetRenderVSync(ren, 1);
@@ -276,11 +282,12 @@ bool App::loadFile(const std::string& path) {
     return true;
 }
 
-bool App::saveFile(const std::string& pathIn) {
+bool App::saveFile(const std::string& pathIn, const std::string& versionMessage) {
     std::string path = pathIn;
     bool uri = path.rfind("content://", 0) == 0;
     if (!uri && !endsWith(path, kFileExt)) path += kFileExt;
     if (doc.title == "Untitled" || doc.title.empty()) doc.title = uri ? doc.title : fileBaseName(path);
+    history::ensureUid(doc);
     std::string data = doc.serialize(true);
     if (!writeTextFile(path, data)) {
         ui.dialog("Could not save", {path, SDL_GetError()}, {});
@@ -290,6 +297,7 @@ bool App::saveFile(const std::string& pathIn) {
     savedRevision = doc.revision;
     autosave(true);
     ui.toast("Saved " + (uri ? doc.title : path));
+    recordVersion(data, versionMessage);  // local version history (+ GitHub when auto-push is on)
     return true;
 }
 
@@ -744,6 +752,8 @@ void App::handleShortcuts() {
                 case SDLK_S: sh ? saveAs() : save(); break;
                 case SDLK_O: openDialog(); break;
                 case SDLK_N: newDoc(); break;
+                case SDLK_H: if (sh) openHistory(); break;
+                case SDLK_K: if (sh) openCommitSheet(); break;
                 case SDLK_C: copySelection(false); break;
                 case SDLK_X: copySelection(true); break;
                 case SDLK_V: paste(); break;

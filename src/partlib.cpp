@@ -171,6 +171,15 @@ void zigzag(G& g, float x0, float x1, float y, float amp) {
     g.polyline(pts, SW, INK);
 }
 
+// TO-92 package seen from the flat face: 4.8 mm wide body, legs on a 100 mil pitch.
+void drawTo92(G& bb, const std::string& label) {
+    for (int i = 0; i < 3; i++) bb.line(i * 100.f, -110, i * 100.f, 0, 14, LEG);
+    bb.rect(5, -265, 190, 160, rgba(35, 35, 35), 0, 0, 8);
+    bb.circle(100, -265, 95, rgba(35, 35, 35));
+    bb.rect(5, -265, 190, 60, rgba(35, 35, 35));
+    bb.text(100, -195, label, std::min(30.f, 180.f / std::max<size_t>(label.size(), 1) * 1.6f), rgba(200, 200, 200));
+}
+
 void arrowHead(G& g, Vec2 tip, Vec2 dir, float size, uint32_t c) {
     dir = normalize(dir);
     Vec2 n = perp(dir);
@@ -591,11 +600,7 @@ void makeTransistor(PartDef& d, const Props& p) {
     addPin(d, "C", "collector", {200, 0}, {200, -200}, {200, 0});
     d.pins[0].square = true;
     G bb{d.gfx[BB]};
-    for (int i = 0; i < 3; i++) bb.line(i * 100.f, -110, i * 100.f, 0, 14, LEG);
-    bb.rect(-60, -330, 320, 220, rgba(35, 35, 35), 0, 0, 10);
-    bb.circle(100, -330, 160, rgba(35, 35, 35));
-    bb.rect(-60, -330, 320, 220, rgba(35, 35, 35));
-    bb.text(100, -230, prop(p, "part", "2N2222"), 42, rgba(200, 200, 200));
+    drawTo92(bb, prop(p, "part", "2N2222"));
     G s{d.gfx[SCH]};
     s.circle(150, 0, 125, 0, INK, SW);
     s.line(0, 0, 100, 0, SW, INK);
@@ -889,7 +894,7 @@ void makeArduinoBoard(PartDef& d, const ArduinoSpec& s) {
 
     G bb{d.gfx[BB]};
     uint32_t base = s.color, dark = rgba((base >> 24) * 7 / 10, ((base >> 16) & 255) * 7 / 10, ((base >> 8) & 255) * 7 / 10), white = rgba(240, 250, 250);
-    std::vector<Vec2> outline = {{0, 40}, {W - 100, 40}, {W, 140}, {W, 1900}, {W - 100, 2060}, {0, 2060}};
+    std::vector<Vec2> outline = {{0, 0}, {W - 100, 0}, {W, 100}, {W, 1940}, {W - 100, 2100}, {0, 2100}};  // 2.1" tall
     bb.poly(outline, base, dark, 12);
     if (s.usbC) bb.rect(-120, 380, 360, 300, rgba(200, 200, 205), rgba(140, 140, 145), 8, 40);
     else if (s.microUsb) bb.rect(-80, 420, 260, 220, rgba(200, 200, 205), rgba(140, 140, 145), 8, 20);

@@ -7,3 +7,4 @@ Exec=designElectronics %f
 Terminal=false
 Categories=Electronics;Engineering;Education;
 MimeType=application/x-designelectronics;application/x-designelectronics-part;
+Icon=designelectronics

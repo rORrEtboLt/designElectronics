@@ -69,6 +69,9 @@ std::string exportSpice(const Document& doc, const Connectivity& conn);
 // Store-only ZIP writer (no compression library needed).
 std::string makeZip(const std::vector<std::pair<std::string, std::string>>& files);
 
+// ---- MCP server (mcp.cpp): `designElectronics --mcp`, JSON-RPC over stdio ----
+int runMcpServer();
+
 // ---- example projects ----
 struct Example {
     std::string title;

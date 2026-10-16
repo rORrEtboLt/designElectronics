@@ -37,6 +37,8 @@ std::string fileBaseName(const std::string& path) {
 // ---------------------------------------------------------------------------
 
 void Document::clear() {
+    uid.clear();
+    git = GitLink();
     title = "Untitled";
     author.clear();
     notesText.clear();
@@ -134,6 +136,7 @@ Json Document::toJson(bool full) const {
     j.set("format", kFileFormat);
     j.set("version", kFileVersion);
     j.set("app", std::string("designElectronics ") + kAppVersion);
+    if (!uid.empty()) j.set("uid", uid);
     j.set("title", title);
     if (!author.empty()) j.set("author", author);
     if (!notesText.empty()) j.set("notes", notesText);
@@ -142,6 +145,13 @@ Json Document::toJson(bool full) const {
         time_t t = time(nullptr);
         strftime(buf, sizeof buf, "%Y-%m-%dT%H:%M:%SZ", gmtime(&t));
         j.set("saved", buf);
+    }
+    if (!git.repo.empty()) {
+        Json g = Json::object();
+        g.set("repo", git.repo);
+        g.set("path", git.path);
+        if (!git.branch.empty()) g.set("branch", git.branch);
+        j.set("github", g);
     }
     Json rj = Json::object();
     rj.set("traceWidth", rules.traceWidth);
@@ -243,6 +253,10 @@ bool Document::fromJson(const Json& j, std::string* err) {
         SDL_Log("File version %d is newer than supported %d", j["version"].i(), kFileVersion);
     }
     Document d;
+    d.uid = j["uid"].str();
+    d.git.repo = j["github"]["repo"].str();
+    d.git.path = j["github"]["path"].str();
+    d.git.branch = j["github"]["branch"].str();
     d.title = j["title"].str("Untitled");
     d.author = j["author"].str();
     d.notesText = j["notes"].str();

@@ -5,6 +5,8 @@
 //   designElectronics [file.dez]                open a project
 //   designElectronics --selftest                run headless model/tool tests
 //   designElectronics --export-examples DIR     write the built-in examples as .dez files
+//   designElectronics --export-logo DIR         write logo.svg and app icon PNGs
+//   designElectronics --mcp                     run as an MCP server on stdin/stdout (for AI assistants)
 //   designElectronics --screenshot OUT.png [--example N] [--view bb|sch|pcb] [--sim]
 //                     [--autoroute] [--size WxH] [--drawer parts|inspector] [--select N]
 #define SDL_MAIN_USE_CALLBACKS 1
@@ -15,6 +17,8 @@
 #include <cstring>
 
 #include "app.h"
+#include "history.h"
+#include "logo.h"
 
 namespace {
 
@@ -141,6 +145,31 @@ int simTests(int& failures) {
         check(r.brightness[l1] > 0.2f && r.brightness[l2] > 0.2f, "Raspberry Pi and Arduino Mega pins drive LEDs", failures);
         check(std::fabs(vSda - 3.3) < 0.1 && std::fabs(v5 - 5) < 0.1 && std::fabs(v33 - 3.3) < 0.1, "board rails and GPIO levels are right", failures);
     }
+    {   // LM393 night light: LDR divider vs. pot threshold; open-collector output sinks an LED
+        float lit[2];
+        for (int dark = 0; dark < 2; dark++) {
+            TB t;
+            int bat = t.add("battery", {{"voltage", "5V"}});
+            int ldr = t.add("photocell", {{"light", dark ? "5" : "100"}});
+            int rf = t.add("resistor", {{"resistance", "10kΩ"}});
+            int pot = t.add("potentiometer");
+            int u = t.add("lm393");
+            int pu = t.add("resistor", {{"resistance", "1kΩ"}});
+            int led = t.add("led", {{"color", "Yellow"}});
+            t.wire(bat, "plus", ldr, "pin0"); t.wire(ldr, "pin1", rf, "pin0"); t.wire(rf, "pin1", bat, "minus");
+            t.wire(bat, "plus", pot, "leg1"); t.wire(pot, "leg2", bat, "minus");
+            t.wire(u, "VCC", bat, "plus"); t.wire(u, "GND", bat, "minus");
+            t.wire(ldr, "pin1", u, "1IN+"); t.wire(pot, "wiper", u, "1IN-");
+            t.wire(bat, "plus", pu, "pin0"); t.wire(pu, "pin1", led, "anode"); t.wire(led, "cathode", u, "1OUT");
+            Connectivity cn; cn.build(t.d);
+            Simulator sim;
+            SimResult r;
+            for (int k = 0; k < 6; k++) r = sim.step(t.d, cn, {}, 0.05);  // keeps working while the simulation runs
+            lit[dark] = r.brightness[led];
+        }
+        printf("  LM393 night light: bright %.2f, dark %.2f\n", lit[0], lit[1]);
+        check(lit[0] < 0.05f && lit[1] > 0.1f, "comparator switches an LED on in the dark", failures);
+    }
     {   // CD4017 clocked by an ESP32 square wave: outputs advance
         TB t;
         int esp = t.add("esp32_devkit", {{"outputs", "GPIO4=BLINK:50, GPIO5=LOW"}});
@@ -192,6 +221,81 @@ int simTests(int& failures) {
         check(lit == "abdeg", "BCD decoder drives the 7-segment display", failures);
     }
     return failures;
+}
+
+// ---- version history (local) ----
+void historyTests(int& failures) {
+    printf("Version history\n");
+    char* base = SDL_GetPrefPath("designElectronics", "designElectronics-selftest");
+    std::string root = std::string(base ? base : "./") + "history-test";
+    SDL_free(base);
+    SDL_RemovePath((root + "/x").c_str());
+    history::setRoot(root);
+    Document d;
+    examples()[0].build(d);  // LED with battery
+    d.syncWireEnds();
+    history::ensureUid(d);
+    d.uid += std::to_string(SDL_GetTicks());  // fresh history for every run
+    LocalVersion v1 = history::record(d, d.serialize(true), "");
+    LocalVersion same = history::record(d, d.serialize(true), "");
+    PartInst* r = nullptr;
+    for (auto& p : d.parts) if (p.type == "resistor") r = &p;
+    std::string before = r->prop("resistance");
+    r->props["resistance"] = "330Ω";
+    r->refresh();
+    d.addPart("led", {{"color", "Green"}}, {0, 0});
+    LocalVersion v2 = history::record(d, d.serialize(true), "Brighter");
+    auto list = history::list(d.uid);
+    printf("  v%d: %s\n  v%d: %s (%s)\n", v1.n, v1.summary.c_str(), v2.n, v2.summary.c_str(), v2.message.c_str());
+    check(v1.n == 1 && same.n == 0 && v2.n == 2, "every save is a version; unchanged saves are skipped", failures);
+    check(v2.summary.find("330Ω") != std::string::npos && v2.summary.find("Added") != std::string::npos, "change summary names what changed", failures);
+    check(list.size() == 2 && list[0].n == 2, "versions are listed newest first", failures);
+    Document old;
+    std::string err;
+    bool ok = old.deserialize(history::read(d.uid, list[1]), &err);
+    std::string oldR;
+    for (auto& p : old.parts) if (p.type == "resistor") oldR = p.prop("resistance");
+    check(ok && oldR == before && old.parts.size() + 1 == d.parts.size(), "an old version reads back exactly", failures);
+    std::string bin = std::string("de\x00\xff\x10 Ω") + "end";
+    check(github::base64Decode(github::base64Encode(bin)) == bin && github::base64Encode("Man") == "TWFu" && github::base64Encode("Ma") == "TWE=",
+          "base64 round trip", failures);
+    GitHubSettings gs;
+    gs.login = "octocat";
+    GitLink l = github::defaultLink(gs, d);
+    printf("  default GitHub location: %s / %s\n", l.repo.c_str(), l.path.c_str());
+    check(l.repo == "octocat/electronics-designs" && l.path.rfind("led-with-battery-", 0) == 0, "each design gets its own folder", failures);
+    history::setRoot("");
+}
+
+// ---- GitHub sync against a mock API (tests/github_mock_test.py sets DE_GITHUB_API) ----
+int githubSelftest() {
+    int failures = 0;
+    GitHubSettings s;
+    s.token = "test-token";
+    std::string err, login;
+    check(github::whoAmI(s.token, login, err), ("who am I: " + (err.empty() ? login : err)).c_str(), failures);
+    s.login = login;
+    Document d;
+    examples()[0].build(d);
+    history::ensureUid(d);
+    GitLink link = github::defaultLink(s, d);
+    GitCommit c1, c2;
+    check(github::commitFile(s, link, "version one", "First", c1, err), ("first commit " + err).c_str(), failures);
+    check(github::commitFile(s, link, "version two Ω", "Second", c2, err), ("second commit " + err).c_str(), failures);
+    std::vector<GitCommit> list;
+    bool listed = github::listCommits(s, link, list, err);
+    printf("  listed %zu commit(s)%s%s\n", list.size(), list.empty() ? "" : ", newest: ", list.empty() ? err.c_str() : list[0].message.c_str());
+    check(listed && list.size() == 2 && list[0].message == "Second", "history lists both commits, newest first", failures);
+    std::string body;
+    check(github::fetchFile(s, link, c1.sha, body, err) && body == "version one", "an old version downloads exactly", failures);
+    GitLink other = link;
+    other.repo = "someone-else/designs";
+    check(!github::commitFile(s, other, "x", "x", c1, err) && err.find("only create repositories under your own account") != std::string::npos,
+          "won't create repos for other owners", failures);
+    s.token = "bad";
+    check(!github::whoAmI(s.token, login, err) && err.find("401") != std::string::npos, "bad token gives a clear error", failures);
+    printf(failures ? "%d FAILURE(S)\n" : "GitHub sync tests passed.\n", failures);
+    return failures ? 1 : 0;
 }
 
 int selftest() {
@@ -296,6 +400,7 @@ int selftest() {
         check(exportGerberZip(d, c, zip, &msg), "Gerber zip export", failures);
     }
     simTests(failures);
+    historyTests(failures);
     printf(failures ? "\n%d FAILURE(S)\n" : "\nAll tests passed.\n", failures);
     return failures ? 1 : 0;
 }
@@ -314,6 +419,20 @@ int exportExamples(const std::string& dir) {
     return 0;
 }
 
+// Writes the logo as SVG plus PNGs at the sizes a macOS .iconset needs.
+int exportLogo(const std::string& dir) {
+    if (!writeTextFile(dir + "/logo.svg", logoSvg())) { printf("could not write %s/logo.svg\n", dir.c_str()); return 1; }
+    for (int size : {16, 32, 64, 128, 256, 512, 1024}) {
+        SDL_Surface* s = makeLogoSurface(size);
+        std::string path = dir + "/icon_" + std::to_string(size) + ".png";
+        bool ok = s && SDL_SavePNG(s, path.c_str());
+        SDL_DestroySurface(s);
+        if (!ok) { printf("could not write %s\n", path.c_str()); return 1; }
+    }
+    printf("wrote logo.svg and icon_*.png to %s\n", dir.c_str());
+    return 0;
+}
+
 struct Screenshot {
     std::string out;
     int frames = 12;
@@ -324,6 +443,7 @@ struct Screenshot {
     std::string drawer;
     int select = -1;
     std::string menu;
+    std::string sheet;  // history | commit | account
     // scripted pointer events: frame -> (type, x, y) in window points
     struct Ev { int frame; char type; float x, y; };
     std::vector<Ev> events;
@@ -341,6 +461,9 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
     for (int i = 1; i < argc; i++) {
         std::string a = argv[i];
         auto next = [&]() -> std::string { return i + 1 < argc ? argv[++i] : ""; };
+        if (a == "--export-logo") return exportLogo(next()) == 0 ? SDL_APP_SUCCESS : SDL_APP_FAILURE;
+        if (a == "--github-selftest") return githubSelftest() == 0 ? SDL_APP_SUCCESS : SDL_APP_FAILURE;
+        if (a == "--mcp") return runMcpServer() == 0 ? SDL_APP_SUCCESS : SDL_APP_FAILURE;
         if (a == "--selftest") return selftest() == 0 ? SDL_APP_SUCCESS : SDL_APP_FAILURE;
         if (a == "--export-examples") return exportExamples(next()) == 0 ? SDL_APP_SUCCESS : SDL_APP_FAILURE;
         if (a == "--screenshot") g_shot.out = next();
@@ -352,6 +475,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
         else if (a == "--drawer") g_shot.drawer = next();
         else if (a == "--select") g_shot.select = std::atoi(next().c_str());
         else if (a == "--menu") g_shot.menu = next();
+        else if (a == "--sheet") g_shot.sheet = next();
         else if (a == "--events") {
             // "frame:d:x:y,frame:m:x:y,frame:u:x:y,frame:k:keycode:0"
             std::string spec = next() + ",";
@@ -385,6 +509,9 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
         if (g_shot.route) { g_app->ensureConn(); autoroute(g_app->doc, g_app->conn, true); g_app->doc.touch(); }
         if (g_shot.sim) g_app->simOn = true;
         if (g_shot.select >= 0 && g_shot.select < (int)g_app->doc.parts.size()) g_app->selParts = {g_app->doc.parts[(size_t)g_shot.select].id};
+        if (g_shot.sheet == "history") g_app->openHistory();
+        else if (g_shot.sheet == "commit") g_app->openCommitSheet();
+        else if (g_shot.sheet == "account") g_app->openGitHubAccount();
     }
     return SDL_APP_CONTINUE;
 }

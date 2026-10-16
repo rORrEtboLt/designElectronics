@@ -4,7 +4,7 @@
  "app": "designElectronics 0.1.0",
  "title": "Raspberry Pi LED",
  "notes": "Raspberry Pi 4 GPIO17 (physical pin 11) drives an LED through a 330Ω resistor; pin 9 is ground.",
- "saved": "2026-10-16T08:12:32Z",
+ "saved": "2026-10-16T08:46:04Z",
  "rules": {
   "traceWidth": 24,
   "clearance": 12,

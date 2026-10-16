@@ -66,8 +66,17 @@ struct DesignRules {
     float viaPad = 40, viaDrill = 20;
 };
 
+// Where a design is kept on GitHub (empty repo = not linked).
+struct GitLink {
+    std::string repo;    // "owner/name"
+    std::string path;    // file path inside the repo
+    std::string branch;  // empty = the repo's default branch
+};
+
 class Document {
 public:
+    std::string uid;         // stable id of the design (local version history follows it)
+    GitLink git;
     std::string title = "Untitled";
     std::string author;
     std::string notesText;   // free-form project notes

@@ -3,6 +3,7 @@
 #include <cstdio>
 
 #include "app.h"
+#include "logo.h"
 
 namespace {
 MenuItem item(const std::string& l, std::function<void()> a, const std::string& sc = "", bool enabled = true, bool checked = false) {
@@ -55,6 +56,10 @@ std::vector<MenuItem> App::fileMenu() {
         MenuItem::sep(),
         item("Save", [this]() { save(); }, sc("S")),
         item("Save As / Share…", [this]() { saveAs(); }, sc("⇧S")),
+        MenuItem::sep(),
+        item("Version History…", [this]() { openHistory(); }, sc("⇧H")),
+        item("Commit to GitHub…", [this]() { openCommitSheet(); }, sc("⇧K")),
+        item(githubConnected() ? "GitHub Account (@" + gh.login + ")…" : "Connect GitHub…", [this]() { openGitHubAccount(); }),
         MenuItem::sep(),
         sub("Export", exp),
         item("Import Part (.dezpart)…", [this]() { importPartDialog(); }),
@@ -184,11 +189,7 @@ void App::drawTopBar() {
     } else {
         // logo mark
         Vec2 c(x + 14 * s, r.center().y);
-        g.fillRoundRect(Rect(c.x - 13 * s, c.y - 13 * s, 26 * s, 26 * s), 7 * s, ui.th.brand);
-        g.line(c + Vec2(-7 * s, 0), c + Vec2(7 * s, 0), 2.2f * s, rgba(255, 255, 255));
-        g.fillCircle(c + Vec2(-7 * s, 0), 3 * s, rgba(255, 255, 255));
-        g.fillCircle(c + Vec2(7 * s, 0), 3 * s, rgba(255, 255, 255));
-        g.line(c + Vec2(0, 0), c + Vec2(0, 7 * s), 2.2f * s, rgba(255, 255, 255));
+        drawLogo(g, Rect(c.x - 15 * s, c.y - 15 * s, 30 * s, 30 * s));
         x += 34 * s;
         const char* names[] = {"File", "Edit", "Part", "View", "Routing", "Help"};
         for (int i = 0; i < 6; i++) {
