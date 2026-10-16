@@ -45,13 +45,15 @@ y axis points down. Breadboard holes are 100 mil apart.
   "views": {                       // placement in each view the part appears in
     "breadboard": { "at": [500, 1000] },
     "schematic":  { "at": [300, 0], "rot": 90 },
-    "pcb":        { "at": [500, 400], "flip": true }
-  }
+    "pcb":        { "at": [500, 400], "flip": true, "hidden": true }
+  },
+  "locked": true                   // optional: can't be moved or deleted in the editor
 }
 ```
 
 `rot` is clockwise in degrees (0, 90, 180, 270), applied after `flip`, which
-mirrors horizontally.
+mirrors horizontally. `hidden` hides the part in that view only; it is purely
+visual (the part still connects, simulates and exports).
 
 ## Wires and traces
 

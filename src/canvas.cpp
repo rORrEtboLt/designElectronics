@@ -59,7 +59,7 @@ bool App::pinAt(Vec2 s, int& part, int& pin, int exPart, int exPin) {
     part = pin = -1;
     for (int i = (int)doc.parts.size() - 1; i >= 0; i--) {
         const PartInst& p = doc.parts[(size_t)i];
-        if (!p.inView(view)) continue;
+        if (!partShown(p, view)) continue;
         Rect b = p.worldBounds(view);
         float pad = 80 + minPx / cam[view].zoom;
         if (!Rect(b.x - pad, b.y - pad, b.w + 2 * pad, b.h + 2 * pad).contains(w)) continue;
@@ -83,7 +83,7 @@ Hit App::hitTest(Vec2 s) {
     // wire ends and bend points
     for (int i = (int)doc.wires.size() - 1; i >= 0; i--) {
         const Wire& wr = doc.wires[(size_t)i];
-        if (wr.view != view) continue;
+        if (wr.view != view || !wireShown(wr)) continue;
         float r = std::max(tol, view == PCB ? wr.width / 2 : 18.f);
         for (int e = 0; e < 2; e++) {
             Vec2 p = e == 0 ? wr.pts.front() : wr.pts.back();
@@ -109,13 +109,13 @@ Hit App::hitTest(Vec2 s) {
     }
     for (int i = (int)doc.wires.size() - 1; i >= 0; i--) {
         const Wire& wr = doc.wires[(size_t)i];
-        if (wr.view != view) continue;
+        if (wr.view != view || !wireShown(wr)) continue;
         float r = std::max(tol * 0.8f, (view == PCB ? wr.width : view == BB ? 30.f : 12.f) / 2);
         for (size_t k = 0; k + 1 < wr.pts.size(); k++)
             if (distPointSeg(w, wr.pts[k], wr.pts[k + 1]) <= r) { h.kind = Hit::WIRE_SEG; h.wire = wr.id; h.index = (int)k; return h; }
     }
     for (int pass = 0; pass < 2; pass++) {
-        if (pass == 1) {
+        if (pass == 1 && layerShown(view, LY_NOTES)) {
             for (int i = (int)doc.notes.size() - 1; i >= 0; i--) {
                 const Note& n = doc.notes[(size_t)i];
                 if (n.view != view) continue;
@@ -126,13 +126,13 @@ Hit App::hitTest(Vec2 s) {
         }
         for (int i = (int)doc.parts.size() - 1; i >= 0; i--) {
             const PartInst& p = doc.parts[(size_t)i];
-            if (!p.inView(view)) continue;
+            if (!partShown(p, view)) continue;
             bool background = p.def->isBreadboard || p.def->isBoard;
             if (background != (pass == 1)) continue;
             if (p.worldBounds(view).contains(w)) { h.kind = Hit::PART; h.part = p.id; return h; }
         }
     }
-    if (showRatsnest) {
+    if (showRatsnest && layerShown(view, LY_RATSNEST)) {
         for (auto& r : conn.ratsnest(doc, view)) {
             if (distPointSeg(w, r.a, r.b) <= tol) { h.kind = Hit::RATSNEST; h.rat = r; return h; }
         }
@@ -227,6 +227,9 @@ void App::startDrag() {
                     }
                 }
             }
+            for (auto it = moving.begin(); it != moving.end();) it = doc.part(*it)->locked ? moving.erase(it) : std::next(it);
+            if (moving.empty() && pressHit.kind == Hit::PART && doc.part(pressHit.part) && doc.part(pressHit.part)->locked)
+                ui.toast(doc.part(pressHit.part)->label + " is locked — unlock it in the Layers panel to move it.");
             for (int id : moving) moveStart[id] = doc.part(id)->place[view].pos;
             for (auto& wr : doc.wires) {
                 if (wr.view != view) continue;
@@ -322,12 +325,12 @@ void App::finishPointer() {
             break;
         case DRAG_RUBBER: {
             Rect r = Rect::fromPoints(rubberA, rubberB);
-            for (auto& p : doc.parts) if (p.inView(view) && r.overlaps(p.worldBounds(view)) && !(p.def->isBreadboard && !Rect(r).contains(p.worldBounds(view).center()) && r.w < p.worldBounds(view).w)) selParts.insert(p.id);
+            for (auto& p : doc.parts) if (partShown(p, view) && !p.locked && r.overlaps(p.worldBounds(view)) && !(p.def->isBreadboard && !Rect(r).contains(p.worldBounds(view).center()) && r.w < p.worldBounds(view).w)) selParts.insert(p.id);
             for (auto& wr : doc.wires) {
-                if (wr.view != view) continue;
+                if (wr.view != view || !wireShown(wr)) continue;
                 for (auto& pt : wr.pts) if (r.contains(pt)) { selWires.insert(wr.id); break; }
             }
-            for (auto& n : doc.notes) if (n.view == view && r.overlaps(Rect(n.pos.x, n.pos.y, n.size.x, n.size.y))) selNotes.insert(n.id);
+            for (auto& n : doc.notes) if (n.view == view && layerShown(view, LY_NOTES) && r.overlaps(Rect(n.pos.x, n.pos.y, n.size.x, n.size.y))) selNotes.insert(n.id);
             break;
         }
         default:
@@ -341,7 +344,7 @@ void App::finishPointer() {
 void App::canvasInput() {
     Vec2 m = in.mouse;
     float s = ui.s;
-    bool drawerOpen = compact && (drawerParts || drawerInspector);
+    bool drawerOpen = compact && (drawerParts || drawerInspector || drawerLayers);
     bool overCanvas = rCanvas.contains(m) && !ui.overBlocking(m) && !(drawerOpen && rRight.contains(m));
     Camera& c = cam[view];
 
@@ -699,6 +702,7 @@ void App::drawCanvas(int v, const Camera& c, Rect vp, bool exporting) {
     bool selVisible = !exporting;
 
     auto drawWire = [&](const Wire& w) {
+        if (!exporting && !wireShown(w)) return;
         std::vector<Vec2> pts;
         for (auto& p : w.pts) pts.push_back(S(p));
         bool sel = selVisible && selWires.count(w.id);
@@ -745,7 +749,7 @@ void App::drawCanvas(int v, const Camera& c, Rect vp, bool exporting) {
 
     // notes
     for (auto& n : doc.notes) {
-        if (n.view != v) continue;
+        if (n.view != v || (!exporting && !layerShown(v, LY_NOTES))) continue;
         Rect r(S(n.pos).x, S(n.pos).y, n.size.x * z, n.size.y * z);
         g.fillRect(Rect(r.x + 3 * s, r.y + 4 * s, r.w, r.h), rgba(0, 0, 0, 30));
         g.fillRect(r, rgba(255, 246, 176));
@@ -766,11 +770,12 @@ void App::drawCanvas(int v, const Camera& c, Rect vp, bool exporting) {
     }
 
     if (v == PCB) {
-        for (auto& p : doc.parts) if (p.inView(PCB) && p.def->isBoard) drawPrims(p, PCB, c);
+        auto shownPcb = [&](const PartInst& p, int layer) { return exporting || (!p.hiddenIn(PCB) && layerShown(PCB, layer)); };
+        for (auto& p : doc.parts) if (p.inView(PCB) && p.def->isBoard && shownPcb(p, LY_BOARD)) drawPrims(p, PCB, c);
         for (auto& w : doc.wires) if (w.view == PCB && w.layer != activeLayer) drawWire(w);
         // pads
         for (auto& p : doc.parts) {
-            if (!p.inView(PCB) || p.def->isBoard || !visible(p.worldBounds(PCB))) continue;
+            if (!p.inView(PCB) || p.def->isBoard || !visible(p.worldBounds(PCB)) || !shownPcb(p, LY_PADS)) continue;
             for (size_t i = 0; i < p.def->pins.size(); i++) {
                 const PinDef& pin = p.def->pins[i];
                 Vec2 ctr = S(p.pinPos((int)i, PCB));
@@ -784,8 +789,8 @@ void App::drawCanvas(int v, const Camera& c, Rect vp, bool exporting) {
         for (auto& w : doc.wires) if (w.view == PCB && w.layer == activeLayer) drawWire(w);
         for (auto& p : doc.parts) {
             if (!p.inView(PCB) || p.def->isBoard || !visible(p.worldBounds(PCB))) continue;
-            drawPrims(p, PCB, c);
-            if (showPartLabels && p.type != "via" && p.type != "hole") {
+            if (shownPcb(p, LY_SILK)) drawPrims(p, PCB, c);
+            if (showPartLabels && shownPcb(p, LY_LABELS) && p.type != "via" && p.type != "hole") {
                 Rect b = p.worldBounds(PCB);
                 g.text(S({b.x, b.y - 45}), p.label, 50 * z, rgba(255, 255, 255, 230), 0);
             }
@@ -793,8 +798,9 @@ void App::drawCanvas(int v, const Camera& c, Rect vp, bool exporting) {
     } else {
         for (auto& p : doc.parts) {
             if (!p.inView(v) || !visible(p.worldBounds(v))) continue;
+            if (!exporting && (p.hiddenIn(v) || !layerShown(v, LY_PARTS))) continue;
             drawPrims(p, v, c);
-            if (v == SCH && showPartLabels && p.def->netProp.empty()) {
+            if (v == SCH && showPartLabels && (exporting || layerShown(SCH, LY_LABELS)) && p.def->netProp.empty()) {
                 Rect b = p.worldBounds(SCH);
                 std::string lbl = p.label;
                 if (!p.def->valueProp.empty() && p.def->valueProp != "pins") lbl += "  " + p.prop(p.def->valueProp);
@@ -839,7 +845,7 @@ void App::drawCanvas(int v, const Camera& c, Rect vp, bool exporting) {
     if (simOn && v != PCB) {
         float t = (float)SDL_GetTicks() / 1000.f;
         for (auto& p : doc.parts) {
-            if (!p.inView(v)) continue;
+            if (!partShown(p, v)) continue;
             Rect b = p.worldBounds(v);
             if (sim.damaged.count(p.id)) {
                 for (int k = 0; k < 5; k++) {
@@ -866,7 +872,7 @@ void App::drawCanvas(int v, const Camera& c, Rect vp, bool exporting) {
     }
 
     // ratsnest
-    if (showRatsnest && !exporting) {
+    if (showRatsnest && !exporting && layerShown(v, LY_RATSNEST)) {
         ensureConn();
         uint32_t rc = v == BB ? rgba(60, 60, 200, 200) : v == SCH ? rgba(90, 90, 220, 220) : rgba(255, 255, 255, 220);
         for (auto& r : conn.ratsnest(doc, v)) {
@@ -878,7 +884,7 @@ void App::drawCanvas(int v, const Camera& c, Rect vp, bool exporting) {
     if (!exporting) {
         // selection & hover outlines
         for (auto& p : doc.parts) {
-            if (!p.inView(v)) continue;
+            if (!partShown(p, v)) continue;
             bool sel = selParts.count(p.id) > 0;
             bool hov = hover.part == p.id && (hover.kind == Hit::PART || hover.kind == Hit::PIN);
             if (!sel && !hov) continue;
@@ -887,6 +893,11 @@ void App::drawCanvas(int v, const Camera& c, Rect vp, bool exporting) {
             if (sel) {
                 g.fillRoundRect(r, 4 * s, withAlpha(kSel, 22));
                 g.strokeRoundRect(r, 4 * s, 2 * s, kSel);
+                if (p.locked) {  // small lock badge on locked parts
+                    Rect lb(r.r() - 18 * s, r.y - 9 * s, 18 * s, 18 * s);
+                    g.fillRoundRect(lb, 4 * s, kSel);
+                    ui.drawIcon("lock", lb.inset(2 * s), rgba(255, 255, 255));
+                }
             } else if (!p.def->isBreadboard && !p.def->isBoard) {
                 g.strokeRoundRect(r, 4 * s, 1.5f * s, withAlpha(kSel, 110));
             }

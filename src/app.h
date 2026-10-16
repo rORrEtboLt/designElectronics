@@ -15,6 +15,9 @@
 #include "tools.h"
 #include "ui.h"
 
+// Per-view drawing layers (toggled in the Layers panel; visual only, not saved).
+enum CanvasLayer { LY_PARTS, LY_WIRES, LY_LABELS, LY_NOTES, LY_RATSNEST, LY_BOARD, LY_COPPER_BOTTOM, LY_COPPER_TOP, LY_PADS, LY_SILK, LY_COUNT };
+
 struct Camera {
     Vec2 pan;          // screen position of world origin (pixels)
     float zoom = 0.15f;  // pixels per mil
@@ -108,6 +111,24 @@ public:
     bool snapToGrid = true;
     bool showRatsnest = true;
     bool showPartLabels = true;
+    bool layerOff[NUM_VIEWS][LY_COUNT] = {};
+    bool layerShown(int v, int l) const { return !layerOff[v][l]; }
+    bool partShown(const PartInst& p, int v) const {
+        if (!p.def || !p.inView(v) || p.hiddenIn(v)) return false;
+        if (v == PCB) return p.def->isBoard ? layerShown(PCB, LY_BOARD) : (layerShown(PCB, LY_PADS) || layerShown(PCB, LY_SILK));
+        return layerShown(v, LY_PARTS);
+    }
+    bool wireShown(const Wire& w) const {
+        if (w.view == PCB) return layerShown(PCB, w.layer == TOP ? LY_COPPER_TOP : LY_COPPER_BOTTOM);
+        return layerShown(w.view, LY_WIRES);
+    }
+    // layers panel (panels_layers.cpp)
+    int rightTab = 0;            // 0 parts bin, 1 layers
+    bool drawerLayers = false;   // compact layout
+    std::string layerFilter;
+    std::set<int> layerCollapsed;  // collapsed group ids (breadboard part ids; -1 wires, -2 notes)
+    Uint64 lastLayerClick = 0;
+    int lastLayerClickPart = -1;
 
     // layout
     float userScale = 1.0f;
@@ -211,6 +232,10 @@ public:
     void drawTopBar();
     void drawPartsBin(Rect r);
     void drawInspector(Rect r);
+    void drawLayers(Rect r);
+    void setPartHidden(int partId, int v, bool hidden);
+    void setPartLocked(int partId, bool locked);
+    void zoomToPart(int partId);
     void drawToolbar();
     void drawCanvasOverlay();
     std::vector<MenuItem> fileMenu();

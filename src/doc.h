@@ -21,6 +21,9 @@ struct PartInst {
     std::string label;    // R1, LED2, ...
     Xform place[NUM_VIEWS];
     PartDefPtr def;
+    unsigned hidden = 0;  // bit per view: hidden there (visual only — still connected, simulated, exported)
+    bool locked = false;  // can't be moved, rotated or deleted
+    bool hiddenIn(int v) const { return (hidden >> v) & 1u; }
 
     void refresh() { def = getPartDef(type, props); }
     std::string prop(const std::string& k) const {

@@ -40,6 +40,7 @@ set(DE_SOURCES
   src/logo.cpp
   src/history.cpp
   src/app_history.cpp
+  src/panels_layers.cpp
 )
 
 if(ANDROID)

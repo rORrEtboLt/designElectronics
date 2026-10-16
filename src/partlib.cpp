@@ -1189,6 +1189,8 @@ std::map<std::string, PartDef> g_custom;
 
 using namespace plib;
 
+uint32_t ledDisplayColor(const std::string& name) { return ledColorOf(name); }
+
 // ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------

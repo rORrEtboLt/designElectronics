@@ -244,10 +244,15 @@ void App::drawPartsBin(Rect r) {
     g.fillRect({r.x, r.y, std::max(1.f, s), r.h}, ui.th.border);
     float pad = 10 * s;
     float y = r.y + pad;
-    g.text({r.x + pad + 2 * s, y + 11 * s}, "Parts", 16 * s, ui.th.text, 0);
     if (compact) {
+        g.text({r.x + pad + 2 * s, y + 11 * s}, "Parts", 16 * s, ui.th.text, 0);
         Rect cb(r.r() - 40 * s, y - 4 * s, 32 * s, 32 * s);
         if (ui.iconButton("closeparts", cb, "close", "")) drawerParts = false;
+    } else {
+        // Parts | Layers tabs
+        float w0 = g.textWidth("Parts", 15 * s) + 24 * s, w1 = g.textWidth("Layers", 15 * s) + 24 * s;
+        ui.button("rtab-parts", Rect(r.x + pad - 6 * s, y - 6 * s, w0, 30 * s), "Parts", BTN_TAB, true);
+        if (ui.button("rtab-layers", Rect(r.x + pad - 6 * s + w0, y - 6 * s, w1, 30 * s), "Layers", BTN_TAB, false)) rightTab = 1;
     }
     y += 30 * s;
     Rect sf(r.x + pad, y, r.w - 2 * pad, 34 * s);
@@ -619,8 +624,9 @@ void App::drawToolbar() {
     std::vector<Tool> tools;
     bool anySel = !selParts.empty() || !selWires.empty() || !selNotes.empty();
     if (compact) {
-        tools.push_back({"t-parts", "parts", "Parts", [this]() { drawerParts = !drawerParts; drawerInspector = false; }, drawerParts, true, "Parts bin"});
-        tools.push_back({"t-insp", "inspector", "Inspect", [this]() { drawerInspector = !drawerInspector; drawerParts = false; }, drawerInspector, true, "Inspector"});
+        tools.push_back({"t-parts", "parts", "Parts", [this]() { drawerParts = !drawerParts; drawerInspector = drawerLayers = false; }, drawerParts, true, "Parts bin"});
+        tools.push_back({"t-layers", "layer", "Layers", [this]() { drawerLayers = !drawerLayers; drawerInspector = drawerParts = false; }, drawerLayers, true, "Layers"});
+        tools.push_back({"t-insp", "inspector", "Inspect", [this]() { drawerInspector = !drawerInspector; drawerParts = drawerLayers = false; }, drawerInspector, true, "Inspector"});
     }
     if (!compact || view != PCB) tools.push_back({"t-note", "note", "Note", [this]() { addNote(); }, false, true, "Add a note"});
     tools.push_back({"t-rot", "rotate", "Rotate", [this]() { rotateSelection(1); }, false, !selParts.empty(), "Rotate 90° (R)"});
@@ -750,7 +756,7 @@ void App::drawCanvasOverlay() {
             g.text(r.center(), m, 12.5f * s, rgba(255, 255, 255), 1);
         }
         Rect fit(c.r() - 50 * s, c.b() - 50 * s, 40 * s, 40 * s);
-        if (!(drawerParts || drawerInspector)) {
+        if (!(drawerParts || drawerInspector || drawerLayers)) {
             g.fillRoundRect(fit, 20 * s, rgba(255, 255, 255, 235));
             g.strokeRoundRect(fit, 20 * s, std::max(1.f, s), ui.th.border);
             if (ui.iconButton("cfit", fit.inset(4 * s), "fit", "")) fitView(view, rCanvas);

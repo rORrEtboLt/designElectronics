@@ -130,7 +130,7 @@ void App::layout() {
         float rw = std::min(330 * s, (float)safe.w * 0.32f);
         rRight = Rect((float)(safe.x + safe.w) - rw, rTop.b(), rw, mid);
         rCanvas = Rect((float)safe.x, rTop.b(), rRight.x - safe.x, mid);
-        float binH = std::floor(mid * 0.54f);
+        float binH = std::floor(mid * (rightTab == 1 ? 0.68f : 0.54f));  // the layers list gets more room
         rBin = Rect(rRight.x, rRight.y, rRight.w, binH);
         rInspector = Rect(rRight.x, rRight.y + binH, rRight.w, mid - binH);
     } else {
@@ -500,11 +500,15 @@ void App::showShortcuts() {
 
 void App::deleteSelection() {
     if (selParts.empty() && selWires.empty() && selNotes.empty()) return;
+    std::set<int> keep;
+    for (int id : selParts) if (auto* p = doc.part(id)) if (p->locked) keep.insert(id);
+    if (!keep.empty()) ui.toast(std::to_string(keep.size()) + (keep.size() == 1 ? " locked part was" : " locked parts were") + " kept — unlock in the Layers panel to delete.");
+    if (keep.size() == selParts.size() && selWires.empty() && selNotes.empty()) return;
     checkpoint();
     for (int id : selWires) doc.removeWire(id);
     for (int id : selNotes) doc.removeNote(id);
-    for (int id : selParts) doc.removePart(id);
-    selParts.clear(); selWires.clear(); selNotes.clear();
+    for (int id : selParts) if (!keep.count(id)) doc.removePart(id);
+    selParts = keep; selWires.clear(); selNotes.clear();
     changed();
 }
 
@@ -519,7 +523,7 @@ void App::rotateSelection(int dir) {
     checkpoint();
     for (int id : selParts) {
         PartInst* p = doc.part(id);
-        if (!p || !p->inView(view) || p->def->isBoard) continue;
+        if (!p || !p->inView(view) || p->def->isBoard || p->locked) continue;
         Vec2 c = p->worldBounds(view).center();
         p->place[view].rot = ((p->place[view].rot + dir) % 4 + 4) % 4;
         p->place[view].pos += c - p->worldBounds(view).center();
@@ -534,7 +538,7 @@ void App::flipSelection() {
     checkpoint();
     for (int id : selParts) {
         PartInst* p = doc.part(id);
-        if (!p || !p->inView(view) || p->def->isBoard) continue;
+        if (!p || !p->inView(view) || p->def->isBoard || p->locked) continue;
         Vec2 c = p->worldBounds(view).center();
         p->place[view].flip = !p->place[view].flip;
         p->place[view].pos += c - p->worldBounds(view).center();
@@ -785,7 +789,7 @@ void App::handleShortcuts() {
                 float step = gridSize(view) * (sh ? 10 : 1);
                 Vec2 d = k == SDLK_LEFT ? Vec2(-step, 0) : k == SDLK_RIGHT ? Vec2(step, 0) : k == SDLK_UP ? Vec2(0, -step) : Vec2(0, step);
                 checkpoint();
-                for (int id : selParts) if (auto* p = doc.part(id)) p->place[view].pos += d;
+                for (int id : selParts) if (auto* p = doc.part(id)) if (!p->locked) p->place[view].pos += d;
                 for (int id : selWires) if (auto* w = doc.wire(id)) for (size_t i = 0; i < w->pts.size(); i++) {
                     bool endAttached = (i == 0 && w->ends[0].attached()) || (i + 1 == w->pts.size() && w->ends[1].attached());
                     if (!endAttached) w->pts[i] += d;
@@ -901,7 +905,7 @@ SDL_AppResult App::event(const SDL_Event& e) {
             if (e.key.key == SDLK_SPACE && !ui.editingText()) spaceDown = true;
             if (e.key.key == SDLK_AC_BACK) {  // Android back button
                 if (ui.hasMenu()) ui.closeMenus();
-                else if (drawerParts || drawerInspector) drawerParts = drawerInspector = false;
+                else if (drawerParts || drawerInspector || drawerLayers) drawerParts = drawerInspector = drawerLayers = false;
             }
             break;
         case SDL_EVENT_KEY_UP:
@@ -953,16 +957,18 @@ SDL_AppResult App::iterate() {
     drawCanvasOverlay();
     drawTopBar();
     if (!compact) {
-        drawPartsBin(rBin);
+        if (rightTab == 1) drawLayers(rBin);
+        else drawPartsBin(rBin);
         drawInspector(rInspector);
-    } else if (drawerParts || drawerInspector) {
+    } else if (drawerParts || drawerInspector || drawerLayers) {
         // drawers slide over the canvas
         g.fillRect(rCanvas, rgba(0, 0, 0, 50));
         g.fillRect({rRight.x - 6 * ui.s, rRight.y, 6 * ui.s, rRight.h}, rgba(0, 0, 0, 25));
         if (drawerParts) drawPartsBin(rRight);
+        else if (drawerLayers) drawLayers(rRight);
         else drawInspector(rRight);
         if (in.pressed && rCanvas.contains(in.mouse) && !rRight.contains(in.mouse) && !ui.blocking() && binDrag < 0)
-            drawerParts = drawerInspector = false;
+            drawerParts = drawerInspector = drawerLayers = false;
     }
     drawToolbar();
     if (binDrag >= 0) {

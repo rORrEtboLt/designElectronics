@@ -177,9 +177,11 @@ Json Document::toJson(bool full) const {
             pv.set("at", vec(p.place[v].pos));
             if (p.place[v].rot) pv.set("rot", p.place[v].rot * 90);
             if (p.place[v].flip) pv.set("flip", true);
+            if (p.hiddenIn(v)) pv.set("hidden", true);
             views.set(viewKey(v), pv);
         }
         o.set("views", views);
+        if (p.locked) o.set("locked", true);
         parr.push(o);
     }
     j.set("parts", parr);
@@ -293,7 +295,9 @@ bool Document::fromJson(const Json& j, std::string* err) {
             p.place[v].pos = vecOf(kv.second["at"]);
             p.place[v].rot = ((kv.second["rot"].i() / 90) % 4 + 4) % 4;
             p.place[v].flip = kv.second["flip"].boolean();
+            if (kv.second["hidden"].boolean()) p.hidden |= 1u << v;
         }
+        p.locked = o["locked"].boolean();
         maxId = std::max(maxId, p.id);
         d.parts.push_back(p);
     }

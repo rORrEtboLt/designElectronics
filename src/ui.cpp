@@ -564,6 +564,19 @@ void UI::drawIcon(const std::string& n, Rect r, uint32_t c) {
     else if (n == "layer") { PL({{12, 4}, {21, 9}, {12, 14}, {3, 9}}, true); PL({{3, 14}, {12, 19}, {21, 14}}); }
     else if (n == "grid") { for (int i = 0; i < 3; i++) for (int j = 0; j < 3; j++) g->fillCircle(P(6 + 6.f * i, 6 + 6.f * j), 1.6f * u, c); }
     else if (n == "close") { L(6, 6, 18, 18); L(18, 6, 6, 18); }
+    else if (n == "eye" || n == "eyeoff") {
+        A(12, 21, 12.5f, 225, 315);  // upper lid
+        A(12, 3, 12.5f, 45, 135);    // lower lid
+        g->fillCircle(P(12, 12), 3.2f * u, c);
+        if (n == "eyeoff") L(4, 20, 20, 4);
+    }
+    else if (n == "lock" || n == "unlock") {
+        g->fillRoundRect(Rect(r.x + 5 * u, r.y + 11 * u, 14 * u, 10 * u), 2 * u, c);
+        if (n == "lock") A(12, 11, 4.5f, 180, 360);
+        else { A(12, 11, 4.5f, 180, 290); }
+        L(7.5f, 11, 7.5f, 9.5f);
+        if (n == "lock") L(16.5f, 11, 16.5f, 9.5f);
+    }
     else if (n == "search") { g->strokeCircle(P(10.5f, 10.5f), 6.5f * u, w, c); L(15.5f, 15.5f, 20.5f, 20.5f); }
     else if (n == "chevron") { PL({{6, 9}, {12, 15}, {18, 9}}); }
     else if (n == "chevright") { PL({{9, 6}, {15, 12}, {9, 18}}); }

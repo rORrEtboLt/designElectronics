@@ -267,6 +267,29 @@ void historyTests(int& failures) {
     history::setRoot("");
 }
 
+// ---- layers: hidden / locked survive save + load ----
+void layerTests(int& failures) {
+    printf("Layers\n");
+    Document d;
+    examples()[0].build(d);
+    PartInst* led = nullptr;
+    for (auto& p : d.parts) if (p.type == "led") led = &p;
+    led->hidden = 1u << BB;
+    led->locked = true;
+    Document e;
+    std::string err;
+    bool ok = e.deserialize(d.serialize(true), &err);
+    const PartInst* l2 = nullptr;
+    for (auto& p : e.parts) if (p.type == "led") l2 = &p;
+    check(ok && l2 && l2->hiddenIn(BB) && !l2->hiddenIn(SCH) && l2->locked, "hidden (per view) and locked are saved and loaded", failures);
+    Connectivity c1, c2;
+    c1.build(d);
+    examples()[0].build(e = Document());
+    c2.build(e);
+    SimResult r = simulate(d, c1, {});
+    check(c1.numNets() == c2.numNets() && !r.brightness.empty() && r.brightness.begin()->second > 0.3f, "a hidden part still connects and simulates", failures);
+}
+
 // ---- GitHub sync against a mock API (tests/github_mock_test.py sets DE_GITHUB_API) ----
 int githubSelftest() {
     int failures = 0;
@@ -401,6 +424,7 @@ int selftest() {
     }
     simTests(failures);
     historyTests(failures);
+    layerTests(failures);
     printf(failures ? "\n%d FAILURE(S)\n" : "\nAll tests passed.\n", failures);
     return failures ? 1 : 0;
 }
@@ -527,6 +551,8 @@ SDL_AppResult SDL_AppIterate(void* appstate) {
         if (g_frame == 3) {
             if (g_shot.drawer == "parts") app->drawerParts = true;
             if (g_shot.drawer == "inspector") app->drawerInspector = true;
+            if (g_shot.drawer == "layers") app->drawerLayers = true;
+            if (g_shot.drawer == "layers-tab") app->rightTab = 1;
             if (!g_shot.menu.empty()) {
                 std::vector<MenuItem> m = g_shot.menu == "file" ? app->fileMenu() : g_shot.menu == "view" ? app->viewMenu() : app->allMenus();
                 app->ui.openMenu(Rect(60 * app->ui.s, 8 * app->ui.s, 40 * app->ui.s, 36 * app->ui.s), m);

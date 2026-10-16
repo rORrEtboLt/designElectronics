@@ -153,6 +153,10 @@ private:
             pos.set(viewKey(v), x);
         }
         j.set("position", pos);
+        Json hid = Json::array();
+        for (int v = 0; v < NUM_VIEWS; v++) if (p.hiddenIn(v)) hid.push(viewKey(v));
+        if (hid.size()) j.set("hiddenIn", hid);
+        if (p.locked) j.set("locked", true);
         return j;
     }
     std::string pinRefName(const PinRef& r) const {
@@ -277,7 +281,10 @@ Json Server::tools() const {
                 {"y", prop("number", "Optional y for all views")}},
                {"type"}));
     add("set_part_properties", "Change properties of a part (value, colour, Pin outputs of a dev board, …) and/or its label.",
-        schema({{"part", partRef}, {"properties", prop("object", "Properties to set")}, {"label", prop("string", "New label")}}, {"part"}));
+        schema({{"part", partRef}, {"properties", prop("object", "Properties to set")}, {"label", prop("string", "New label")},
+                {"hidden_in", prop("array", "Views to hide the part in (visual only), e.g. [\"breadboard\"]; [] shows it everywhere")},
+                {"locked", prop("boolean", "Lock so it can't be moved or deleted in the editor")}},
+               {"part"}));
     add("move_part", "Move/rotate a part in one view.",
         schema({{"part", partRef},
                 {"view", prop("string", "breadboard, schematic or pcb")},
@@ -522,6 +529,11 @@ Json Server::call(const std::string& name, const Json& a) {
         p.refresh();
         if (!p.def) fail("invalid properties for " + p.type);
         if (a.has("label")) p.label = a["label"].str();
+        if (a["hidden_in"].isArray()) {
+            p.hidden = 0;
+            for (auto& v : a["hidden_in"].items()) p.hidden |= 1u << viewFromName(v.str());
+        }
+        if (a.has("locked")) p.locked = a["locked"].boolean();
         doc_.syncWireEnds();
         doc_.touch();
         return partSummary(p);

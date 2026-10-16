@@ -100,6 +100,9 @@ bool isCustomType(const std::string& type);
 Json partDefToJson(const PartDef& def);
 bool partDefFromJson(const Json& j, PartDef& out, std::string* err = nullptr);
 
+// Display colour of an LED colour name ("Red", "Blue", …).
+uint32_t ledDisplayColor(const std::string& name);
+
 // "4.7kΩ" -> 4700, "100nF" -> 1e-7, "9V" -> 9
 double parseSI(const std::string& s, double def = 0);
 std::string formatSI(double v, const char* unit);

@@ -56,7 +56,7 @@ Then ask things like:
 | `new_design` / `open_design` / `load_example` / `save_design` | Start, open, load a built-in example, save as `.dez`. Every save (with an optional `message`) is also kept in the app's Version History. |
 | `get_design` | Parts (labels, properties, positions), wires, nets and routing status per view, including which connections are still unrouted. |
 | `add_part` | Add a part. Without `x`/`y` (mils) parts fill tidy rows in every view. Returns its pins. |
-| `set_part_properties` | Change values, colours, labels, a dev board's `outputs` (e.g. `GPIO2=BLINK:500`). |
+| `set_part_properties` | Change values, colours, labels, a dev board's `outputs` (e.g. `GPIO2=BLINK:500`); hide a part in some views or lock it. |
 | `move_part` | Move, rotate or flip a part in one view. |
 | `place_on_breadboard` | Plug a part in so a given pin sits in a given hole (`a1`…`j30`, rails `tp1`/`tn1`/`bp1`/`bn1`); reports the hole each pin landed in and what it now connects to, and warns about pins on a power rail, off the board or shorted together. |
 | `remove_part` / `remove_wire` | Delete things. |
