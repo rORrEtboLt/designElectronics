@@ -976,6 +976,7 @@ SDL_AppResult App::iterate() {
     if (quitNow) return SDL_APP_SUCCESS;
 
     ensureConn();
+    stepVideoExport();  // Export ▸ Video: renders a slice of frames off-screen
     if (simOn) {
         Uint64 now = SDL_GetTicks();
         double dtReal = lastSimTicks ? std::clamp((now - lastSimTicks) / 1000.0, 0.001, 0.06) : 0.016;

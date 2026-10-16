@@ -227,6 +227,18 @@ public:
     void installCore();
     void startUpload(bool compileOnly = false);
 
+    // ---- panels_video.cpp: Export ▸ Video or GIF ----
+    struct VideoJob;
+    std::shared_ptr<VideoJob> videoJob;
+    int videoPreset = 0, videoView = 0, videoSeconds = 10;
+    bool videoGif = false, videoSimulate = true, videoWatermark = true;
+    std::string videoTitle, lastVideoError;
+    void openVideoSheet();
+    void startVideo(const std::string& path);
+    bool renderVideoFrame();
+    void stepVideoExport();
+    ~App();
+
     // ---- web.cpp: browser build + embeddable viewer ----
     bool embedMode = false;      // <iframe> viewer: canvas + small bar only
     bool readOnly = false;       // no editing (pan, zoom, simulate, press buttons)

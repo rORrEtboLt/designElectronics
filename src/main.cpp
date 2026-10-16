@@ -19,6 +19,7 @@
 #include "app.h"
 #include "history.h"
 #include "logo.h"
+#include "video.h"
 
 namespace {
 
@@ -345,6 +346,39 @@ void historyTests(int& failures) {
     history::setRoot("");
 }
 
+// ---- video writers: valid MP4 (H.264 SPS not byte-swapped) and GIF ----
+void videoTests(int& failures) {
+    printf("Video export\n");
+    char* base = SDL_GetPrefPath("designElectronics", "designElectronics-selftest");
+    std::string dir = base ? base : "./";
+    SDL_free(base);
+    const int W = 270, H = 480;  // not multiples of 16, like 1080×1920
+    std::vector<uint8_t> px((size_t)W * H * 4);
+    std::string err;
+    auto mp4 = openMp4(dir + "t.mp4", W, H, 30, &err);
+    auto gif = openGif(dir + "t.gif", W, H, 15, &err);
+    bool ok = mp4 && gif;
+    for (int f = 0; ok && f < 20; f++) {
+        for (int y = 0; y < H; y++)
+            for (int x = 0; x < W; x++) {
+                uint8_t* p = &px[((size_t)y * W + x) * 4];
+                bool led = (x - W / 2) * (x - W / 2) + (y - H / 2) * (y - H / 2) < 900 && (f / 5) % 2 == 0;
+                p[0] = led ? 230 : 245; p[1] = led ? 40 : 245; p[2] = led ? 40 : 240; p[3] = 255;
+            }
+        ok = mp4->addFrame(px.data(), W * 4) && gif->addFrame(px.data(), W * 4);
+    }
+    ok = ok && mp4->finish() && gif->finish();
+    std::string m = readTextFile(dir + "t.mp4"), gf = readTextFile(dir + "t.gif");
+    bool mp4ok = m.size() > 1000 && m.find("ftyp") != std::string::npos && m.find("avcC") != std::string::npos &&
+                 m.find(std::string("\x67\x42", 2)) != std::string::npos;  // SPS: NAL type 7, Baseline profile
+    bool gifok = gf.size() > 100 && gf.compare(0, 6, "GIF89a") == 0 && (unsigned char)gf.back() == 0x3B;
+    printf("  MP4 %zu bytes, GIF %zu bytes\n", m.size(), gf.size());
+    check(ok && mp4ok, "MP4 export is valid H.264 (header not byte-swapped)", failures);
+    check(ok && gifok, "GIF export is a valid animation", failures);
+    SDL_RemovePath((dir + "t.mp4").c_str());
+    SDL_RemovePath((dir + "t.gif").c_str());
+}
+
 // ---- layers: hidden / locked survive save + load ----
 void layerTests(int& failures) {
     printf("Layers\n");
@@ -503,6 +537,7 @@ int selftest() {
     simTests(failures);
     historyTests(failures);
     layerTests(failures);
+    videoTests(failures);
     printf(failures ? "\n%d FAILURE(S)\n" : "\nAll tests passed.\n", failures);
     return failures ? 1 : 0;
 }
@@ -554,6 +589,10 @@ struct Screenshot {
 
 App* g_app = nullptr;
 bool g_embed = false;
+// --record OUT.mp4|OUT.gif [--preset 0-3] [--seconds N] [--record-view 0-3]: export a video and quit
+std::string g_record;
+int g_recordPreset = 0, g_recordSeconds = 3, g_recordView = -1;
+bool g_recordStarted = false;
 std::string g_editorUrl;
 int g_loadExample = -1;
 Screenshot g_shot;
@@ -605,6 +644,10 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
             }
         }
         else if (a == "--embed") g_embed = true;
+        else if (a == "--record") g_record = next();
+        else if (a == "--preset") g_recordPreset = std::atoi(next().c_str());
+        else if (a == "--seconds") g_recordSeconds = std::atoi(next().c_str());
+        else if (a == "--record-view") g_recordView = std::atoi(next().c_str());
         else if (a == "--editor-url") g_editorUrl = next();
         else if (a == "--load-example") g_loadExample = std::atoi(next().c_str());
         else if (a == "--size") { std::string s = next(); sscanf(s.c_str(), "%dx%d", &g_shot.w, &g_shot.h); }
@@ -657,6 +700,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
         else if (g_shot.sheet == "commit") g_app->openCommitSheet();
         else if (g_shot.sheet == "account") g_app->openGitHubAccount();
         else if (g_shot.sheet == "embed") g_app->openEmbedSheet();
+        else if (g_shot.sheet == "video") g_app->openVideoSheet();
         else if (g_shot.sheet == "upload")
             for (auto& p : g_app->doc.parts)
                 if (p.def->sim == "board") { g_app->openUploadSheet(p.id); break; }
@@ -670,6 +714,22 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event) {
 
 SDL_AppResult SDL_AppIterate(void* appstate) {
     App* app = (App*)appstate;
+    if (!g_record.empty()) {
+        if (!g_recordStarted) {
+            g_recordStarted = true;
+            app->videoPreset = g_recordPreset;
+            app->videoSeconds = g_recordSeconds;
+            app->videoView = g_recordView >= 0 ? g_recordView : app->view;
+            app->videoGif = g_record.size() > 4 && g_record.substr(g_record.size() - 4) == ".gif";
+            app->videoTitle = app->doc.title;
+            app->startVideo(g_record);
+            if (!app->videoJob) { printf("could not start recording\n"); return SDL_APP_FAILURE; }
+        } else if (!app->videoJob) {
+            if (!app->lastVideoError.empty()) { printf("recording failed: %s\n", app->lastVideoError.c_str()); return SDL_APP_FAILURE; }
+            printf("recorded %s\n", g_record.c_str());
+            return SDL_APP_SUCCESS;
+        }
+    }
     if (!g_shot.out.empty()) {
         g_frame++;
         if (g_frame == 3) {

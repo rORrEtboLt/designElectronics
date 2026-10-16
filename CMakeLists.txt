@@ -46,6 +46,10 @@ set(DE_SOURCES
   src/code_editor.cpp
   src/panels_code.cpp
   src/upload.cpp
+  src/video.cpp
+  src/panels_video.cpp
+  src/codec_h264.c
+  src/codec_mp4.c
 )
 
 if(ANDROID)

@@ -41,6 +41,8 @@ std::vector<MenuItem> App::fileMenu() {
     std::vector<MenuItem> ex;
     for (size_t i = 0; i < examples().size(); i++) ex.push_back(item(examples()[i].title, [this, i]() { loadExample(i); }));
     std::vector<MenuItem> exp = {
+        item("Video or GIF for social media…", [this]() { videoView = view; openVideoSheet(); }),
+        MenuItem::sep(),
         item("Gerber files for PCB manufacturing (.zip)", [this]() { exportFile("gerber"); }),
         item("SVG image of this view", [this]() { exportFile("svg"); }),
         item("PNG image of this view", [this]() { exportFile("png"); }),

@@ -33,6 +33,7 @@ Built in C++17 with **SDL3** and SDL3_ttf. No other dependencies.
 | **Version history** | Every save keeps a version on your device, with a summary of what changed ("R1 resistance 220Ω → 330Ω · Added LED2"). **File ▸ Version History** lets you restore any version or open it as a copy — offline, on every platform. |
 | **GitHub sync (optional)** | Connect GitHub and **File ▸ Commit to GitHub** commits the design to a private repository you own (each design in its own folder, or its own repo), optionally on every save. Older commits show up in Version History and can be restored from any device. Desktop builds; uses the system's libcurl. |
 | **Program boards** | Each microcontroller board can hold an **Arduino sketch** that runs in the simulator (built-in interpreter: pins, `analogRead`, `delay`/`millis`, `Serial`, `shiftOut`, ESP32 `ledc`…) with the executing line highlighted and a Serial Monitor, and uploads to the real board via arduino-cli / Arduino IDE 2. |
+| **Videos & GIFs** | **File ▸ Export ▸ Video or GIF** records the running circuit for Instagram Reels / YouTube Shorts / TikTok (9:16), Instagram posts (4:5), square (1:1) and YouTube (16:9): MP4 (H.264, bundled public-domain encoder) or animated GIF, optionally touring breadboard → schematic → PCB. |
 | **Embed & web** | **File ▸ Embed in a Website** gives you an `<iframe>` for blogs: readers switch views, pan, zoom and run the simulation. The design is packed into the link, so nothing is uploaded. The same app runs in the browser at [rorretbolt.github.io/designElectronics/app](https://rorretbolt.github.io/designElectronics/app/) (WebAssembly). |
 | **AI assistants (MCP)** | Run `designElectronics --mcp` and Claude, Cursor or any MCP client can design for you: search parts, add and wire them, plug them into breadboards, simulate, autoroute, run DRC and export Gerbers. Works offline over stdio. See [docs/MCP.md](docs/MCP.md). |
 | **Desktop niceties** | Menus, shortcuts, tooltips, trackpad pinch/scroll, drag-and-drop of `.dez` files onto the window, file associations (macOS, Linux). |
@@ -141,7 +142,9 @@ Parts are the easiest way to contribute: add a generator in `src/partlib.cpp`
 ## License
 
 Code: MIT (see [LICENSE](LICENSE)). Fonts: SIL Open Font License 1.1
-(see [assets/fonts/OFL.txt](assets/fonts/OFL.txt)).
+(see [assets/fonts/OFL.txt](assets/fonts/OFL.txt)). Video encoding uses
+[minih264](https://github.com/lieff/minih264) and [minimp4](https://github.com/lieff/minimp4)
+(public domain, CC0; see [third_party](third_party)).
 
 designElectronics is an independent project and is not affiliated with the
 Fritzing project. It doesn't read Fritzing's `.fzz` files.
