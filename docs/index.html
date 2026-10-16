@@ -135,6 +135,20 @@ details[open] summary { margin-bottom: 6px; }
 footer { border-top: 1px solid var(--border); color: var(--muted); font-size: .9rem; }
 footer .inner { max-width: 1120px; margin: 0 auto; padding: 22px 16px 40px; display: flex; flex-wrap: wrap; gap: 12px 24px; justify-content: space-between; }
 
+.muted { color: var(--muted); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.app-bar { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: flex-end; justify-content: space-between; margin-bottom: 14px; }
+.app-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.select { padding: 9px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font: inherit; font-size: .95rem; }
+.app-frame-wrap { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: var(--shadow); background: #e2e2e4; height: max(520px, calc(100vh - 230px)); }
+.app-frame-wrap iframe, .embed-demo iframe { width: 100%; height: 100%; border: 0; display: block; }
+.app-frame-wrap:fullscreen { border-radius: 0; height: 100vh; }
+.embed-demo { height: 460px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin: 14px 0 22px; background: #e2e2e4; }
+.media-grid { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 2fr); gap: 18px; align-items: start; margin: 8px 0 24px; }
+.media-grid figure { margin: 0 0 18px; }
+.media-grid video, .media-grid img.gif { width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--border); box-shadow: var(--shadow); background: #0b1630; display: block; }
+.media-grid img.gif { max-width: 300px; }
+@media (max-width: 700px) { .media-grid { grid-template-columns: 1fr; } .media-tall { max-width: 300px; margin: 0 auto; } .embed-demo { height: 380px; } }
 .lightbox { position: fixed; inset: 0; background: rgba(5,8,16,.88); display: none; place-items: center; z-index: 50; padding: 16px; cursor: zoom-out; }
 .lightbox.open { display: grid; }
 .lightbox img { max-width: min(1600px, 100%); max-height: 92vh; border-radius: 10px; }
@@ -169,6 +183,7 @@ footer .inner { max-width: 1120px; margin: 0 auto; padding: 22px 16px 40px; disp
     </div>
     <nav class="tabs" role="tablist" aria-label="Documentation sections">
       <button class="tab" role="tab" data-tab="overview">Overview</button>
+      <button class="tab" role="tab" data-tab="app">App</button>
       <button class="tab" role="tab" data-tab="install">Download</button>
       <button class="tab" role="tab" data-tab="quickstart">Quick start</button>
       <button class="tab" role="tab" data-tab="design">Design</button>
@@ -193,7 +208,7 @@ footer .inner { max-width: 1120px; margin: 0 auto; padding: 22px 16px 40px; disp
       <p class="lead">Build a circuit on a virtual breadboard, draw the schematic, lay out a PCB and watch it run in a live simulator — on your laptop or your phone. Free and open source.</p>
       <div class="actions">
         <a class="btn primary" href="#install">Download free</a>
-        <a class="btn" href="app/" target="_blank" rel="noopener">Try it in your browser</a>
+        <a class="btn" href="#app">Try it in your browser</a>
         <a class="btn" href="https://github.com/rORrEtboLt/designElectronics">★ Star on GitHub</a>
       </div>
       <ul class="badges"><li>MIT licensed</li><li>Downloads for macOS · Windows · Linux</li><li>iOS · Android</li><li>Works offline</li><li>No account</li></ul>
@@ -227,6 +242,34 @@ footer .inner { max-width: 1120px; margin: 0 auto; padding: 22px 16px 40px; disp
     <figure><img src="assets/img/phone_parts.webp" width="585" height="1266" loading="lazy" alt="Parts drawer on a phone"><figcaption>Parts drawer</figcaption></figure>
     <figure><img src="assets/img/phone_layers.webp" width="585" height="1266" loading="lazy" alt="Layers drawer on a phone"><figcaption>Layers drawer</figcaption></figure>
   </div>
+</section>
+
+<!-- ============================== APP ============================== -->
+<section class="panel" role="tabpanel" id="app" hidden>
+  <div class="app-bar">
+    <div>
+      <h2 style="margin:0">designElectronics in your browser</h2>
+      <p class="muted" style="margin:.2em 0 0">The full app, running right here (WebAssembly). Nothing to install — your work stays in this browser; use <b>File ▸ Save</b> to download it.</p>
+    </div>
+    <div class="app-actions">
+      <label class="sr-only" for="app-example">Start with</label>
+      <select id="app-example" class="select">
+        <option value="">New design</option>
+        <option value="0">Example: LED with battery</option>
+        <option value="1">Example: Arduino LED (with a sketch)</option>
+        <option value="2">Example: Pushbutton LED</option>
+        <option value="3">Example: Voltage divider + multimeter</option>
+        <option value="4" selected>Example: 555 LED blinker</option>
+        <option value="5">Example: ESP32 blink</option>
+        <option value="6">Example: Raspberry Pi LED</option>
+      </select>
+      <button class="btn" id="app-full" type="button">⛶ Full screen</button>
+    </div>
+  </div>
+  <div class="app-frame-wrap" id="app-wrap">
+    <iframe id="app-frame" data-src="app/#example=4" title="designElectronics web app" allow="fullscreen; clipboard-read; clipboard-write"></iframe>
+  </div>
+  <p class="muted" style="font-size:.88rem">Tip: press <b>Simulate</b> in the toolbar; on a phone use the <b>Parts</b>, <b>Layers</b> and <b>Inspect</b> buttons. Uploading to a real board and GitHub sync need the <a href="#install">desktop app</a>.</p>
 </section>
 
 <!-- ============================== INSTALL ============================== -->
@@ -485,8 +528,28 @@ D9=PWM:30           # 30 % duty, simulated as the average voltage</code></pre>
     <tr><td>YouTube</td><td>16:9 · 1920×1080</td><td>YouTube videos, presentations</td></tr>
   </table></div>
   <p>Choose MP4 (H.264, 30 fps — uploads everywhere) or an animated GIF (half size, 15 fps — for chats, READMEs and blog posts), the view (or a <b>tour</b> through breadboard → schematic → PCB), the length and a title. Videos are rendered frame by frame with real simulation timing, entirely on your device.</p>
+  <h3>Made with Export ▸ Video</h3>
+  <div class="media-grid">
+    <figure class="media-tall">
+      <video data-autoplay src="assets/video/reel-555-blinker.mp4" poster="assets/video/reel-555-blinker.jpg" width="1080" height="1920" controls muted loop playsinline preload="none"></video>
+      <figcaption>Reels / Shorts · 9:16 — the 555 blinker simulating</figcaption>
+    </figure>
+    <div class="media-col">
+      <figure>
+        <video data-autoplay src="assets/video/youtube-tour-arduino.mp4" poster="assets/video/youtube-tour-arduino.jpg" width="1920" height="1080" controls muted loop playsinline preload="none"></video>
+        <figcaption>YouTube · 16:9 — a tour of breadboard, schematic and PCB while the Arduino sketch runs</figcaption>
+      </figure>
+      <figure>
+        <img data-src="assets/video/esp32-blink.gif" width="540" height="540" alt="Animated GIF of an ESP32 blinking an LED" class="gif">
+        <figcaption>Animated GIF · square — 22 KB</figcaption>
+      </figure>
+    </div>
+  </div>
   <h3>Embed circuits in your blog</h3>
-  <p>Put a live, interactive circuit in any web page with an <code>&lt;iframe&gt;</code>. Readers can switch between breadboard, schematic and PCB, pan and zoom, and press <b>Simulate</b> — right in your post. <a href="embed/demo.html">See a demo blog post →</a></p>
+  <p>Put a live, interactive circuit in any web page with an <code>&lt;iframe&gt;</code>. Readers can switch between breadboard, schematic and PCB, pan and zoom, and press <b>Simulate</b> — right in your post. This is one, live:</p>
+  <div class="embed-demo">
+    <iframe data-src="embed/#example=4&amp;view=breadboard&amp;sim=1" title="Embedded 555 blinker" loading="lazy" allowfullscreen></iframe>
+  </div>
   <ol class="steps">
     <li>In the app, open your design and choose <b>File ▸ Embed in a Website…</b></li>
     <li>Pick the view it should start in, whether it starts simulating, and the size.</li>
@@ -505,9 +568,7 @@ D9=PWM:30           # 30 % duty, simulated as the average voltage</code></pre>
     <tr><td><code>view=breadboard|schematic|pcb</code></td><td>Start view</td></tr>
     <tr><td><code>sim=1</code></td><td>Start simulating</td></tr>
   </table></div>
-  <p>Join options with <code>&amp;</code>, for example <code>embed/#example=4&amp;view=pcb</code>. The embed's <b>Open in editor</b> button opens the same design in the <a href="app/" target="_blank" rel="noopener">web editor</a>, where readers can change it and save their own copy.</p>
-  <h3>The web editor</h3>
-  <p>The full app also runs in the browser at <a href="app/" target="_blank" rel="noopener">rorretbolt.github.io/designElectronics/app/</a> — the same code compiled to WebAssembly. Open and Save use your browser's file picker and downloads. Share a design with <b>Copy editor link</b> in the embed window.</p>
+  <p>Join options with <code>&amp;</code>, for example <code>embed/#example=4&amp;view=pcb</code>. The embed's <b>Open in editor</b> button opens the same design in the web editor (the <a href="#app">App</a> tab), where readers can change it and save their own copy. Share a design with <b>Copy editor link</b> in the embed window.</p>
 </section>
 
 <!-- ============================== AI / MCP ============================== -->
@@ -627,6 +688,13 @@ designElectronics --export-examples DIR   write the example designs as .dez file
       subs.forEach(s => s.setAttribute('aria-selected', s.dataset.sub === sub));
       subPanels.forEach(p => p.hidden = p.dataset.subPanel !== sub);
     }
+    // load iframes / media in the visible panel only (the app is ~4 MB), and play its demo videos
+    const panel = panels.find(p => p.id === tab);
+    if (panel) {
+      panel.querySelectorAll('[data-src]').forEach(el => { if (!el.getAttribute('src')) el.setAttribute('src', el.dataset.src); });
+      panel.querySelectorAll('video[data-autoplay]').forEach(v => { v.play().catch(() => {}); });
+    }
+    panels.filter(p => p.id !== tab).forEach(p => p.querySelectorAll('video').forEach(v => v.pause()));
     const active = tabs.find(t => t.dataset.tab === tab);
     if (active) active.scrollIntoView({ block: 'nearest', inline: 'nearest' });
     if (scroll) window.scrollTo({ top: 0 });
@@ -643,6 +711,17 @@ designElectronics --export-examples DIR   write the example designs as .dez file
     show(a.getAttribute('href'), true);
   });
   show(location.hash, false);
+
+  // App tab: example picker and full screen
+  const appFrame = document.getElementById('app-frame');
+  document.getElementById('app-example').addEventListener('change', e => {
+    const v = e.target.value;
+    appFrame.setAttribute('src', 'app/' + (v === '' ? '' : '#example=' + v));  // the app reloads on hash changes
+  });
+  document.getElementById('app-full').addEventListener('click', () => {
+    const wrap = document.getElementById('app-wrap');
+    (wrap.requestFullscreen || wrap.webkitRequestFullscreen || (() => {})).call(wrap);
+  });
 
   // OS picker on the Install tab
   const osBtns = [...document.querySelectorAll('[data-os]')];

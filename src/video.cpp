@@ -205,9 +205,18 @@ private:
         std::map<uint32_t, uint32_t> hist;
         for (auto& fr : pending_)
             for (size_t i = 0; i < fr.size(); i += 3 * 3) hist[(uint32_t)fr[i] << 16 | (uint32_t)fr[i + 1] << 8 | fr[i + 2]]++;
+        // the most common colours (backgrounds, board fills, wires) get exact entries;
+        // median cut shares the rest among the anti-aliased in-between shades
+        std::vector<std::pair<uint32_t, uint32_t>> byCount(hist.begin(), hist.end());
+        std::sort(byCount.begin(), byCount.end(), [](auto& a, auto& b) { return a.second > b.second; });
+        size_t exact = std::min<size_t>(byCount.size() <= 256 ? byCount.size() : 96, byCount.size());
         struct Box { std::vector<std::pair<uint32_t, uint32_t>> c; };
-        std::vector<Box> boxes(1);
-        for (auto& kv : hist) boxes[0].c.push_back(kv);
+        std::vector<Box> boxes;
+        for (size_t i = 0; i < exact; i++) boxes.push_back(Box{{byCount[i]}});
+        if (exact < byCount.size()) {
+            boxes.emplace_back();
+            for (size_t i = exact; i < byCount.size(); i++) boxes.back().c.push_back(byCount[i]);
+        }
         while (boxes.size() < 256) {
             // split the box with the widest channel range
             int bi = -1, bch = 0, brange = 0;
