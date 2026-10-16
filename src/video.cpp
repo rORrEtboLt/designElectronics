@@ -1,6 +1,7 @@
 // designElectronics — MP4 (H.264) and GIF writers (see video.h).
 #include "video.h"
 
+#include <cmath>
 #include <algorithm>
 #include <cstdio>
 #include <cstdlib>

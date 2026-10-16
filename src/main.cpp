@@ -10,6 +10,8 @@
 //   designElectronics --screenshot OUT.png [--example N] [--view bb|sch|pcb] [--sim]
 //                     [--autoroute] [--size WxH] [--drawer parts|inspector] [--select N]
 #define SDL_MAIN_USE_CALLBACKS 1
+#include <cmath>
+#include <cctype>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 
