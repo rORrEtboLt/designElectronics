@@ -533,6 +533,9 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
         if (g_shot.route) { g_app->ensureConn(); autoroute(g_app->doc, g_app->conn, true); g_app->doc.touch(); }
         if (g_shot.sim) g_app->simOn = true;
         if (g_shot.select >= 0 && g_shot.select < (int)g_app->doc.parts.size()) g_app->selParts = {g_app->doc.parts[(size_t)g_shot.select].id};
+        // screenshots are for sharing: no local file path or "Opened…" toast in them
+        g_app->filePath.clear();
+        g_app->ui.toast("", 0);
         if (g_shot.sheet == "history") g_app->openHistory();
         else if (g_shot.sheet == "commit") g_app->openCommitSheet();
         else if (g_shot.sheet == "account") g_app->openGitHubAccount();

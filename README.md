@@ -2,6 +2,8 @@
 
 # designElectronics
 
+**📖 Documentation & screenshots: https://rorretbolt.github.io/designElectronics/**
+
 An open-source electronics design app for **desktop and mobile**, inspired by
 [Fritzing](https://fritzing.org). Build a circuit on a virtual breadboard, draw
 the schematic, lay out a PCB and export fab-ready Gerber files — on your laptop

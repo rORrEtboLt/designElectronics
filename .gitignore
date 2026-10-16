@@ -9,3 +9,4 @@ external/
 CLAUDE.md
 CLAUDE.local.md
 *.dez.autosave
+.gstack/
