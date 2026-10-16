@@ -34,6 +34,7 @@ set(DE_SOURCES
   src/router.cpp
   src/drc.cpp
   src/sim.cpp
+  src/arduino.cpp
   src/export.cpp
   src/examples.cpp
   src/mcp.cpp
@@ -42,6 +43,9 @@ set(DE_SOURCES
   src/app_history.cpp
   src/panels_layers.cpp
   src/web.cpp
+  src/code_editor.cpp
+  src/panels_code.cpp
+  src/upload.cpp
 )
 
 if(ANDROID)

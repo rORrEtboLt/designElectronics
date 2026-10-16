@@ -8,11 +8,14 @@
 // mapping come from PartDef::sim / PartDef::simParams, so custom parts can be
 // simulated too (see docs/FILE_FORMAT.md).
 #include <array>
+#include <memory>
+#include <set>
 #include <cmath>
 #include <cstdio>
 #include <unordered_map>
 
 #include "tools.h"
+#include "arduino.h"
 
 namespace {
 
@@ -159,6 +162,92 @@ double powerRating(const std::string& s) {
 // 7-segment patterns for 0-9 (bits a..g)
 const int kSeg[10] = {0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0x6F};
 
+// ---- programs on microcontroller boards ----
+
+// Part pin whose name is `n` or starts with `n/` ("D1" matches "D1/TX").
+int pinNamed(const PartDef& d, const std::string& n) {
+    for (size_t i = 0; i < d.pins.size(); i++) {
+        const std::string& pn = d.pins[i].name;
+        if (pn == n || (pn.size() > n.size() && pn.compare(0, n.size(), n) == 0 && pn[n.size()] == '/')) return (int)i;
+    }
+    return -1;
+}
+
+std::string boardFamily(const std::string& t) {
+    if (t.rfind("esp32", 0) == 0 || t == "nano_esp32") return "esp32";
+    if (t == "nodemcu_esp8266" || t == "wemos_d1_mini") return "esp8266";
+    if (t.rfind("rpi_pico", 0) == 0 || t == "nano_rp2040") return "rp2040";
+    if (t.rfind("stm32", 0) == 0) return "stm32";
+    if (t == "nano_33_iot" || t == "mkr_wifi_1010" || t == "feather" || t == "xiao") return "samd";
+    if (t == "nano_33_ble") return "nrf52";
+    if (t.rfind("arduino_uno_r4", 0) == 0) return "renesas";
+    if (t == "arduino_due") return "sam";
+    if (t == "teensy40") return "teensy";
+    if (t.rfind("rpi", 0) == 0) return "linux";  // Raspberry Pi computers run Linux programs
+    if (t.rfind("pic", 0) == 0) return "pic";
+    return "avr";
+}
+
+ard::BoardInfo boardInfoFor(const PartDef& d, double vio) {
+    ard::BoardInfo b;
+    const std::string& t = d.type;
+    b.family = boardFamily(t);
+    b.vref = vio;
+    b.intBits = b.family == "avr" ? 16 : 32;
+    b.adcBits = b.family == "esp32" ? 12 : 10;
+    b.ledBuiltin = b.family == "esp32" || b.family == "esp8266" ? 2 : b.family == "rp2040" ? 25 : 13;
+    if (t == "mkr_wifi_1010") b.ledBuiltin = 6;
+    long a0 = 14;
+    if (t == "arduino_mega2560" || t == "arduino_due") a0 = 54;
+    else if (t == "arduino_leonardo" || t == "arduino_micro" || t == "arduino_pro_micro") a0 = 18;
+    else if (b.family == "esp32") a0 = 36;
+    else if (b.family == "rp2040" && t != "nano_rp2040") a0 = 26;
+    else if (b.family == "esp8266") a0 = 17;
+    else if (t == "mkr_wifi_1010") a0 = 15;
+    for (int i = 0; i < 16; i++) b.constants["A" + std::to_string(i)] = a0 + i;
+    if (b.family == "stm32") {  // PA0…PC15
+        for (int port = 0; port < 3; port++)
+            for (int bit = 0; bit < 16; bit++) b.constants[std::string("P") + (char)('A' + port) + std::to_string(bit)] = 1000 + port * 16 + bit;
+        for (int i = 0; i < 8; i++) b.constants["A" + std::to_string(i)] = 1000 + i;  // A0 = PA0
+        b.ledBuiltin = 1000 + 2 * 16 + 13;                                               // PC13
+    }
+    static const std::map<long, std::string> esp8266 = {{16, "D0"}, {5, "D1"}, {4, "D2"}, {0, "D3"}, {2, "D4"}, {14, "D5"}, {12, "D6"},
+                                                        {13, "D7"}, {15, "D8"}, {3, "RX"}, {1, "TX"}, {17, "A0"}};
+    if (b.family == "esp8266")
+        for (auto& kv : esp8266) if (kv.second[0] == 'D') b.constants[kv.second] = kv.first;
+    const PartDef* def = &d;
+    std::string family = b.family;
+    b.resolvePin = [def, family, t, a0](long n) -> int {
+        auto tryName = [&](const std::string& nm) { return pinNamed(*def, nm); };
+        if (family == "esp8266") {
+            auto it = esp8266.find(n);
+            return it == esp8266.end() ? -1 : tryName(it->second);
+        }
+        if (family == "stm32" && n >= 1000) {
+            long port = (n - 1000) / 16, bit = (n - 1000) % 16;
+            return tryName(std::string(1, (char)('A' + port)) + std::to_string(bit));
+        }
+        if (t == "atmega328p") {
+            if (n < 8) return tryName("PD" + std::to_string(n));
+            if (n < 14) return tryName("PB" + std::to_string(n - 8));
+            if (n < 20) return tryName("PC" + std::to_string(n - 14));
+            return -1;
+        }
+        if (t == "attiny85") return n < 6 ? tryName("PB" + std::to_string(n)) : -1;
+        if (t == "attiny84") return n < 8 ? tryName("PA" + std::to_string(n)) : n < 11 ? tryName("PB" + std::to_string(10 - n)) : -1;
+        if (n >= a0 && n < a0 + 16 && family != "esp32" && family != "rp2040") {
+            int k = tryName("A" + std::to_string(n - a0));
+            if (k >= 0) return k;
+        }
+        for (const std::string& prefix : {"D", "GPIO", "GP", "IO", "", "PIN"}) {
+            int k = tryName(prefix + std::to_string(n));
+            if (k >= 0) return k;
+        }
+        return -1;
+    };
+    return b;
+}
+
 }  // namespace
 
 // ---------------------------------------------------------------------------
@@ -174,11 +263,21 @@ struct Simulator::Impl {
     };
     std::map<int, PState> st;
     std::map<int, double> lastNetV;  // previous solution, the starting point of the next step
+    // programs running on microcontroller boards
+    struct Program {
+        std::unique_ptr<ard::Sketch> sketch;
+        std::string source, type;
+        bool ok = false;
+        ard::CompileError err;
+    };
+    std::map<int, Program> programs;
+    std::map<int, std::string> pendingSerialIn;
 };
 
 Simulator::Simulator() : impl_(new Impl) {}
 Simulator::~Simulator() { delete impl_; }
-void Simulator::reset() { impl_->st.clear(); impl_->lastNetV.clear(); time = 0; }
+void Simulator::reset() { impl_->st.clear(); impl_->lastNetV.clear(); impl_->programs.clear(); time = 0; }
+void Simulator::serialInput(int partId, const std::string& text) { impl_->pendingSerialIn[partId] += text; }
 
 SimResult Simulator::step(const Document& doc, const Connectivity& conn, const std::set<int>& pressed, double seconds) {
     SimResult res;
@@ -245,7 +344,10 @@ SimResult Simulator::step(const Document& doc, const Connectivity& conn, const s
             continue;
         unsupported.push_back(p.label);
     }
-    if (n == 0) {
+    bool anyCode = false;  // a board running a program still runs with nothing wired to it
+    for (auto* p : parts)
+        if ((p->def->sim == "board" || p->def->sim == "mcu") && p->code.find_first_not_of(" \t\r\n") != std::string::npos) anyCode = true;
+    if (n == 0 && !anyCode) {
         res.message = parts.empty() ? "Nothing to simulate yet — add a battery or a board and some parts." : "Simulating (nothing is connected yet)";
         time += seconds;
         return res;
@@ -253,6 +355,37 @@ SimResult Simulator::step(const Document& doc, const Connectivity& conn, const s
 
     auto& ST = impl_->st;
     bool dynamic = false;
+
+    // ---- programs on boards: compile when the code changes ----
+    auto& programs = impl_->programs;
+    std::set<int> withCode;
+    for (auto* p : parts) {
+        const std::string& m = p->def->sim;
+        if (m != "board" && m != "mcu") continue;
+        const std::string& src = p->code;
+        if (src.find_first_not_of(" \t\r\n") == std::string::npos) continue;
+        withCode.insert(p->id);
+        auto& prog = programs[p->id];
+        if ((prog.sketch || !prog.err.message.empty()) && prog.source == src && prog.type == p->type) continue;
+        prog = Impl::Program();
+        prog.source = src;
+        prog.type = p->type;
+        std::string fam = boardFamily(p->type);
+        if (fam == "linux" || fam == "pic") {
+            prog.err.line = 1;
+            prog.err.message = fam == "linux" ? "Raspberry Pi programs (Python/Linux) can't run in the simulator yet - use Pin outputs"
+                                              : "PIC programs can't run in the simulator - use Pin outputs";
+            continue;
+        }
+        prog.sketch = std::make_unique<ard::Sketch>();
+        double vio = paramsFor(p->def.get()).num("IO", 5);
+        prog.ok = prog.sketch->compile(src, boardInfoFor(*p->def, vio), prog.err);
+    }
+    for (auto it = programs.begin(); it != programs.end();) it = withCode.count(it->first) ? std::next(it) : programs.erase(it);
+    for (auto& kv : programs) if (kv.second.ok) dynamic = true;
+    for (auto& kv : impl_->pendingSerialIn)
+        if (programs.count(kv.first) && programs[kv.first].ok) programs[kv.first].sketch->serialInput(kv.second);
+    impl_->pendingSerialIn.clear();
     for (auto* p : parts) {
         const std::string& m = p->def->sim;
         if (m == "capacitor" || m == "555" || m == "logic" || m == "relay") dynamic = true;
@@ -281,6 +414,18 @@ SimResult Simulator::step(const Document& doc, const Connectivity& conn, const s
 
     for (int stepI = 0; stepI < steps; stepI++) {
         double t = time + dt * (stepI + 1);
+        // run each board's program up to this millisecond (inputs see the last solution)
+        for (auto* pp : parts) {
+            auto it = programs.find(pp->id);
+            if (it == programs.end() || !it->second.ok) continue;
+            const PartInst& p = *pp;
+            ard::Host host;
+            host.readVoltage = [&](int pin) -> double {
+                int node = nodeOfPin(p, pin);
+                return node == FLOAT ? NAN : V(node);
+            };
+            it->second.sketch->run(std::round(t * 1000), host);
+        }
         // iterate: stamp → solve → update discrete states, until consistent
         for (int pass = 0; pass < 2; pass++) {  // pass 1 re-runs after clocked (edge) updates
             int iter;
@@ -375,6 +520,29 @@ SimResult Simulator::step(const Document& doc, const Connectivity& conn, const s
                             S.cond(vcc, g0, 1 / 2000.0);  // supply current of the chip
                         }
                         if (!powered) continue;
+                        auto prog = programs.find(p.id);
+                        if (prog != programs.end()) {
+                            // the board runs a program: its pins follow the sketch
+                            if (!prog->second.ok) continue;
+                            for (auto& kv : prog->second.sketch->pins()) {
+                                int node = nodeOfPin(p, kv.first);
+                                if (node == FLOAT) continue;
+                                const ard::PinState& ps = kv.second;
+                                double hi = m == "board" ? vio : V(vcc) - V(g0);
+                                if (ps.mode == ard::PM_OUTPUT) {
+                                    if (m == "board") S.vsrc(g0, node, ps.level * vio, rout);
+                                    else if (ps.level >= 1) S.cond(node, vcc, 1 / rout);
+                                    else if (ps.level <= 0) S.cond(node, g0, 1 / rout);
+                                    else { S.cond(node, vcc, ps.level / rout); S.cond(node, g0, (1 - ps.level) / rout); }
+                                } else if (ps.mode == ard::PM_INPUT_PULLUP) {
+                                    if (m == "board") S.vsrc(g0, node, hi, 40000);
+                                    else S.cond(node, vcc, 1 / 40000.0);
+                                } else if (ps.mode == ard::PM_INPUT_PULLDOWN) {
+                                    S.cond(node, g0, 1 / 40000.0);
+                                }
+                            }
+                            continue;
+                        }
                         for (auto& o : split(p.prop("outputs"), ',')) {
                             size_t eq = o.find('=');
                             if (eq == std::string::npos) continue;
@@ -930,6 +1098,35 @@ SimResult Simulator::step(const Document& doc, const Connectivity& conn, const s
     for (auto& kv : nodeOf) impl_->lastNetV[kv.first] = x[(size_t)kv.second];
     res.time = time;
 
+    // program status, Serial output and warnings
+    for (auto& kv : programs) {
+        const PartInst* p = doc.part(kv.first);
+        std::string label = p ? p->label : "board";
+        SimResult::Code c;
+        auto& prog = kv.second;
+        if (!prog.ok) {
+            c.errorLine = std::max(1, prog.err.line);
+            c.error = prog.err.message;
+            char b[400];
+            snprintf(b, sizeof b, "%s's program, line %d: %s", label.c_str(), c.errorLine, c.error.c_str());
+            res.warnings.push_back(b);
+        } else {
+            c.running = prog.sketch->running();
+            c.line = prog.sketch->currentLine();
+            if (!prog.sketch->runtimeError().empty()) {
+                c.errorLine = std::max(1, prog.sketch->runtimeLine());
+                c.error = prog.sketch->runtimeError();
+                char b[400];
+                snprintf(b, sizeof b, "%s's program stopped at line %d: %s", label.c_str(), c.errorLine, c.error.c_str());
+                res.warnings.push_back(b);
+            }
+            for (auto& w : prog.sketch->warnings()) res.warnings.push_back(label + ": " + w);
+            std::string out = prog.sketch->takeSerial();
+            if (!out.empty()) res.serial[kv.first] = out;
+        }
+        res.code[kv.first] = c;
+    }
+
     // -------------------- results --------------------
     for (auto& kv : ledAccum) {
         double iavg = kv.second / std::max(totalT, 1e-9);
@@ -1032,4 +1229,28 @@ SimResult simulate(const Document& doc, const Connectivity& conn, const std::set
         t += chunk;
     }
     return r;
+}
+
+bool checkSketch(const PartInst& p, int& errorLine, std::string& error) {
+    errorLine = 0;
+    error.clear();
+    if (!p.def || p.code.find_first_not_of(" \t\r\n") == std::string::npos) return true;
+    std::string fam = boardFamily(p.type);
+    if (fam == "linux" || fam == "pic") {
+        errorLine = 1;
+        error = fam == "linux" ? "Raspberry Pi programs (Python/Linux) can't run in the simulator yet" : "PIC programs can't run in the simulator";
+        return false;
+    }
+    ard::Sketch sk;
+    ard::CompileError e;
+    double vio = 5;
+    {
+        // IO=… from the part's simulation parameters
+        size_t k = p.def->simParams.find("IO=");
+        if (k != std::string::npos) vio = std::atof(p.def->simParams.c_str() + k + 3);
+    }
+    if (sk.compile(p.code, boardInfoFor(*p.def, vio), e)) return true;
+    errorLine = std::max(1, e.line);
+    error = e.message;
+    return false;
 }

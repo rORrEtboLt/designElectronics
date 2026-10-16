@@ -4,7 +4,7 @@
  "app": "designElectronics 0.1.0",
  "title": "555 LED blinker",
  "notes": "Classic astable 555: R1 = 1kΩ, R2 = 10kΩ, C = 10µF → about 7 blinks per second.",
- "saved": "2026-10-16T08:46:04Z",
+ "saved": "2026-10-16T10:19:27Z",
  "rules": {
   "traceWidth": 24,
   "clearance": 12,

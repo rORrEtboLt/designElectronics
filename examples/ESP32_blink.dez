@@ -4,7 +4,7 @@
  "app": "designElectronics 0.1.0",
  "title": "ESP32 blink",
  "notes": "ESP32 DevKitC drives GPIO2 (BLINK:500) through a 220Ω resistor to an LED.",
- "saved": "2026-10-16T08:46:04Z",
+ "saved": "2026-10-16T10:19:27Z",
  "rules": {
   "traceWidth": 24,
   "clearance": 12,

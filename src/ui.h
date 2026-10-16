@@ -77,6 +77,17 @@ struct DialogButton {
     bool primary = false;
 };
 
+// State of a code editor (owned by the caller, one per edited text).
+struct CodeEditorState {
+    size_t cursor = 0, anchor = 0;
+    float scrollX = 0, scrollY = 0;
+    int desiredCol = -1;
+    bool dragging = false;
+    bool followExec = true;  // scroll to the executing line while not editing
+    Uint64 lastEdit = 0;
+    std::vector<std::pair<std::string, size_t>> undo, redo;
+};
+
 enum ButtonStyle { BTN_NORMAL, BTN_FLAT, BTN_TAB, BTN_PRIMARY, BTN_TOOL, BTN_CHIP };
 
 class UI {
@@ -103,6 +114,9 @@ public:
     bool textField(const std::string& id, Rect r, std::string& value, const std::string& placeholder = "", bool live = false);
     bool comboField(const std::string& id, Rect r, std::string& value, const std::vector<std::string>& options, bool editable);
     bool checkbox(const std::string& id, Rect r, const std::string& label, bool& v);
+    // Multi-line code editor (code_editor.cpp). Returns true when `text` changed.
+    bool codeEditor(const std::string& id, Rect r, std::string& text, CodeEditorState& st, int execLine = 0, int errorLine = 0,
+                    const std::string& errorMsg = "");
     void label(Rect r, const std::string& t, uint32_t col, float px, int align = 0, FontFace face = FONT_UI);
     float wrappedText(Rect r, const std::string& t, uint32_t col, float px, bool draw = true);
     void tooltip(Rect r, const std::string& tip);

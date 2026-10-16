@@ -154,6 +154,12 @@ void App::layout() {
         rRight = Rect((float)(safe.x + safe.w) - dw, rTop.b(), dw, mid);
         rBin = rInspector = rRight;
     }
+    // program panel docks under the canvas
+    if (codeOpen && doc.part(codePart)) {
+        float h = compact ? std::floor(rCanvas.h * 0.58f) : std::clamp(std::floor(rCanvas.h * 0.45f), 240 * s, rCanvas.h - 160 * s);
+        rCode = Rect(rCanvas.x, rCanvas.b() - h, rCanvas.w, h);
+        rCanvas.h -= h;
+    } else rCode = Rect();
 }
 
 void App::ensureConn() {
@@ -376,6 +382,10 @@ static void showSave(App* app, const std::string& defName, const SDL_DialogFileF
         app->ui.toast("Saved to " + def);
     }};
     SDL_ShowSaveFileDialog(dialogCallback, ctx, app->win, filters, n, def.c_str());
+}
+
+void App::showSaveDialog(const std::string& name, const SDL_DialogFileFilter* filters, int n, std::function<void(const std::string&)> onPath) {
+    showSave(this, name, filters, n, std::move(onPath));
 }
 
 void App::saveAs() {
@@ -759,6 +769,7 @@ void App::runDrc() {
 
 void App::toggleSim() {
     simOn = !simOn;
+    if (simOn) serialLog.clear();  // like resetting the board
     simRev = -1;
     simulator.reset();
     lastSimTicks = 0;
@@ -970,6 +981,11 @@ SDL_AppResult App::iterate() {
         double dtReal = lastSimTicks ? std::clamp((now - lastSimTicks) / 1000.0, 0.001, 0.06) : 0.016;
         lastSimTicks = now;
         sim = simulator.step(doc, conn, simPressed, dtReal);
+        for (auto& kv : sim.serial) {  // Serial Monitor
+            std::string& log = serialLog[kv.first];
+            log += kv.second;
+            if (log.size() > 40000) log.erase(0, log.size() - 30000);
+        }
         simRev = doc.revision;
         simPressedLast = simPressed;
     }
@@ -1001,6 +1017,7 @@ SDL_AppResult App::iterate() {
         if (in.pressed && rCanvas.contains(in.mouse) && !rRight.contains(in.mouse) && !ui.blocking() && binDrag < 0)
             drawerParts = drawerInspector = drawerLayers = false;
     }
+    if (codeOpen && rCode.h > 0) drawCodePanel(rCode);
     drawToolbar();
     if (binDrag >= 0) {
         std::vector<LibEntry> all = partLibrary();

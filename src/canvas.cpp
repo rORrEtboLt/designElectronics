@@ -521,6 +521,12 @@ std::vector<MenuItem> App::contextMenu(const Hit& h) {
         m.push_back(item("Bring to Front", [this]() { bringToFront(true); }));
         m.push_back(item("Send to Back", [this]() { bringToFront(false); }));
         m.push_back(item("Export Part Definition…", [this]() { exportFile("part"); }));
+        if (const PartInst* hp = doc.part(h.part))
+            if (hp->def->sim == "board" || hp->def->sim == "mcu") {
+                int pid = hp->id;
+                m.insert(m.begin(), MenuItem::sep());
+                m.insert(m.begin(), item(hp->code.empty() ? "Write a Program…" : "Edit Program…", [this, pid]() { openCode(pid); }));
+            }
         if (compact) m.push_back(item("Inspector…", [this]() { drawerInspector = true; drawerParts = false; }));
         m.push_back(MenuItem::sep());
         m.push_back(item("Delete", [this]() { deleteSelection(); }, "Del"));

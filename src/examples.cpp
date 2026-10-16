@@ -84,9 +84,31 @@ void ledBattery(Document& d) {
 
 void arduinoBlink(Document& d) {
     d.title = "Arduino LED on pin 13";
-    d.notesText = "Classic Arduino blink wiring: D13 → 220Ω → LED → GND.";
+    d.notesText = "Classic Arduino blink: D13 → 220Ω → LED → GND, driven by a real sketch (open the board's program to see it).";
     Vec2 o{3000, 0};
-    place(d, "arduino_uno", {{"outputs", "D13=HIGH"}}, {0, 0}, {0, 0}, {0, 0});
+    PartInst& uno = place(d, "arduino_uno", {{"outputs", "D13=HIGH"}}, {0, 0}, {0, 0}, {0, 0});
+    uno.code =
+        "// Blink: the LED on pin 13 turns on for one second, then off for one second.\n"
+        "// Press Simulate to run this sketch; edit it and the board restarts with your changes.\n"
+        "\n"
+        "const int LED_PIN = 13;\n"
+        "int count = 0;\n"
+        "\n"
+        "void setup() {\n"
+        "  pinMode(LED_PIN, OUTPUT);\n"
+        "  Serial.begin(9600);\n"
+        "  Serial.println(\"Blink started\");\n"
+        "}\n"
+        "\n"
+        "void loop() {\n"
+        "  digitalWrite(LED_PIN, HIGH);\n"
+        "  count++;\n"
+        "  Serial.print(\"Blink #\");\n"
+        "  Serial.println(count);\n"
+        "  delay(1000);\n"
+        "  digitalWrite(LED_PIN, LOW);\n"
+        "  delay(1000);\n"
+        "}\n";
     place(d, "breadboard", {{"size", "half+"}}, o, {0, 0}, {0, 0});
     place(d, "resistor", {{"resistance", "220Ω"}}, hole(o, 10, 'f'), {1500, 1400}, {800, 800});
     place(d, "led", {{"color", "Green"}}, hole(o, 15, 'g'), {2100, 1400}, {1300, 1000}, true);

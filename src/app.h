@@ -4,6 +4,7 @@
 
 #include <functional>
 #include <map>
+#include <memory>
 #include <mutex>
 #include <set>
 #include <string>
@@ -196,6 +197,35 @@ public:
     void toggleSim();
     void setView(int v);
     void handleShortcuts();
+
+    // ---- panels_code.cpp: a board's program (Arduino sketch) ----
+    bool codeOpen = false;
+    int codePart = -1;
+    Rect rCode;
+    CodeEditorState codeState;
+    bool codeEditing = false;
+    Uint64 lastCodeEdit = 0;
+    int codeCheckRev = -1, codeCheckLine = 0;
+    std::string codeCheckMsg;
+    std::map<int, std::string> serialLog;  // per board
+    std::string serialSend;
+    void openCode(int partId);
+    void drawCodePanel(Rect r);
+    std::string defaultSketch(const PartInst& p);
+    void exportSketch(int partId);
+    void showSaveDialog(const std::string& name, const SDL_DialogFileFilter* filters, int n, std::function<void(const std::string&)> onPath);
+    // ---- upload.cpp: real boards via arduino-cli ----
+    struct UploadJob;
+    std::shared_ptr<UploadJob> uploadJob;
+    int uploadPart = -1;
+    std::string arduinoCli, uploadFqbn, uploadPort, uploadStatus, uploadResult;
+    bool uploadResultOk = true;
+    std::vector<std::string> uploadPorts;
+    void openUploadSheet(int partId);
+    void runCli(const std::vector<std::string>& args, const std::string& what, std::function<void(int, const std::string&)> done);
+    void refreshPorts();
+    void installCore();
+    void startUpload(bool compileOnly = false);
 
     // ---- web.cpp: browser build + embeddable viewer ----
     bool embedMode = false;      // <iframe> viewer: canvas + small bar only

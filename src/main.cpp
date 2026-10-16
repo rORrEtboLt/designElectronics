@@ -33,7 +33,14 @@ int check(bool ok, const char* what, int& failures) {
 struct TB {
     Document d;
     int count = 0;
-    int add(const std::string& type, Props props = {}) { count++; return d.addPart(type, props, {count * 6000.f, count * 3000.f}).id; }
+    int add(const std::string& type, Props props = {}) {
+        count++;
+        std::string code;
+        if (props.count("code")) { code = props["code"]; props.erase("code"); }
+        PartInst& p = d.addPart(type, props, {count * 6000.f, count * 3000.f});
+        p.code = code;
+        return p.id;
+    }
     int pin(int part, const std::string& name) {
         const PartInst* p = d.part(part);
         for (size_t i = 0; i < p->def->pins.size(); i++) if (p->def->pins[i].name == name || p->def->pins[i].id == name) return (int)i;
@@ -169,6 +176,77 @@ int simTests(int& failures) {
         }
         printf("  LM393 night light: bright %.2f, dark %.2f\n", lit[0], lit[1]);
         check(lit[0] < 0.05f && lit[1] > 0.1f, "comparator switches an LED on in the dark", failures);
+    }
+    {   // programs: an ESP32 sketch blinks an LED and prints over Serial
+        TB t;
+        int esp = t.add("esp32_devkit", {{"code",
+            "const int LED = 2;\n"
+            "void setup() { pinMode(LED, OUTPUT); Serial.begin(115200); Serial.println(\"hello\"); }\n"
+            "void loop() { digitalWrite(LED, HIGH); delay(200); digitalWrite(LED, LOW); delay(200); }\n"}});
+        int r = t.add("resistor", {{"resistance", "220Ω"}}), led = t.add("led");
+        t.wire(esp, "GPIO2", r, "pin0"); t.wire(r, "pin1", led, "anode"); t.wire(led, "cathode", esp, "GND");
+        Connectivity cn; cn.build(t.d);
+        Simulator sim;
+        std::string serial;
+        float on = 0, off = 0;
+        for (int i = 0; i < 40; i++) {
+            SimResult s = sim.step(t.d, cn, {}, 0.01);
+            for (auto& kv : s.serial) serial += kv.second;
+            if (i == 10) on = s.brightness[led];   // ~100 ms: LED on
+            if (i == 30) off = s.brightness[led];  // ~300 ms: LED off
+        }
+        printf("  ESP32 sketch: LED %.2f then %.2f, serial \"%s\"\n", on, off, serial.substr(0, serial.find('\n')).c_str());
+        check(on > 0.2f && off < 0.05f && serial == "hello\n", "an ESP32 sketch blinks an LED and prints to Serial", failures);
+    }
+    {   // programs: an Uno reads a pushbutton (INPUT_PULLUP) and lights an LED while it's held
+        TB t;
+        int uno = t.add("arduino_uno", {{"code",
+            "void setup() { pinMode(2, INPUT_PULLUP); pinMode(13, OUTPUT); }\n"
+            "void loop() { if (digitalRead(2) == LOW) digitalWrite(13, HIGH); else digitalWrite(13, LOW); }\n"}});
+        int btn = t.add("pushbutton");
+        int r = t.add("resistor", {{"resistance", "220Ω"}}), led = t.add("led");
+        t.wire(uno, "D2", btn, "pin1"); t.wire(btn, "pin2", uno, "GND");
+        t.wire(uno, "D13", r, "pin0"); t.wire(r, "pin1", led, "anode"); t.wire(led, "cathode", uno, "GND");
+        Connectivity cn; cn.build(t.d);
+        Simulator sim;
+        SimResult a, b;
+        for (int i = 0; i < 5; i++) a = sim.step(t.d, cn, {}, 0.01);
+        for (int i = 0; i < 5; i++) b = sim.step(t.d, cn, {btn}, 0.01);
+        printf("  Uno button sketch: released %.2f, pressed %.2f\n", a.brightness[led], b.brightness[led]);
+        check(a.brightness[led] < 0.05f && b.brightness[led] > 0.3f, "a sketch reads a button through INPUT_PULLUP", failures);
+    }
+    {   // programs: shiftOut drives a 74HC595 (pattern 0b10100101 → QA, QC, QF, QH lit)
+        TB t;
+        int uno = t.add("arduino_uno", {{"code",
+            "int latch = 8, clk = 12, data = 11;\n"
+            "void setup() { pinMode(latch, OUTPUT); pinMode(clk, OUTPUT); pinMode(data, OUTPUT); }\n"
+            "void loop() { digitalWrite(latch, LOW); shiftOut(data, clk, MSBFIRST, 0xA5); digitalWrite(latch, HIGH); delay(500); }\n"}});
+        int sr = t.add("74hc595");
+        t.wire(uno, "D11", sr, "SER"); t.wire(uno, "D12", sr, "SRCLK"); t.wire(uno, "D8", sr, "RCLK");
+        t.wire(uno, "5V", sr, "VCC"); t.wire(uno, "5V", sr, "SRCLR"); t.wire(uno, "GND", sr, "GND"); t.wire(uno, "GND", sr, "OE");
+        const char* q[] = {"QA", "QB", "QC", "QD", "QE", "QF", "QG", "QH"};
+        int leds[8];
+        for (int i = 0; i < 8; i++) {
+            int r = t.add("resistor", {{"resistance", "330Ω"}});
+            leds[i] = t.add("led");
+            t.wire(sr, q[i], r, "pin0"); t.wire(r, "pin1", leds[i], "anode"); t.wire(leds[i], "cathode", uno, "GND");
+        }
+        Connectivity cn; cn.build(t.d);
+        Simulator sim;
+        SimResult rr;
+        for (int i = 0; i < 20; i++) rr = sim.step(t.d, cn, {}, 0.01);
+        std::string pattern;
+        for (int i = 0; i < 8; i++) pattern += rr.brightness[leds[i]] > 0.2f ? '1' : '0';
+        printf("  74HC595 via shiftOut(0xA5): QA..QH = %s (expected 10100101)\n", pattern.c_str());
+        check(pattern == "10100101", "shiftOut from a sketch loads a 74HC595", failures);
+    }
+    {   // programs: compile errors are reported with their line
+        TB t;
+        int uno = t.add("arduino_uno", {{"code", "void setup() {\n  pinMode(13, OUTPUT)\n}\nvoid loop() {}\n"}});
+        Connectivity cn; cn.build(t.d);
+        SimResult r = simulate(t.d, cn, {}, 0.01);
+        printf("  broken sketch: line %d: %s\n", r.code[uno].errorLine, r.code[uno].error.c_str());
+        check(r.code[uno].errorLine == 3 && !r.code[uno].error.empty(), "sketch errors point at the right line", failures);
     }
     {   // CD4017 clocked by an ESP32 square wave: outputs advance
         TB t;
@@ -468,6 +546,7 @@ struct Screenshot {
     int select = -1;
     std::string menu;
     std::string sheet;  // history | commit | account
+    bool openCode = false;  // open the program panel of the first board
     // scripted pointer events: frame -> (type, x, y) in window points
     struct Ev { int frame; char type; float x, y; };
     std::vector<Ev> events;
@@ -512,6 +591,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
         else if (a == "--select") g_shot.select = std::atoi(next().c_str());
         else if (a == "--menu") g_shot.menu = next();
         else if (a == "--sheet") g_shot.sheet = next();
+        else if (a == "--open-code") g_shot.openCode = true;
         else if (a == "--events") {
             // "frame:d:x:y,frame:m:x:y,frame:u:x:y,frame:k:keycode:0"
             std::string spec = next() + ",";
@@ -570,10 +650,16 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
         // screenshots are for sharing: no local file path or "Opened…" toast in them
         g_app->filePath.clear();
         g_app->ui.toast("", 0);
+        if (g_shot.openCode)
+            for (auto& p : g_app->doc.parts)
+                if (p.def->sim == "board" || p.def->sim == "mcu") { g_app->openCode(p.id); g_app->ui.toast("", 0); break; }
         if (g_shot.sheet == "history") g_app->openHistory();
         else if (g_shot.sheet == "commit") g_app->openCommitSheet();
         else if (g_shot.sheet == "account") g_app->openGitHubAccount();
         else if (g_shot.sheet == "embed") g_app->openEmbedSheet();
+        else if (g_shot.sheet == "upload")
+            for (auto& p : g_app->doc.parts)
+                if (p.def->sim == "board") { g_app->openUploadSheet(p.id); break; }
     }
     return SDL_APP_CONTINUE;
 }

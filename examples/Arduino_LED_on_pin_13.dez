@@ -3,8 +3,8 @@
  "version": 1,
  "app": "designElectronics 0.1.0",
  "title": "Arduino LED on pin 13",
- "notes": "Classic Arduino blink wiring: D13 → 220Ω → LED → GND.",
- "saved": "2026-10-16T08:46:04Z",
+ "notes": "Classic Arduino blink: D13 → 220Ω → LED → GND, driven by a real sketch (open the board's program to see it).",
+ "saved": "2026-10-16T10:19:27Z",
  "rules": {
   "traceWidth": 24,
   "clearance": 12,
@@ -59,7 +59,8 @@
     "pcb": {
      "at": [0, 0]
     }
-   }
+   },
+   "code": "// Blink: the LED on pin 13 turns on for one second, then off for one second.\n// Press Simulate to run this sketch; edit it and the board restarts with your changes.\n\nconst int LED_PIN = 13;\nint count = 0;\n\nvoid setup() {\n  pinMode(LED_PIN, OUTPUT);\n  Serial.begin(9600);\n  Serial.println(\"Blink started\");\n}\n\nvoid loop() {\n  digitalWrite(LED_PIN, HIGH);\n  count++;\n  Serial.print(\"Blink #\");\n  Serial.println(count);\n  delay(1000);\n  digitalWrite(LED_PIN, LOW);\n  delay(1000);\n}\n"
   },
   {
    "id": 3,

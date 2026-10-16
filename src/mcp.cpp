@@ -153,6 +153,7 @@ private:
             pos.set(viewKey(v), x);
         }
         j.set("position", pos);
+        if (!p.code.empty()) j.set("code", p.code);
         Json hid = Json::array();
         for (int v = 0; v < NUM_VIEWS; v++) if (p.hiddenIn(v)) hid.push(viewKey(v));
         if (hid.size()) j.set("hiddenIn", hid);
@@ -280,7 +281,9 @@ Json Server::tools() const {
                 {"x", prop("number", "Optional x for all views")},
                 {"y", prop("number", "Optional y for all views")}},
                {"type"}));
-    add("set_part_properties", "Change properties of a part (value, colour, Pin outputs of a dev board, …) and/or its label.",
+    add("set_part_properties",
+        "Change properties of a part (value, colour, Pin outputs of a dev board, …) and/or its label. For a microcontroller board, "
+        "properties.code sets its program (Arduino C++ sketch) which runs in the simulator.",
         schema({{"part", partRef}, {"properties", prop("object", "Properties to set")}, {"label", prop("string", "New label")},
                 {"hidden_in", prop("array", "Views to hide the part in (visual only), e.g. [\"breadboard\"]; [] shows it everywhere")},
                 {"locked", prop("boolean", "Lock so it can't be moved or deleted in the editor")}},
@@ -312,7 +315,8 @@ Json Server::tools() const {
     add("simulate",
         "Run the real-time circuit simulator. Returns LED brightness (0–1), multimeter readings, motor/buzzer activity, "
         "damaged parts and warnings, and net voltages. Dev boards drive the pins listed in their 'outputs' property "
-        "(e.g. GPIO2=BLINK:500, D9=PWM:30); firmware is not executed.",
+        "(e.g. GPIO2=BLINK:500, D9=PWM:30), or run their program: set a board's Arduino sketch with set_part_properties "
+        "{\"code\": \"void setup(){…} void loop(){…}\"}; Serial output and program errors are returned.",
         schema({{"seconds", prop("number", "Simulated time (default 0.5 s)")},
                 {"pressed", prop("array", "Labels of pushbuttons held down during the run")}}));
     add("autoroute", "Route all PCB connections (two layers with vias). Fit the PCB board around the parts first.", schema({}));
@@ -525,7 +529,10 @@ Json Server::call(const std::string& name, const Json& a) {
     }
     if (name == "set_part_properties") {
         PartInst& p = findPart(a["part"]);
-        for (auto& kv : propsFromJson(a["properties"])) p.props[kv.first] = kv.second;
+        for (auto& kv : propsFromJson(a["properties"])) {
+            if (kv.first == "code") p.code = kv.second;  // the board's program (Arduino sketch)
+            else p.props[kv.first] = kv.second;
+        }
         p.refresh();
         if (!p.def) fail("invalid properties for " + p.type);
         if (a.has("label")) p.label = a["label"].str();
@@ -642,7 +649,11 @@ Json Server::call(const std::string& name, const Json& a) {
         double secs = std::clamp(a["seconds"].num(0.5), 0.001, 30.0);
         Simulator sim;
         SimResult r;
-        for (double t = 0; t < secs - 1e-9; t += 0.05) r = sim.step(doc_, c, pressed, std::min(0.05, secs - t));
+        std::map<int, std::string> serial;
+        for (double t = 0; t < secs - 1e-9; t += 0.05) {
+            r = sim.step(doc_, c, pressed, std::min(0.05, secs - t));
+            for (auto& kv : r.serial) serial[kv.first] += kv.second;
+        }
         auto label = [&](int id) { const PartInst* p = doc_.part(id); return p ? p->label : std::to_string(id); };
         Json j = Json::object();
         j.set("status", r.message);
@@ -669,6 +680,8 @@ Json Server::call(const std::string& name, const Json& a) {
         Json dmg = Json::array();
         for (int id : r.damaged) dmg.push(label(id));
         if (dmg.size()) j.set("damaged", dmg);
+        std::map<int, std::string> serialAll;
+        (void)serialAll;
         Json warn = Json::array();
         for (auto& w : r.warnings) warn.push(w);
         if (warn.size()) j.set("warnings", warn);
@@ -680,6 +693,21 @@ Json Server::call(const std::string& name, const Json& a) {
             volts.set(c.netName(n), std::round(r.netVoltage[(size_t)n] * 1000) / 1000);
         }
         j.set("netVoltages", volts);
+        if (!serial.empty()) {
+            Json so = Json::object();
+            for (auto& kv : serial) so.set(label(kv.first), kv.second.size() > 4000 ? kv.second.substr(kv.second.size() - 4000) : kv.second);
+            j.set("serialOutput", so);
+        }
+        if (!r.code.empty()) {
+            Json cs = Json::object();
+            for (auto& kv : r.code) {
+                Json x = Json::object();
+                x.set("running", kv.second.running);
+                if (kv.second.errorLine) { x.set("errorLine", kv.second.errorLine); x.set("error", kv.second.error); }
+                cs.set(label(kv.first), x);
+            }
+            j.set("programs", cs);
+        }
         return j;
     }
     if (name == "autoroute") {

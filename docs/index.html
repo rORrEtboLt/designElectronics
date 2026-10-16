@@ -173,6 +173,7 @@ footer .inner { max-width: 1120px; margin: 0 auto; padding: 22px 16px 40px; disp
       <button class="tab" role="tab" data-tab="quickstart">Quick start</button>
       <button class="tab" role="tab" data-tab="design">Design</button>
       <button class="tab" role="tab" data-tab="simulate">Simulate</button>
+      <button class="tab" role="tab" data-tab="code">Code</button>
       <button class="tab" role="tab" data-tab="parts">Parts</button>
       <button class="tab" role="tab" data-tab="history">History &amp; GitHub</button>
       <button class="tab" role="tab" data-tab="embed">Embed</button>
@@ -207,6 +208,7 @@ footer .inner { max-width: 1120px; margin: 0 auto; padding: 22px 16px 40px; disp
     <div class="card"><div class="ic">🏭</div><h3>Ready for the fab</h3><p>Two-layer autorouter, design-rules check and one-click Gerber + drill export you can upload to any PCB maker.</p></div>
     <div class="card"><div class="ic">📦</div><h3>177 real parts</h3><p>Arduino, ESP32, Raspberry Pi &amp; Pico boards, 74HC/CD4000 logic, op-amps, regulators, drivers, sensors and displays — true to size.</p></div>
     <div class="card"><div class="ic">🕘</div><h3>Version history &amp; GitHub</h3><p>Every save is a version you can restore. Optionally commit designs to your own private GitHub repository.</p></div>
+    <div class="card"><div class="ic">💻</div><h3>Program the boards</h3><p>Write an Arduino sketch for an Uno, ESP32 or Pico, watch it run line by line with a Serial Monitor, then upload it to the real board.</p></div>
     <div class="card"><div class="ic">🤖</div><h3>AI-ready</h3><p>A built-in MCP server lets Claude, Cursor and other assistants design, simulate and route circuits for you.</p></div>
     <div class="card"><div class="ic">📱</div><h3>Made for touch too</h3><p>On phones the panels become drawers; pan with a finger, pinch to zoom, long-press for menus.</p></div>
     <div class="card"><div class="ic">🗂️</div><h3>Layers</h3><p>A Photoshop-style Layers panel: toggle copper and silkscreen, hide or lock parts, find anything by name.</p></div>
@@ -397,13 +399,37 @@ build\Release\designElectronics.exe</code></pre>
   </table></div>
   <div class="note warn">Overdo it and parts <b>smoke</b>: an LED without a resistor, a shorted battery or an overloaded transistor shows smoke and a warning explaining what went wrong.</div>
   <h3>Microcontroller boards</h3>
-  <p>Arduino, ESP32, Raspberry Pi and other boards supply their power rails (5V, 3V3, GND) and drive the pins you list in the Inspector under <b>Pin outputs</b>:</p>
+  <p>Boards supply their power rails (5V, 3V3, GND). Give a board a real program in the <a href="#code">Code</a> tab — or, for a quick test, drive pins without code by listing them in the Inspector under <b>Pin outputs</b>:</p>
 <pre><code>GPIO2=HIGH          # steady high (3.3 V on ESP32/Pi, 5 V on Uno/Mega)
 D13=LOW
 GPIO17=BLINK:500    # toggle every 500 ms
 D9=PWM:30           # 30 % duty, simulated as the average voltage</code></pre>
   <p>Separate several with commas: <code>D11=HIGH, D12=BLINK:40, D8=BLINK:40</code>.</p>
-  <div class="note">Your Arduino sketch or Python program isn't executed — that would need a full chip emulator. Parts that talk a protocol (I²C OLEDs, DHT22, RFID, GPS…) can be wired, routed and exported but are listed as <i>not simulated</i>.</div>
+  <div class="note">Arduino sketches run in the simulator (see <a href="#code">Code</a>); Raspberry Pi (Linux/Python) programs don't yet. Parts that talk a protocol (I²C OLEDs, DHT22, RFID, GPS…) can be wired, routed and exported but are listed as <i>not simulated</i>.</div>
+</section>
+
+<!-- ============================== CODE ============================== -->
+<section class="panel doc" role="tabpanel" id="code" hidden>
+  <h2>Program your board</h2>
+  <p>Every microcontroller board — Arduino, ESP32, ESP8266, Raspberry Pi Pico, STM32, Teensy… — can hold an <b>Arduino sketch</b>. It's saved inside the design, runs in the simulator, and uploads to a real board.</p>
+  <ol class="steps">
+    <li>Select the board and click <b>Write a program…</b> in the Inspector (or right-click the board ▸ <b>Edit Program…</b>). You get a ready-to-run blink sketch for that board.</li>
+    <li>Press <b>▶ Run</b>. The program runs in step with the circuit: LEDs follow <code>digitalWrite</code>, <code>digitalRead</code> sees your buttons, <code>analogRead</code> measures real voltages, and the line that's executing is highlighted.</li>
+    <li>Watch <code>Serial.print</code> output in the <b>Serial Monitor</b>, and type into it to send text to <code>Serial.read()</code>.</li>
+    <li>Edit while it runs — the board restarts with your changes. Mistakes are underlined with the line and a plain-English message, like a compiler would.</li>
+  </ol>
+  <h3>What runs in the simulator</h3>
+  <div class="table-wrap"><table>
+    <tr><th>Supported</th><th>Examples</th></tr>
+    <tr><td>Language</td><td><code>int long float bool byte char String</code>, arrays, functions, <code>if/for/while/do/switch</code>, <code>#define</code>, <code>const</code>, <code>enum</code></td></tr>
+    <tr><td>Pins</td><td><code>pinMode</code> (incl. <code>INPUT_PULLUP</code>), <code>digitalWrite/Read</code>, <code>analogRead/Write</code>, <code>tone/noTone</code>, <code>shiftOut/shiftIn</code>, ESP32 <code>ledcAttach/ledcWrite</code></td></tr>
+    <tr><td>Time</td><td><code>delay</code>, <code>delayMicroseconds</code>, <code>millis</code>, <code>micros</code></td></tr>
+    <tr><td>Serial</td><td><code>begin</code>, <code>print/println</code> (DEC/HEX/BIN, decimals), <code>printf</code>, <code>available/read/readString/parseInt</code></td></tr>
+    <tr><td>Helpers</td><td><code>map</code>, <code>constrain</code>, <code>min/max/abs</code>, math, <code>random</code>, <code>bitRead/bitWrite/bitSet</code>, <code>String</code> methods</td></tr>
+  </table></div>
+  <div class="note">Pin numbers follow each board: <code>2</code> is GPIO2 on an ESP32, <code>13</code> is D13 on an Uno, <code>D4</code> works on a NodeMCU, <code>PC13</code> on a Blue Pill. Library calls the simulator can't model (WiFi, Wire/I²C, Servo, LCD…) are accepted and skipped with a note — the sketch still compiles and runs for real when you upload it.</div>
+  <h3>Upload to a real board</h3>
+  <p>Click <b>Upload to board…</b>. designElectronics uses <b>arduino-cli</b>, the engine of the Arduino IDE — if you have <a href="https://www.arduino.cc/en/software">Arduino IDE 2</a> installed it's found automatically, or install <a href="https://arduino.github.io/arduino-cli/latest/installation/">arduino-cli</a> (<code>brew install arduino-cli</code>, <code>winget install ArduinoSA.CLI</code>). Pick the USB port, press <b>Compile &amp; Upload</b>, and follow the log. <b>Install board support</b> fetches the ESP32, ESP8266, Pico, STM32 or Teensy core the first time. Uploading works in the desktop apps; in the browser use <b>Export .ino</b>.</p>
 </section>
 
 <!-- ============================== PARTS ============================== -->
@@ -554,7 +580,7 @@ designElectronics --export-examples DIR   write the example designs as .dez file
   <details open><summary>Is it free?</summary><p>Yes. designElectronics is open source under the MIT licence — use it, change it, ship it.</p></details>
   <details><summary>Is it a Fritzing clone? Can it open .fzz files?</summary><p>It's inspired by Fritzing's breadboard → schematic → PCB workflow but is an independent project written from scratch, built for phones as well as desktops. It doesn't read Fritzing's <code>.fzz</code> files.</p></details>
   <details><summary>Does it need an internet connection or an account?</summary><p>No. Everything runs on your device. GitHub sync is optional and only talks to GitHub when you commit.</p></details>
-  <details><summary>Will my Arduino / ESP32 / Raspberry Pi code run in the simulator?</summary><p>Not yet — that would need a full chip emulator. Boards supply power and drive pins you configure (<code>HIGH</code>, <code>LOW</code>, <code>BLINK:ms</code>, <code>PWM:%</code>), which covers a lot of “does my wiring work?” testing.</p></details>
+  <details><summary>Will my Arduino / ESP32 / Pico code run in the simulator?</summary><p>Yes — Arduino sketches run in a built-in interpreter covering the core Arduino API (see <a href="#code">Code</a>), and you can upload the same sketch to a real board. Library calls it can't model (WiFi, I²C devices…) are skipped. Raspberry Pi Linux/Python programs aren't simulated yet.</p></details>
   <details><summary>How accurate is the simulator?</summary><p>It's a real transient circuit solver (modified nodal analysis, 1 ms steps) with behavioural models for chips. It's built for learning and sanity checks — LED currents, 555 timing, logic, op-amp gain — not for analog precision work; export SPICE for that.</p></details>
   <details><summary>Can I order a real PCB from it?</summary><p>Yes. Export Gerbers (File ▸ Export) and upload the zip to a PCB maker. Run DRC first, and check the board in the fab's Gerber viewer before ordering.</p></details>
   <details><summary>A part I need is missing.</summary><p>Open an <a href="https://github.com/rORrEtboLt/designElectronics/issues">issue</a> with the part name and a datasheet link, or make it yourself as a <code>.dezpart</code> — and send it as a pull request so everyone gets it.</p></details>

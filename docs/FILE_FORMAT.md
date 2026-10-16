@@ -47,7 +47,8 @@ y axis points down. Breadboard holes are 100 mil apart.
     "schematic":  { "at": [300, 0], "rot": 90 },
     "pcb":        { "at": [500, 400], "flip": true, "hidden": true }
   },
-  "locked": true                   // optional: can't be moved or deleted in the editor
+  "locked": true,                  // optional: can't be moved or deleted in the editor
+  "code": "void setup() {…}\nvoid loop() {…}"  // optional: the board's program (Arduino sketch)
 }
 ```
 

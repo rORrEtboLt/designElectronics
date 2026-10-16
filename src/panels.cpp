@@ -399,6 +399,24 @@ void App::drawInspector(Rect r) {
             p = doc.part(pid);
             if (!p) { ui.endScroll(); return; }
 
+            if (p->def->sim == "board" || p->def->sim == "mcu") {
+                heading("PROGRAM");
+                std::string info;
+                if (p->code.empty()) info = "Drives the pins listed in Pin outputs. Write an Arduino sketch to program it instead.";
+                else {
+                    int lines = 1;
+                    for (char ch : p->code) lines += ch == '\n';
+                    info = std::to_string(lines) + " lines · Arduino sketch · runs when you Simulate";
+                }
+                y += ui.wrappedText(Rect(x, y, w, 0), info, ui.th.textDim, 12.5f * s) + 6 * s;
+                float bw = p->code.empty() ? w : (w - 8 * s) * 0.62f;
+                if (ui.button("prog-edit", Rect(x, y, bw, rowH), p->code.empty() ? "Write a program…" : "Edit program…", BTN_PRIMARY)) openCode(pid);
+                if (!p->code.empty() && ui.button("prog-up", Rect(x + bw + 8 * s, y, w - bw - 8 * s, rowH), "Upload…", BTN_NORMAL)) openUploadSheet(pid);
+                y += rowH + 8 * s;
+                p = doc.part(pid);
+                if (!p) { ui.endScroll(); return; }
+            }
+
             heading(std::string("PLACEMENT · ") + viewName(view));
             if (p->inView(view)) {
                 char buf[96];

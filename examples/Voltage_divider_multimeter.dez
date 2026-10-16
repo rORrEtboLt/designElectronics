@@ -4,7 +4,7 @@
  "app": "designElectronics 0.1.0",
  "title": "Voltage divider + multimeter",
  "notes": "Two 10kΩ resistors halve 9V; the multimeter reads ~4.5V.",
- "saved": "2026-10-16T08:46:04Z",
+ "saved": "2026-10-16T10:19:27Z",
  "rules": {
   "traceWidth": 24,
   "clearance": 12,

@@ -182,6 +182,7 @@ Json Document::toJson(bool full) const {
         }
         o.set("views", views);
         if (p.locked) o.set("locked", true);
+        if (!p.code.empty()) o.set("code", p.code);
         parr.push(o);
     }
     j.set("parts", parr);
@@ -311,6 +312,8 @@ bool Document::fromJson(const Json& j, std::string* err) {
             if (kv.second["hidden"].boolean()) p.hidden |= 1u << v;
         }
         p.locked = o["locked"].boolean();
+        p.code = o["code"].str();
+        if (p.code.empty() && p.props.count("code")) { p.code = p.props["code"]; p.props.erase("code"); }
         maxId = std::max(maxId, p.id);
         d.parts.push_back(p);
     }

@@ -136,6 +136,7 @@ std::string describeChanges(const Document& a, const Document& b) {
         const PartInst& x = *it->second;
         const PartInst& y = *kv.second;
         if (x.label != y.label) items.push_back("Renamed " + x.label + " → " + y.label);
+        if (x.code != y.code) items.push_back(x.code.empty() ? y.label + " program added" : y.code.empty() ? y.label + " program removed" : y.label + " program edited");
         Props mx = mergedProps(x.type, x.props), my = mergedProps(y.type, y.props);
         for (auto& p : my) {
             auto q = mx.find(p.first);
@@ -222,7 +223,7 @@ namespace {
 
 std::string g_apiBase;
 
-std::string apiBase() {
+[[maybe_unused]] std::string apiBase() {
     if (g_apiBase.empty()) {
         const char* env = SDL_getenv("DE_GITHUB_API");
         g_apiBase = env && *env ? env : "https://api.github.com";
