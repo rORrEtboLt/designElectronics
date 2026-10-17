@@ -146,10 +146,12 @@ tests/           MCP smoke test, GitHub sync test (local mock API)
 Parts are the easiest way to contribute: add a generator in `src/partlib.cpp`
 (three small vector drawings + pin positions) and register it in
 `generators()` and `partLibrary()`. Run `--selftest` before sending a PR.
+See [CONTRIBUTING.md](CONTRIBUTING.md); contributors sign a short
+[CLA](CLA.md) on their first pull request.
 
 ## License
 
-Code: MIT (see [LICENSE](LICENSE)). Fonts: SIL Open Font License 1.1
+Code: MIT, © 2026 Nesara Hippla (see [LICENSE](LICENSE)). Fonts: SIL Open Font License 1.1
 (see [assets/fonts/OFL.txt](assets/fonts/OFL.txt)). Video encoding uses
 [minih264](https://github.com/lieff/minih264) and [minimp4](https://github.com/lieff/minimp4)
 (public domain, CC0; see [third_party](third_party)).
