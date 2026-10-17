@@ -5,9 +5,12 @@ Thanks for helping improve designElectronics.
 ## Contributor License Agreement
 
 Before a pull request can be merged, you need to sign the
-[Contributor License Agreement](CLA.md). The CLA bot will comment on your
-first pull request with a link; signing once covers all future
-contributions. You keep the copyright to your work; the CLA lets the
+[Contributor License Agreement](CLA.md). On your first pull request a bot
+will ask you to sign by commenting:
+
+    I have read the CLA Document and I hereby sign the CLA
+
+Signing once covers all future contributions. You keep the copyright to your work; the CLA lets the
 project be maintained and relicensed in the future.
 
 ## What to contribute
