@@ -204,14 +204,14 @@ footer .inner { max-width: 1120px; margin: 0 auto; padding: 22px 16px 40px; disp
 <section class="panel" role="tabpanel" id="overview">
   <div class="hero">
     <div>
-      <h1>Design electronics on any screen.</h1>
+      <h1>The free Fritzing alternative that runs on your phone.</h1>
       <p class="lead">Build a circuit on a virtual breadboard, draw the schematic, lay out a PCB and watch it run in a live simulator — on your laptop or your phone. Free and open source.</p>
       <div class="actions">
         <a class="btn primary" href="#install">Download free</a>
         <a class="btn" href="#app">Try it in your browser</a>
         <a class="btn" href="https://github.com/rORrEtboLt/designElectronics">★ Star on GitHub</a>
       </div>
-      <ul class="badges"><li>MIT licensed</li><li>Downloads for macOS · Windows · Linux</li><li>iOS · Android</li><li>Works offline</li><li>No account</li></ul>
+      <ul class="badges"><li>MIT licensed</li><li>Downloads for macOS · Windows · Linux</li><li>Runs in your phone's browser</li><li>Works offline</li><li>No account</li></ul>
     </div>
     <img class="shot" src="assets/img/breadboard.webp" width="1600" height="1000" alt="A 555 timer blinker on a virtual breadboard with the simulator running; the red LED is lit">
   </div>
@@ -221,7 +221,7 @@ footer .inner { max-width: 1120px; margin: 0 auto; padding: 22px 16px 40px; disp
     <div class="card"><div class="ic">🧩</div><h3>Breadboard, schematic &amp; PCB</h3><p>Every connection you make in one view shows up in the others as a dashed ratsnest line until you wire it there too.</p></div>
     <div class="card"><div class="ic">⚡</div><h3>Live simulation</h3><p>LEDs glow, 555s blink, logic clocks, op-amps amplify, meters read volts — and overloaded parts smoke, with an explanation.</p></div>
     <div class="card"><div class="ic">🏭</div><h3>Ready for the fab</h3><p>Two-layer autorouter, design-rules check and one-click Gerber + drill export you can upload to any PCB maker.</p></div>
-    <div class="card"><div class="ic">📦</div><h3>177 real parts</h3><p>Arduino, ESP32, Raspberry Pi &amp; Pico boards, 74HC/CD4000 logic, op-amps, regulators, drivers, sensors and displays — true to size.</p></div>
+    <div class="card"><div class="ic">📦</div><h3>178 real parts</h3><p>Arduino, ESP32, Raspberry Pi &amp; Pico boards, 74HC/CD4000 logic, op-amps, regulators, drivers, sensors and displays — true to size.</p></div>
     <div class="card"><div class="ic">🕘</div><h3>Version history &amp; GitHub</h3><p>Every save is a version you can restore. Optionally commit designs to your own private GitHub repository.</p></div>
     <div class="card"><div class="ic">💻</div><h3>Program the boards</h3><p>Write an Arduino sketch for an Uno, ESP32 or Pico, watch it run line by line with a Serial Monitor, then upload it to the real board.</p></div>
     <div class="card"><div class="ic">🤖</div><h3>Build by chatting</h3><p>The AI tab drives Claude Code (or Codex, Gemini…) to build circuits live in your design — and an MCP server lets any AI app do the same.</p></div>
@@ -295,7 +295,7 @@ footer .inner { max-width: 1120px; margin: 0 auto; padding: 22px 16px 40px; disp
   <p>designElectronics is a native app written in C++ with <a href="https://libsdl.org">SDL3</a>. Building takes a few minutes.</p>
   <div class="note">You need CMake 3.20+, a C++17 compiler, and SDL3 + SDL3_ttf. libcurl is optional — it enables GitHub sync and is already part of macOS and most Linux systems.</div>
   <div class="os" role="tablist" aria-label="Operating system">
-    <button role="tab" data-os="mac">macOS</button><button role="tab" data-os="linux">Linux</button><button role="tab" data-os="win">Windows</button><button role="tab" data-os="mobile">iOS &amp; Android</button>
+    <button role="tab" data-os="mac">macOS</button><button role="tab" data-os="linux">Linux</button><button role="tab" data-os="win">Windows</button><button role="tab" data-os="mobile">Phone</button>
   </div>
   <div data-os-panel="mac">
 <pre><code>brew install cmake sdl3 sdl3_ttf
@@ -324,7 +324,7 @@ cmake --build build --config Release
 build\Release\designElectronics.exe</code></pre>
   </div>
   <div data-os-panel="mobile" hidden>
-    <p>The same code runs on iOS and Android through SDL3's mobile support: the layout adapts to small screens and touch. Building needs Xcode or Android Studio — follow <a href="https://github.com/rORrEtboLt/designElectronics/blob/main/docs/BUILDING.md">docs/BUILDING.md</a>. On phones, GitHub sync isn't available yet; local version history works.</p>
+    <p>On a phone, open the <a href="#app">web app</a> in your browser. There's nothing to install, and the layout adapts to small screens and touch. Native iOS and Android apps aren't in the app stores yet. To build them yourself you need Xcode or Android Studio — follow <a href="https://github.com/rORrEtboLt/designElectronics/blob/main/docs/BUILDING.md">docs/BUILDING.md</a>. On phones, GitHub sync isn't available yet; local version history works.</p>
   </div>
   <h3>Check your build</h3>
 <pre><code># macOS: ./build/designElectronics.app/Contents/MacOS/designElectronics --selftest
@@ -478,7 +478,7 @@ D9=PWM:30           # 30 % duty, simulated as the average voltage</code></pre>
 <!-- ============================== PARTS ============================== -->
 <section class="panel doc" role="tabpanel" id="parts" hidden>
   <h2>Parts library</h2>
-  <p>177 parts in 17 categories, searchable from the parts bin. Boards are drawn true to size with their real pinouts.</p>
+  <p>178 parts in 17 categories, searchable from the parts bin. Boards are drawn true to size with their real pinouts.</p>
   <div class="table-wrap"><table>
     <tr><th>Category</th><th>Highlights</th></tr>
     <tr><td>Microcontroller boards</td><td>Raspberry Pi 5, 4, 3, Zero / Zero 2 W (40-pin header), Pico, Pico W, Pico 2 · Arduino Uno, Uno R4 Minima/WiFi, Leonardo, Mega 2560, Due, Nano, Nano Every, Nano 33 IoT/BLE, Nano ESP32, Nano RP2040 Connect, Micro, Pro Mini, Pro Micro, MKR WiFi 1010 · ESP32 DevKitC, DevKit V1, S3, C3 SuperMini, ESP32-CAM, NodeMCU, Wemos D1 Mini · STM32 Blue Pill / Black Pill, Teensy 4.0, Seeed XIAO, Adafruit Feather</td></tr>

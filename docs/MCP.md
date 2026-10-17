@@ -82,6 +82,7 @@ holes are 100 mil apart.
 
 * The server holds one design in memory. Call `save_design` to write it, then
   open the file in the app (or share it: `.dez` files are self-contained).
-* Microcontroller firmware isn't executed. Dev boards drive the pins listed in
-  their `outputs` property (`HIGH`, `LOW`, `BLINK:ms`, `PWM:%`).
+* A dev board runs its Arduino sketch (`properties.code`) in the simulator's
+  built-in interpreter. Without a sketch, it drives the pins listed in its
+  `outputs` property (`HIGH`, `LOW`, `BLINK:ms`, `PWM:%`).
 * Test it without an AI: `python3 tests/mcp_smoke_test.py path/to/designElectronics`.

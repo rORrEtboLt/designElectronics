@@ -1,43 +1,14 @@
-<p align="center"><img src="assets/icon/logo.svg" width="128" alt="designElectronics logo"></p>
+<p align="center"><img src="docs/assets/video/555-blinker.gif" width="720" alt="A 555 timer blinking an LED on a virtual breadboard in the designElectronics simulator"></p>
 
 # designElectronics
 
-**📖 Documentation & screenshots: https://rorretbolt.github.io/designElectronics/**
+**A free Fritzing alternative that runs on your phone.** It also runs in any browser and on your laptop.
 
-An open-source electronics design app for **desktop and mobile**, inspired by
-[Fritzing](https://fritzing.org). Build a circuit on a virtual breadboard, draw
-the schematic, lay out a PCB and export fab-ready Gerber files — on your laptop
-or your phone.
+- **Breadboard → schematic → PCB.** All three views stay linked, and you can export Gerber files ready for any PCB fab.
+- **Live simulation.** 555s blink, LEDs glow and meters read volts. Arduino and ESP32 sketches run line by line.
+- **Free, offline, no account.** A design is one `.dez` file you can share anywhere. MIT licensed.
 
-Projects are single **`.dez` files** (plain JSON) that embed every part they
-use, so they open in any copy of designElectronics, **offline, with no server,
-account or extra download**. Share them by email, chat, AirDrop or USB stick.
-
-Built in C++17 with **SDL3** and SDL3_ttf. No other dependencies.
-
-## Features
-
-| Area | What you get |
-| --- | --- |
-| **Three linked views** | Breadboard, Schematic and PCB. Each part has a position in every view; a connection made in any view shows up in the others as a dashed *ratsnest* line until you wire it there too (just like Fritzing). |
-| **Breadboard** | Half+, full+ and mini breadboards with real bus strips and power rails. Part legs snap into holes; holes in use light up green. Moving a breadboard carries the parts plugged into it. |
-| **Wiring** | Drag from any pin or hole to draw a wire. Drag a wire to bend it; double-click a bend point to remove it. Wire ends show green (connected) or red (loose). Wire colours on the breadboard; junction dots in the schematic. Click a ratsnest line to turn it into a wire or trace. |
-| **PCB** | Board outline with size in mm, single or double-sided, two copper layers, vias and mounting holes. A grid A* **autorouter** with clearances and vias. **DRC** checks clearance, parts off the board and overlapping footprints. |
-| **Simulator** | Real-time transient simulation (1 ms steps). Capacitors charge, 555 timers blink LEDs, logic gates, flip-flops, counters (4017, 74HC393) and shift registers (74HC595) clock, op-amps amplify, comparators switch, regulators regulate, relays click, 7-segment displays light up. Multimeters read volts/amps, pushbuttons respond to presses. Overloaded parts *smoke*, with an explanation. Dev boards (Raspberry Pi, ESP32, Pico, Arduino…) supply their power rails and drive pins you configure (`GPIO2=BLINK:500`, `D9=PWM:30`); firmware isn't executed. |
-| **Parts library** | 178 entries, searchable, in 17 categories. **Boards:** Raspberry Pi 5, 4 Model B, 3 Model B/B+ and Zero/Zero 2 W (real 40-pin GPIO header), Raspberry Pi Pico/Pico W/Pico 2; Arduino Uno, Uno R4 Minima/WiFi, Leonardo, Mega 2560, Due, Nano, Nano Every, Nano 33 IoT, Nano 33 BLE, Nano ESP32, Nano RP2040 Connect, Micro, Pro Mini, Pro Micro, MKR WiFi 1010; ESP32 DevKitC/DevKit V1/S3/C3 SuperMini, ESP32-CAM, ESP8266 NodeMCU, Wemos D1 Mini; STM32 Blue Pill/Black Pill, Teensy 4.0, Seeed XIAO, Adafruit Feather. **Chips:** ATmega328P, ATtiny85/84, PIC; 74HC00/02/04/08/10/11/14/20/32/86/125/74/138/165/245/393/595/4051, CD4001/4011/4013/4017/4066/4069/4070/4071/4081/4093/4511; LM358/324/741, TL072, NE5532, MCP6002, LM393/339, NE555/556, LM386, TL431, PC817, 4N35, MAX232; ULN2003/2803, L293D, TIP120, IRF540N; LM317, AMS1117, 78L05, 7805; EEPROM, RTC, ADC, I/O expanders, MAX7219, CH340G. **Modules:** L298N, A4988, DRV8825, relay, LM2596, MT3608, TP4056. **Sensors:** LM35, TMP36, DS18B20, DHT11/22, MAX6675 thermocouple, HC-SR04, PIR, MPU-6050, BMP/BME280, VL53L0X, soil moisture, MQ-2, joystick, Hall, IR, sound, HC-05, RC522, NEO-6M, nRF24L01, ADS1115, DS3231. **Displays:** 7-segment (CC/CA), RGB LED, SSD1306 OLED (shows what a sketch draws), LCD 16×2, TM1637, MAX7219 matrix, WS2812B, ST7735. Plus the basics: resistors, LEDs, capacitors, diodes, transistors, switches, batteries, breadboards, headers, and a generic DIP IC with any pin count. |
-| **Custom parts** | Export any part as a `.dezpart` JSON file, edit it, and import it back. Custom parts can declare their own simulation model (e.g. a logic chip as `NAND 1,2>3`; see docs/FILE_FORMAT.md) and are embedded in your projects automatically. |
-| **Export** | Gerber RS-274X + Excellon drill (zipped, ready to upload to a fab), SVG and PNG of any view, Bill of Materials (CSV), XML netlist, SPICE netlist. |
-| **Editing** | Undo/redo, copy/cut/paste (clipboard is JSON, so you can paste between windows or apps), duplicate, rotate, flip, z-order, rubber-band selection, notes, snap-to-grid, keyboard nudging. |
-| **Mobile-friendly** | Adaptive layout: on narrow screens the parts bin and inspector become slide-over drawers and the toolbar grows larger. One finger pans, two fingers pinch-zoom, long-press opens context menus. Respects safe areas. Autosaves continuously, so nothing is lost if the OS kills the app. |
-| **Layers** | A Photoshop-style Layers panel (tab next to Parts; a drawer on phones): toggle each view's layers (PCB: board, top/bottom copper, pads, silkscreen, labels…), see every part with parts plugged into a breadboard grouped under it, click to select, double-click to zoom, hide parts per view, lock them so they can't be moved. Badges flag unrouted connections, parts without a simulation model, damaged parts and live LED brightness. |
-| **Version history** | Every save keeps a version on your device, with a summary of what changed ("R1 resistance 220Ω → 330Ω · Added LED2"). **File ▸ Version History** lets you restore any version or open it as a copy — offline, on every platform. |
-| **GitHub sync (optional)** | Connect GitHub and **File ▸ Commit to GitHub** commits the design to a private repository you own (each design in its own folder, or its own repo), optionally on every save. Older commits show up in Version History and can be restored from any device. Desktop builds; uses the system's libcurl. |
-| **Program boards** | Each microcontroller board can hold an **Arduino sketch** that runs in the simulator (built-in interpreter: pins, `analogRead`, `delay`/`millis`, `Serial`, `shiftOut`, ESP32 `ledc`…) with the executing line highlighted and a Serial Monitor, and uploads to the real board via arduino-cli / Arduino IDE 2. |
-| **Videos & GIFs** | **File ▸ Export ▸ Video or GIF** records the running circuit for Instagram Reels / YouTube Shorts / TikTok (9:16), Instagram posts (4:5), square (1:1) and YouTube (16:9): MP4 (H.264, bundled public-domain encoder) or animated GIF, optionally touring breadboard → schematic → PCB. |
-| **Embed & web** | **File ▸ Embed in a Website** gives you an `<iframe>` for blogs: readers switch views, pan, zoom and run the simulation. The design is packed into the link, so nothing is uploaded. The same app runs in the browser at [rorretbolt.github.io/designElectronics/app](https://rorretbolt.github.io/designElectronics/app/) (WebAssembly). |
-| **AI tab** | Describe a circuit in plain language and the AI tool you already have — **Claude Code** (or Codex / Gemini CLI, or any custom command) — builds it live in the open design: parts, breadboard placement, wiring, sketches and a simulation check. Every change is undoable; the agent may only use designElectronics' tools and connects over 127.0.0.1 with a one-time token. |
-| **AI assistants (MCP)** | Run `designElectronics --mcp` and Claude, Cursor or any MCP client can design for you: search parts, add and wire them, plug them into breadboards, simulate, autoroute, run DRC and export Gerbers. Works offline over stdio. See [docs/MCP.md](docs/MCP.md). |
-| **Desktop niceties** | Menus, shortcuts, tooltips, trackpad pinch/scroll, drag-and-drop of `.dez` files onto the window, file associations (macOS, Linux). |
+**[▶ Try it in your browser](https://rorretbolt.github.io/designElectronics/app/)** (works on phones) · [Documentation & screenshots](https://rorretbolt.github.io/designElectronics/)
 
 ## Download
 
@@ -46,6 +17,8 @@ Built in C++17 with **SDL3** and SDL3_ttf. No other dependencies.
 | [designElectronics-macOS.zip](https://github.com/rORrEtboLt/designElectronics/releases/latest/download/designElectronics-macOS.zip) | [designElectronics-Windows-x64.zip](https://github.com/rORrEtboLt/designElectronics/releases/latest/download/designElectronics-Windows-x64.zip) | [designElectronics-Linux-x86_64.tar.gz](https://github.com/rORrEtboLt/designElectronics/releases/latest/download/designElectronics-Linux-x86_64.tar.gz) |
 
 The builds aren't code-signed yet: on macOS right-click the app ▸ **Open** the first time; on Windows choose **More info ▸ Run anyway**. See the [release notes](https://github.com/rORrEtboLt/designElectronics/releases) for details.
+
+Or open the [web app](https://rorretbolt.github.io/designElectronics/app/) on any device, including phones. Native iOS and Android builds aren't in the app stores yet. You can build them yourself ([docs/BUILDING.md](docs/BUILDING.md)).
 
 ## Build & run (desktop)
 
@@ -105,6 +78,41 @@ autorouting, DRC and every exporter.
    designElectronics can open it on any platform.
 
 Keyboard shortcuts are listed under **Help ▸ Keyboard & Touch Shortcuts**.
+
+## All features
+
+An open-source electronics design app for **desktop and mobile**, inspired by
+[Fritzing](https://fritzing.org). Build a circuit on a virtual breadboard, draw
+the schematic, lay out a PCB and export fab-ready Gerber files — on your laptop
+or your phone.
+
+Projects are single **`.dez` files** (plain JSON) that embed every part they
+use, so they open in any copy of designElectronics, **offline, with no server,
+account or extra download**. Share them by email, chat, AirDrop or USB stick.
+
+Built in C++17 with **SDL3** and SDL3_ttf. No other dependencies.
+
+| Area | What you get |
+| --- | --- |
+| **Three linked views** | Breadboard, Schematic and PCB. Each part has a position in every view; a connection made in any view shows up in the others as a dashed *ratsnest* line until you wire it there too (just like Fritzing). |
+| **Breadboard** | Half+, full+ and mini breadboards with real bus strips and power rails. Part legs snap into holes; holes in use light up green. Moving a breadboard carries the parts plugged into it. |
+| **Wiring** | Drag from any pin or hole to draw a wire. Drag a wire to bend it; double-click a bend point to remove it. Wire ends show green (connected) or red (loose). Wire colours on the breadboard; junction dots in the schematic. Click a ratsnest line to turn it into a wire or trace. |
+| **PCB** | Board outline with size in mm, single or double-sided, two copper layers, vias and mounting holes. A grid A* **autorouter** with clearances and vias. **DRC** checks clearance, parts off the board and overlapping footprints. |
+| **Simulator** | Real-time transient simulation (1 ms steps). Capacitors charge, 555 timers blink LEDs, logic gates, flip-flops, counters (4017, 74HC393) and shift registers (74HC595) clock, op-amps amplify, comparators switch, regulators regulate, relays click, 7-segment displays light up. Multimeters read volts/amps, pushbuttons respond to presses. Overloaded parts *smoke*, with an explanation. Dev boards (Raspberry Pi, ESP32, Pico, Arduino…) supply their power rails and run the Arduino sketch you give them (see *Program boards*) or drive pins you configure (`GPIO2=BLINK:500`, `D9=PWM:30`). Raspberry Pi Linux/Python programs aren't simulated yet. |
+| **Parts library** | 178 entries, searchable, in 17 categories. **Boards:** Raspberry Pi 5, 4 Model B, 3 Model B/B+ and Zero/Zero 2 W (real 40-pin GPIO header), Raspberry Pi Pico/Pico W/Pico 2; Arduino Uno, Uno R4 Minima/WiFi, Leonardo, Mega 2560, Due, Nano, Nano Every, Nano 33 IoT, Nano 33 BLE, Nano ESP32, Nano RP2040 Connect, Micro, Pro Mini, Pro Micro, MKR WiFi 1010; ESP32 DevKitC/DevKit V1/S3/C3 SuperMini, ESP32-CAM, ESP8266 NodeMCU, Wemos D1 Mini; STM32 Blue Pill/Black Pill, Teensy 4.0, Seeed XIAO, Adafruit Feather. **Chips:** ATmega328P, ATtiny85/84, PIC; 74HC00/02/04/08/10/11/14/20/32/86/125/74/138/165/245/393/595/4051, CD4001/4011/4013/4017/4066/4069/4070/4071/4081/4093/4511; LM358/324/741, TL072, NE5532, MCP6002, LM393/339, NE555/556, LM386, TL431, PC817, 4N35, MAX232; ULN2003/2803, L293D, TIP120, IRF540N; LM317, AMS1117, 78L05, 7805; EEPROM, RTC, ADC, I/O expanders, MAX7219, CH340G. **Modules:** L298N, A4988, DRV8825, relay, LM2596, MT3608, TP4056. **Sensors:** LM35, TMP36, DS18B20, DHT11/22, MAX6675 thermocouple, HC-SR04, PIR, MPU-6050, BMP/BME280, VL53L0X, soil moisture, MQ-2, joystick, Hall, IR, sound, HC-05, RC522, NEO-6M, nRF24L01, ADS1115, DS3231. **Displays:** 7-segment (CC/CA), RGB LED, SSD1306 OLED (shows what a sketch draws), LCD 16×2, TM1637, MAX7219 matrix, WS2812B, ST7735. Plus the basics: resistors, LEDs, capacitors, diodes, transistors, switches, batteries, breadboards, headers, and a generic DIP IC with any pin count. |
+| **Custom parts** | Export any part as a `.dezpart` JSON file, edit it, and import it back. Custom parts can declare their own simulation model (e.g. a logic chip as `NAND 1,2>3`; see docs/FILE_FORMAT.md) and are embedded in your projects automatically. |
+| **Export** | Gerber RS-274X + Excellon drill (zipped, ready to upload to a fab), SVG and PNG of any view, Bill of Materials (CSV), XML netlist, SPICE netlist. |
+| **Editing** | Undo/redo, copy/cut/paste (clipboard is JSON, so you can paste between windows or apps), duplicate, rotate, flip, z-order, rubber-band selection, notes, snap-to-grid, keyboard nudging. |
+| **Mobile-friendly** | Adaptive layout: on narrow screens the parts bin and inspector become slide-over drawers and the toolbar grows larger. One finger pans, two fingers pinch-zoom, long-press opens context menus. Respects safe areas. Autosaves continuously, so nothing is lost if the OS kills the app. |
+| **Layers** | A Photoshop-style Layers panel (tab next to Parts; a drawer on phones): toggle each view's layers (PCB: board, top/bottom copper, pads, silkscreen, labels…), see every part with parts plugged into a breadboard grouped under it, click to select, double-click to zoom, hide parts per view, lock them so they can't be moved. Badges flag unrouted connections, parts without a simulation model, damaged parts and live LED brightness. |
+| **Version history** | Every save keeps a version on your device, with a summary of what changed ("R1 resistance 220Ω → 330Ω · Added LED2"). **File ▸ Version History** lets you restore any version or open it as a copy — offline, on every platform. |
+| **GitHub sync (optional)** | Connect GitHub and **File ▸ Commit to GitHub** commits the design to a private repository you own (each design in its own folder, or its own repo), optionally on every save. Older commits show up in Version History and can be restored from any device. Desktop builds; uses the system's libcurl. |
+| **Program boards** | Each microcontroller board can hold an **Arduino sketch** that runs in the simulator (built-in interpreter: pins, `analogRead`, `delay`/`millis`, `Serial`, `shiftOut`, ESP32 `ledc`…) with the executing line highlighted and a Serial Monitor, and uploads to the real board via arduino-cli / Arduino IDE 2. |
+| **Videos & GIFs** | **File ▸ Export ▸ Video or GIF** records the running circuit for Instagram Reels / YouTube Shorts / TikTok (9:16), Instagram posts (4:5), square (1:1) and YouTube (16:9): MP4 (H.264, bundled public-domain encoder) or animated GIF, optionally touring breadboard → schematic → PCB. |
+| **Embed & web** | **File ▸ Embed in a Website** gives you an `<iframe>` for blogs: readers switch views, pan, zoom and run the simulation. The design is packed into the link, so nothing is uploaded. The same app runs in the browser at [rorretbolt.github.io/designElectronics/app](https://rorretbolt.github.io/designElectronics/app/) (WebAssembly). |
+| **AI tab** | Describe a circuit in plain language and the AI tool you already have — **Claude Code** (or Codex / Gemini CLI, or any custom command) — builds it live in the open design: parts, breadboard placement, wiring, sketches and a simulation check. Every change is undoable; the agent may only use designElectronics' tools and connects over 127.0.0.1 with a one-time token. |
+| **AI assistants (MCP)** | Run `designElectronics --mcp` and Claude, Cursor or any MCP client can design for you: search parts, add and wire them, plug them into breadboards, simulate, autoroute, run DRC and export Gerbers. Works offline over stdio. See [docs/MCP.md](docs/MCP.md). |
+| **Desktop niceties** | Menus, shortcuts, tooltips, trackpad pinch/scroll, drag-and-drop of `.dez` files onto the window, file associations (macOS, Linux). |
 
 ## Project layout
 
