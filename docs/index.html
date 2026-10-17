@@ -97,6 +97,7 @@ main { max-width: 1120px; margin: 0 auto; padding: 28px 16px 64px; }
 .section-title p { color: var(--muted); margin: 0; }
 
 figure { margin: 18px 0 26px; }
+figure > video { width: 100%; height: auto; display: block; border-radius: 12px; border: 1px solid var(--border); box-shadow: var(--shadow); background: #0b1630; }
 figure img { border-radius: 12px; border: 1px solid var(--border); box-shadow: var(--shadow); cursor: zoom-in; background: var(--surface); }
 figcaption { color: var(--muted); font-size: .88rem; margin-top: 8px; text-align: center; }
 .phones { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; max-width: 760px; margin: 0 auto; }
@@ -576,6 +577,7 @@ D9=PWM:30           # 30 % duty, simulated as the average voltage</code></pre>
   <h2>Build circuits by chatting with your AI</h2>
   <p>Open the <b>AI</b> tab (next to Parts and Layers) and describe what you want — <i>“a traffic light with an Arduino Nano”</i>, <i>“add a button that turns the LED on”</i>, <i>“make a PCB for this”</i>. The AI tool you already use on your computer builds it in the open design while you watch: it picks parts, plugs them into the breadboard, wires them, writes the board's sketch and runs the simulation to check its work.</p>
   <figure><img src="assets/img/ai.webp" width="1600" height="1013" loading="lazy" alt="The AI tab: Claude Code built a traffic light with an Arduino Nano and reports its simulation results"><figcaption>Claude Code built this traffic light from one sentence in 85 s — parts, wiring, sketch and a simulation check</figcaption></figure>
+  <figure><video data-autoplay src="assets/video/ai-esp32-logger.mp4" poster="assets/video/ai-esp32-logger.jpg" width="1600" height="900" controls muted loop playsinline preload="none"></video><figcaption>An ESP32 thermocouple logger built by Claude Code — MAX6675, an SSD1306 OLED graph and a simulation check, done in 66 s</figcaption></figure>
   <div class="table-wrap"><table>
     <tr><th>Agent</th><th>Setup</th></tr>
     <tr><td><b>Claude Code</b> (recommended)</td><td><code>npm install -g @anthropic-ai/claude-code</code>, then run <code>claude</code> once to sign in. Conversations continue across messages.</td></tr>
