@@ -861,7 +861,7 @@ void App::drawCanvas(int v, const Camera& c, Rect vp, bool exporting) {
                 if (!p.def->valueProp.empty() && p.def->valueProp != "pins") lbl += "  " + p.prop(p.def->valueProp);
                 g.text(S({b.x, b.y - 45}), lbl, 55 * z, rgba(40, 40, 120), 0);
             }
-            // breadboard holes in use light up green, like Fritzing
+            // breadboard holes in use light up green
             if (v == BB && p.def->isBreadboard && !exporting) {
                 ensureConn();
                 for (size_t i = 0; i < p.def->pins.size(); i++)

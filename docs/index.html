@@ -204,7 +204,7 @@ footer .inner { max-width: 1120px; margin: 0 auto; padding: 22px 16px 40px; disp
 <section class="panel" role="tabpanel" id="overview">
   <div class="hero">
     <div>
-      <h1>The free Fritzing alternative that runs on your phone.</h1>
+      <h1>The free breadboard-to-PCB designer that runs on your phone.</h1>
       <p class="lead">Build a circuit on a virtual breadboard, draw the schematic, lay out a PCB and watch it run in a live simulator — on your laptop or your phone. Free and open source.</p>
       <div class="actions">
         <a class="btn primary" href="#install">Download free</a>
@@ -666,7 +666,6 @@ designElectronics --export-examples DIR   write the example designs as .dez file
 <section class="panel doc" role="tabpanel" id="faq" hidden>
   <h2>FAQ</h2>
   <details open><summary>Is it free?</summary><p>Yes. designElectronics is open source under the MIT licence — use it, change it, ship it.</p></details>
-  <details><summary>Is it a Fritzing clone? Can it open .fzz files?</summary><p>It's inspired by Fritzing's breadboard → schematic → PCB workflow but is an independent project written from scratch, built for phones as well as desktops. It doesn't read Fritzing's <code>.fzz</code> files.</p></details>
   <details><summary>Does it need an internet connection or an account?</summary><p>No. Everything runs on your device. GitHub sync is optional and only talks to GitHub when you commit.</p></details>
   <details><summary>Will my Arduino / ESP32 / Pico code run in the simulator?</summary><p>Yes — Arduino sketches run in a built-in interpreter covering the core Arduino API (see <a href="#code">Code</a>), and you can upload the same sketch to a real board. SSD1306/SH1106 OLED drawing is shown on the OLED part; other library calls it can't model (WiFi, most I²C devices…) are skipped. Raspberry Pi Linux/Python programs aren't simulated yet.</p></details>
   <details><summary>How accurate is the simulator?</summary><p>It's a real transient circuit solver (modified nodal analysis, 1 ms steps) with behavioural models for chips. It's built for learning and sanity checks — LED currents, 555 timing, logic, op-amp gain — not for analog precision work; export SPICE for that.</p></details>

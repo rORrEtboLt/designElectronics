@@ -122,8 +122,8 @@ public:
 };
 
 // ---------------------------------------------------------------------------
-// Connectivity: global nets (connections made in any view count everywhere,
-// like Fritzing) plus per-view groups used for ratsnest lines and routing status.
+// Connectivity: global nets (connections made in any view count everywhere)
+// plus per-view groups used for ratsnest lines and routing status.
 // ---------------------------------------------------------------------------
 
 struct PinRef {

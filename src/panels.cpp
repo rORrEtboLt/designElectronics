@@ -698,7 +698,7 @@ void App::drawToolbar() {
         g.text({zin.x - tw / 2 - 2 * s, r.center().y}, buf, 13 * s, ui.th.textDim, 1, FONT_MONO);
         Rect zout(zin.x - tw - h - 4 * s, y, h, h);
         if (ui.iconButton("z-out", zout, "zoomout", "", false, true, "Zoom out")) zoomAt(0.8f, rCanvas.center());
-        // routing status in the middle (Fritzing-style)
+        // routing status in the middle
         ensureConn();
         RoutingStatus st;
         conn.ratsnest(doc, view, &st);

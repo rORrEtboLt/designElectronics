@@ -2,7 +2,7 @@
 
 # designElectronics
 
-**A free Fritzing alternative that runs on your phone.** It also runs in any browser and on your laptop.
+**A free breadboard, schematic and PCB designer that runs on your phone.** It also runs in any browser and on your laptop.
 
 - **Breadboard → schematic → PCB.** All three views stay linked, and you can export Gerber files ready for any PCB fab.
 - **Live simulation.** 555s blink, LEDs glow and meters read volts. Arduino and ESP32 sketches run line by line.
@@ -81,8 +81,7 @@ Keyboard shortcuts are listed under **Help ▸ Keyboard & Touch Shortcuts**.
 
 ## All features
 
-An open-source electronics design app for **desktop and mobile**, inspired by
-[Fritzing](https://fritzing.org). Build a circuit on a virtual breadboard, draw
+An open-source electronics design app for **desktop and mobile**. Build a circuit on a virtual breadboard, draw
 the schematic, lay out a PCB and export fab-ready Gerber files — on your laptop
 or your phone.
 
@@ -94,7 +93,7 @@ Built in C++17 with **SDL3** and SDL3_ttf. No other dependencies.
 
 | Area | What you get |
 | --- | --- |
-| **Three linked views** | Breadboard, Schematic and PCB. Each part has a position in every view; a connection made in any view shows up in the others as a dashed *ratsnest* line until you wire it there too (just like Fritzing). |
+| **Three linked views** | Breadboard, Schematic and PCB. Each part has a position in every view; a connection made in any view shows up in the others as a dashed *ratsnest* line until you wire it there too. |
 | **Breadboard** | Half+, full+ and mini breadboards with real bus strips and power rails. Part legs snap into holes; holes in use light up green. Moving a breadboard carries the parts plugged into it. |
 | **Wiring** | Drag from any pin or hole to draw a wire. Drag a wire to bend it; double-click a bend point to remove it. Wire ends show green (connected) or red (loose). Wire colours on the breadboard; junction dots in the schematic. Click a ratsnest line to turn it into a wire or trace. |
 | **PCB** | Board outline with size in mm, single or double-sided, two copper layers, vias and mounting holes. A grid A* **autorouter** with clearances and vias. **DRC** checks clearance, parts off the board and overlapping footprints. |
@@ -154,6 +153,3 @@ Code: MIT (see [LICENSE](LICENSE)). Fonts: SIL Open Font License 1.1
 (see [assets/fonts/OFL.txt](assets/fonts/OFL.txt)). Video encoding uses
 [minih264](https://github.com/lieff/minih264) and [minimp4](https://github.com/lieff/minimp4)
 (public domain, CC0; see [third_party](third_party)).
-
-designElectronics is an independent project and is not affiliated with the
-Fritzing project. It doesn't read Fritzing's `.fzz` files.

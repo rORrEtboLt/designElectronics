@@ -503,7 +503,7 @@ void App::loadExample(size_t i) {
 
 void App::showAbout() {
     ui.dialog("designElectronics " + std::string(kAppVersion),
-              {"An open-source electronics design app for desktop and mobile, inspired by Fritzing.",
+              {"An open-source electronics design app for desktop and mobile.",
                "",
                "Design on a breadboard, draw the schematic and lay out a PCB — every connection you make in one view appears in the others.",
                "",
