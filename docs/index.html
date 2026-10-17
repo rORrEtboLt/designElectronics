@@ -142,6 +142,12 @@ details[open] summary { margin-bottom: 6px; }
 
 footer { border-top: 1px solid var(--border); color: var(--muted); font-size: .9rem; }
 footer .inner { max-width: 1120px; margin: 0 auto; padding: 22px 16px 40px; display: flex; flex-wrap: wrap; gap: 12px 24px; justify-content: space-between; }
+.ph-badge { display: inline-flex; }
+.ph-badge img { display: block; }
+.ph-badge .dark { display: none; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .ph-badge .light { display: none; } :root:not([data-theme="light"]) .ph-badge .dark { display: block; } }
+:root[data-theme="dark"] .ph-badge .light { display: none; }
+:root[data-theme="dark"] .ph-badge .dark { display: block; }
 
 .muted { color: var(--muted); }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
@@ -698,6 +704,10 @@ designElectronics --export-examples DIR   write the example designs as .dez file
 <footer><div class="inner">
   <span>designElectronics · MIT licence · fonts: Lato &amp; Source Code Pro (SIL OFL)</span>
   <span><a href="https://github.com/rORrEtboLt/designElectronics">GitHub</a> · <a href="https://github.com/rORrEtboLt/designElectronics/issues">Issues</a> · <a href="#faq">FAQ</a></span>
+  <a class="ph-badge" href="https://www.producthunt.com/products/designelectronics?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-designelectronics" target="_blank" rel="noopener noreferrer">
+    <img class="light" alt="designElectronics - Describe a circuit, watch an AI agent build it | Product Hunt" width="250" height="54" loading="lazy" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1283098&amp;theme=light&amp;t=1792258135338">
+    <img class="dark" alt="designElectronics - Describe a circuit, watch an AI agent build it | Product Hunt" width="250" height="54" loading="lazy" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1283098&amp;theme=dark&amp;t=1792258135338">
+  </a>
 </div></footer>
 
 <div class="lightbox" id="lightbox" role="dialog" aria-label="Screenshot"><img alt=""></div>
