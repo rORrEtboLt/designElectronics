@@ -27,4 +27,4 @@ jobs:
           path-to-document: 'https://github.com/rORrEtboLt/designElectronics/blob/main/CLA.md'
           # Signatures live on their own unprotected branch, off main.
           branch: 'cla-signatures'
-          allowlist: rORrEtboLt,dependabot[bot],github-actions[bot]
+          allowlist: rORrEtboLt,claude,dependabot[bot],github-actions[bot]
