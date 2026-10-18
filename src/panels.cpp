@@ -272,16 +272,23 @@ void App::drawPartsBin(Rect r) {
     y += 44 * s;
 
     // entries
-    std::vector<LibEntry> all = partLibrary();
-    all.insert(all.end(), customEntries.begin(), customEntries.end());
+    // built-in entries first, then this design's custom parts (no per-frame copy of the library)
+    const std::vector<LibEntry>& lib = partLibrary();
+    auto entryAt = [&](size_t i) -> const LibEntry& { return i < lib.size() ? lib[i] : customEntries[i - lib.size()]; };
+    size_t total = lib.size() + customEntries.size();
+    static std::vector<std::string> hay;  // lower-cased search text per built-in entry
+    if (hay.size() != lib.size()) {
+        hay.clear();
+        for (auto& e : lib) hay.push_back(lower(e.title + "\x1f" + e.type + "\x1f" + e.category));
+    }
     std::vector<int> shown;
     std::string q = lower(search);
-    for (size_t i = 0; i < all.size(); i++) {
-        const LibEntry& e = all[i];
-        bool isCustom = i >= partLibrary().size();
+    for (size_t i = 0; i < total; i++) {
+        const LibEntry& e = entryAt(i);
+        bool isCustom = i >= lib.size();
         if (category == -2 && !isCustom) continue;
         if (category >= 0 && e.category != partCategories()[(size_t)category]) continue;
-        if (!q.empty() && lower(e.title).find(q) == std::string::npos && lower(e.type).find(q) == std::string::npos && lower(e.category).find(q) == std::string::npos) continue;
+        if (!q.empty() && (isCustom ? lower(e.title + "\x1f" + e.type + "\x1f" + e.category) : hay[i]).find(q) == std::string::npos) continue;
         shown.push_back((int)i);
     }
     Rect area(r.x, y, r.w, r.b() - y);
@@ -293,7 +300,7 @@ void App::drawPartsBin(Rect r) {
     float oy = ui.beginScroll("bin", area, contentH);
     for (size_t k = 0; k < shown.size(); k++) {
         int idx = shown[k];
-        const LibEntry& e = all[(size_t)idx];
+        const LibEntry& e = entryAt((size_t)idx);
         Rect cell(area.x + pad + (float)(k % cols) * cellW, area.y + oy + (float)(k / cols) * cellH, cellW - 4 * s, cellH - 4 * s);
         if (cell.b() < area.y || cell.y > area.b()) continue;
         std::string id = "bin" + std::to_string(idx);
@@ -319,7 +326,7 @@ void App::drawPartsBin(Rect r) {
     if (shown.empty()) g.text({area.center().x, area.y + 30 * s}, "No parts match \"" + search + "\"", 13 * s, ui.th.textDim, 1);
 
     if (binDrag >= 0 && in.released) {
-        if (rCanvas.contains(in.mouse) && !(compact && rRight.contains(in.mouse)) && binDrag < (int)all.size()) addPart(all[(size_t)binDrag], toWorld(in.mouse));
+        if (rCanvas.contains(in.mouse) && !(compact && rRight.contains(in.mouse)) && binDrag < (int)total) addPart(entryAt((size_t)binDrag), toWorld(in.mouse));
         binDrag = -1;
     }
 }

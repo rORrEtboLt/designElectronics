@@ -11,7 +11,24 @@ struct Copper {
     int layer;    // 0 top, 1 bottom, 2 both
     int net;
     std::string what;
+    float clr = 1e9f;  // a fine-pitch footprint's own pad gap, when tighter than the rule
 };
+
+// Smallest gap between two pads of one footprint (mils): the part was made with
+// that spacing, so copper next to its pads only has to keep that far away.
+float padGap(const PartDef& d) {
+    float best = 1e9f;
+    for (size_t i = 0; i < d.pins.size(); i++)
+        for (size_t j = i + 1; j < d.pins.size(); j++) {
+            const PinDef &a = d.pins[i], &b = d.pins[j];
+            Vec2 sa = a.padSize(), sb = b.padSize();
+            float gx = std::fabs(a.pos[PCB].x - b.pos[PCB].x) - (sa.x + sb.x) / 2;
+            float gy = std::fabs(a.pos[PCB].y - b.pos[PCB].y) - (sa.y + sb.y) / 2;
+            float gap = std::max(gx, gy);
+            if (gap > 0.5f) best = std::min(best, gap);
+        }
+    return best;
+}
 }  // namespace
 
 std::vector<DrcIssue> runDrc(const Document& doc, const Connectivity& conn) {
@@ -20,12 +37,19 @@ std::vector<DrcIssue> runDrc(const Document& doc, const Connectivity& conn) {
     std::vector<Copper> cu;
     Rect board;
     bool hasBoard = false;
+    bool single = false;
+    for (auto& p : doc.parts)
+        if (p.inView(PCB) && p.def->isBoard && p.prop("layers").find("one") != std::string::npos) single = true;
+    const int smdLayer = single ? BOTTOM : TOP;  // SMD parts sit on the copper side
     for (auto& p : doc.parts) {
         if (!p.inView(PCB)) continue;
         if (p.def->isBoard) { board = hasBoard ? board.united(p.worldBounds(PCB)) : p.worldBounds(PCB); hasBoard = true; continue; }
+        float own = padGap(*p.def);
         for (size_t i = 0; i < p.def->pins.size(); i++) {
-            Vec2 c = p.pinPos((int)i, PCB);
-            cu.push_back({c, c, p.def->pins[i].pad / 2, 2, conn.netOf(p.id, (int)i), p.label + " pin " + p.def->pins[i].name});
+            const PinDef& pin = p.def->pins[i];
+            Copper c{{}, {}, 0, pin.smd() ? smdLayer : 2, conn.netOf(p.id, (int)i), p.label + " pin " + pin.name, own};
+            padStadium(p.pinPos((int)i, PCB), pin.padSize(p.place[PCB]), c.a, c.b, c.r);
+            cu.push_back(c);
         }
         for (auto& h : p.def->holes) {
             Vec2 c = p.place[PCB].apply(h.first);
@@ -46,9 +70,10 @@ std::vector<DrcIssue> runDrc(const Document& doc, const Connectivity& conn) {
             if (A.net == B.net && A.net >= 0) continue;
             if (A.layer != 2 && B.layer != 2 && A.layer != B.layer) continue;
             float d = distSegSeg(A.a, A.b, B.a, B.b) - A.r - B.r;
-            if (d < clr - 0.5f) {
+            float need = std::min({clr, A.clr, B.clr});
+            if (d < need - 0.5f) {
                 Vec2 pa = closestOnSeg(B.a, A.a, A.b), pb = closestOnSeg(pa, B.a, B.b);
-                snprintf(buf, sizeof buf, "Too close: %s and %s (%.1f mil apart, minimum %.0f mil)", A.what.c_str(), B.what.c_str(), std::max(0.f, d), clr);
+                snprintf(buf, sizeof buf, "Too close: %s and %s (%.1f mil apart, minimum %.0f mil)", A.what.c_str(), B.what.c_str(), std::max(0.f, d), need);
                 out.push_back({(pa + pb) / 2, std::max(30.f, A.r + 10), buf});
                 if (out.size() > 200) return out;
             }
@@ -82,6 +107,18 @@ std::vector<DrcIssue> runDrc(const Document& doc, const Connectivity& conn) {
                 u.h = std::min(ra.b(), rb.b()) - u.y;
                 out.push_back({u.center(), std::max(40.f, std::min(u.w, u.h) / 2), buf});
             }
+        }
+    }
+    // a trace can only reach a surface-mount pad on the pad's own layer
+    for (auto& w : doc.wires) {
+        if (w.view != PCB || w.layer == smdLayer) continue;
+        for (int e = 0; e < 2; e++) {
+            const PartInst* p = w.ends[e].attached() ? doc.part(w.ends[e].part) : nullptr;
+            if (!p || !p->def || w.ends[e].pin >= (int)p->def->pins.size() || !p->def->pins[(size_t)w.ends[e].pin].smd()) continue;
+            snprintf(buf, sizeof buf, "%s trace ends on surface-mount pad %s pin %s, which is only on the %s layer",
+                     w.layer == TOP ? "Top" : "Bottom", p->label.c_str(), p->def->pins[(size_t)w.ends[e].pin].name.c_str(),
+                     smdLayer == TOP ? "top" : "bottom");
+            out.push_back({e ? w.pts.back() : w.pts.front(), 40, buf});
         }
     }
     RoutingStatus st;

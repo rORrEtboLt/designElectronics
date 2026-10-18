@@ -120,6 +120,8 @@ private:
             if (n.size() > tok.size() && n.compare(0, tok.size(), tok) == 0 && n[tok.size()] == '/') return (int)i;
         }
         for (size_t i = 0; i < pins.size(); i++) if (lower(pins[i].name) == lower(tok) || lower(pins[i].id) == lower(tok)) return (int)i;
+        // "OE" finds the active-low pin "~OE"
+        for (size_t i = 0; i < pins.size(); i++) if (pins[i].name.size() > 1 && pins[i].name[0] == '~' && lower(pins[i].name.substr(1)) == lower(tok)) return (int)i;
         if (ref.isNumber() && ref.i() >= 1 && ref.i() <= (int)pins.size()) return ref.i() - 1;
         if (p.def->isBreadboard) {
             int cols = 0, rail = 0;

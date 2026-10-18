@@ -30,6 +30,7 @@ set(DE_SOURCES
   src/json.cpp
   src/partlib.cpp
   src/catalog.cpp
+  src/packages.cpp
   src/doc.cpp
   src/router.cpp
   src/drc.cpp
@@ -53,7 +54,20 @@ set(DE_SOURCES
   src/net.cpp
   src/agent.cpp
   src/panels_ai.cpp
+  src/partdata.cpp
 )
+
+# Parts library data (parts/*.txt), compiled in.
+file(GLOB DE_PART_DATA CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/parts/*.txt)
+list(SORT DE_PART_DATA)
+set(DE_PART_BLOB ${CMAKE_CURRENT_BINARY_DIR}/partdata_blob.c)
+add_custom_command(
+  OUTPUT ${DE_PART_BLOB}
+  COMMAND ${CMAKE_COMMAND} "-DOUT=${DE_PART_BLOB}" "-DIN=${DE_PART_DATA}" -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/embed_parts.cmake
+  DEPENDS ${DE_PART_DATA} ${CMAKE_CURRENT_SOURCE_DIR}/cmake/embed_parts.cmake
+  COMMENT "Embedding parts library"
+  VERBATIM)
+list(APPEND DE_SOURCES ${DE_PART_BLOB})
 
 if(ANDROID)
   add_library(main SHARED ${DE_SOURCES})

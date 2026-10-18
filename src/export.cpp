@@ -170,6 +170,7 @@ public:
     void line(Vec2 a, Vec2 b, float w) { sel(circ(w)); move(a, 2); move(b, 1); }
     void flashCircle(Vec2 c, float d) { sel(circ(d)); move(c, 3); }
     void flashRect(Vec2 c, float w, float h) { sel(rectAp(w, h)); move(c, 3); }
+    void flashOval(Vec2 c, float w, float h) { sel(ovalAp(w, h)); move(c, 3); }
     std::string str() const {
         std::string head;
         for (auto& kv : apsOrdered_) head += kv;
@@ -194,6 +195,7 @@ private:
     }
     int circ(float d) { char b[32]; snprintf(b, sizeof b, "C,%.4f", std::max(d, 1.f) / 1000); return ap(b); }
     int rectAp(float w, float h) { char b[48]; snprintf(b, sizeof b, "R,%.4fX%.4f", w / 1000, h / 1000); return ap(b); }
+    int ovalAp(float w, float h) { char b[48]; snprintf(b, sizeof b, "O,%.4fX%.4f", w / 1000, h / 1000); return ap(b); }
     void sel(int a) { if (a != cur_) { body_ += "D" + std::to_string(a) + "*\n"; cur_ = a; } }
     void move(Vec2 p, int op) {
         char b[64];
@@ -252,20 +254,31 @@ bool exportGerberZip(const Document& doc, const Connectivity& conn, const std::s
 
     std::string base = fileBaseName(zipPath);
     Gerber top(board, "Copper top"), bot(board, "Copper bottom"), maskT(board, "Solder mask top"), maskB(board, "Solder mask bottom"),
-        silk(board, "Silkscreen top"), outline(board, "Board outline");
+        paste(board, single ? "Solder paste bottom" : "Solder paste top"), silk(board, "Silkscreen top"), outline(board, "Board outline");
     std::map<float, std::vector<Vec2>> plated, npth;
+    bool anySmd = false;
     for (auto& p : doc.parts) {
         if (!p.inView(PCB) || p.def->isBoard) continue;
         for (size_t i = 0; i < p.def->pins.size(); i++) {
             const PinDef& pin = p.def->pins[i];
-            Vec2 c = p.pinPos((int)i, PCB);
-            for (Gerber* g : {&top, &bot}) {
-                if (single && g == &top) continue;
-                if (pin.square) g->flashRect(c, pin.pad, pin.pad); else g->flashCircle(c, pin.pad);
+            Vec2 c = p.pinPos((int)i, PCB), sz = pin.padSize(p.place[PCB]);
+            auto flash = [&](Gerber& g, float grow) {
+                Vec2 s = sz + Vec2(grow, grow);
+                if (pin.rectPad()) g.flashRect(c, s.x, s.y);
+                else if (s.x != s.y) g.flashOval(c, s.x, s.y);
+                else g.flashCircle(c, s.x);
+            };
+            if (pin.smd()) {  // component side only: top, or bottom on a single-sided board
+                anySmd = true;
+                flash(single ? bot : top, 0);
+                flash(single ? maskB : maskT, 8);
+                flash(paste, 0);
+                continue;
             }
-            for (Gerber* g : {&maskT, &maskB}) {
-                if (pin.square) g->flashRect(c, pin.pad + 8, pin.pad + 8); else g->flashCircle(c, pin.pad + 8);
-            }
+            if (!single) flash(top, 0);
+            flash(bot, 0);
+            flash(maskT, 8);
+            flash(maskB, 8);
             plated[std::round(pin.drill)].push_back(c);
         }
         for (auto& h : p.def->holes) npth[std::round(h.second)].push_back(p.place[PCB].apply(h.first));
@@ -317,6 +330,7 @@ bool exportGerberZip(const Document& doc, const Connectivity& conn, const std::s
     files.push_back({base + "_copperBottom.gbl", bot.str()});
     files.push_back({base + "_maskTop.gts", maskT.str()});
     files.push_back({base + "_maskBottom.gbs", maskB.str()});
+    if (anySmd) files.push_back({base + (single ? "_pasteBottom.gbp" : "_pasteTop.gtp"), paste.str()});
     files.push_back({base + "_silkTop.gto", silk.str()});
     files.push_back({base + "_contour.gm1", outline.str()});
     files.push_back({base + "_drill.txt", drill});
@@ -455,10 +469,11 @@ std::string exportSvg(const Document& doc, const Connectivity& conn, int view) {
             if (!p.inView(PCB) || p.def->isBoard) continue;
             for (size_t i = 0; i < p.def->pins.size(); i++) {
                 const PinDef& pin = p.def->pins[i];
-                Vec2 c = p.pinPos((int)i, PCB);
-                if (pin.square) snprintf(b, sizeof b, "<rect x=\"%.1f\" y=\"%.1f\" width=\"%.1f\" height=\"%.1f\" fill=\"#e9b949\"/>\n", c.x - pin.pad / 2, c.y - pin.pad / 2, pin.pad, pin.pad);
-                else snprintf(b, sizeof b, "<circle cx=\"%.1f\" cy=\"%.1f\" r=\"%.1f\" fill=\"#e9b949\"/>\n", c.x, c.y, pin.pad / 2);
+                Vec2 c = p.pinPos((int)i, PCB), sz = pin.padSize(p.place[PCB]);
+                float rad = pin.rectPad() ? 0 : std::min(sz.x, sz.y) / 2;
+                snprintf(b, sizeof b, "<rect x=\"%.1f\" y=\"%.1f\" width=\"%.1f\" height=\"%.1f\" rx=\"%.1f\" fill=\"#e9b949\"/>\n", c.x - sz.x / 2, c.y - sz.y / 2, sz.x, sz.y, rad);
                 o += b;
+                if (pin.smd()) continue;
                 snprintf(b, sizeof b, "<circle cx=\"%.1f\" cy=\"%.1f\" r=\"%.1f\" fill=\"#1d1d1d\"/>\n", c.x, c.y, pin.drill / 2);
                 o += b;
             }

@@ -1,5 +1,6 @@
 #include "partlib.h"
 #include "partlib_internal.h"
+#include "packages.h"
 
 #include <algorithm>
 #include <cmath>
@@ -99,7 +100,7 @@ void PartDef::computeBounds() {
         }
         if (inView(v)) {
             for (auto& pin : pins) {
-                float pr = v == PCB ? pin.pad / 2 : 20;
+                float pr = v == PCB ? pin.padRadius() : 20;
                 add(pin.pos[v] - Vec2(pr, pr)); add(pin.pos[v] + Vec2(pr, pr));
             }
         }
@@ -190,6 +191,32 @@ void arrowHead(G& g, Vec2 tip, Vec2 dir, float size, uint32_t c) {
 // Part generators
 // ---------------------------------------------------------------------------
 
+// Pin order for a "pinout" property ("EBC", "GDS", "IN-GND-OUT"): pad i of the
+// package is the pin named by token i.
+std::vector<int> pinoutPads(const PartDef& d, const std::string& pinout, const std::map<std::string, std::string>& tokenToId) {
+    std::vector<int> pads;
+    std::vector<std::string> toks;
+    if (pinout.find('-') != std::string::npos) {
+        std::string cur;
+        for (char c : pinout) { if (c == '-') { toks.push_back(cur); cur.clear(); } else cur += c; }
+        toks.push_back(cur);
+    } else {
+        for (char c : pinout) toks.push_back(std::string(1, c));
+    }
+    for (auto& t : toks) {
+        auto it = tokenToId.find(t);
+        pads.push_back(it == tokenToId.end() ? -1 : d.pinIndex(it->second));
+    }
+    return pads;
+}
+
+// Package options shared by the built-in passives.
+const std::vector<std::string> kChipSizes = {"0402 [SMD]", "0603 [SMD]", "0805 [SMD]", "1206 [SMD]", "1210 [SMD]", "2512 [SMD]"};
+std::vector<std::string> withChips(std::vector<std::string> v, size_t maxChips = 6) {
+    for (size_t i = 0; i < kChipSizes.size() && i < maxChips; i++) v.push_back(kChipSizes[i]);
+    return v;
+}
+
 const char* bandName[] = {"black", "brown", "red", "orange", "yellow", "green", "blue", "violet", "grey", "white"};
 const uint32_t bandCol[] = {rgba(20, 20, 20), rgba(120, 70, 30), rgba(210, 30, 30), rgba(240, 130, 20), rgba(240, 220, 30),
                             rgba(30, 160, 60), rgba(30, 80, 210), rgba(140, 60, 190), rgba(130, 130, 130), rgba(245, 245, 245)};
@@ -202,7 +229,8 @@ void makeResistor(PartDef& d, const Props& p) {
     d.sim = "resistor";
     d.propDefs = {{"resistance", "Resistance", {"100Ω", "220Ω", "330Ω", "470Ω", "1kΩ", "2.2kΩ", "4.7kΩ", "10kΩ", "47kΩ", "100kΩ", "1MΩ"}},
                   {"power", "Power", {"1/8W", "1/4W", "1/2W", "1W"}},
-                  {"tolerance", "Tolerance", {"±1%", "±5%", "±10%"}}};
+                  {"tolerance", "Tolerance", {"±1%", "±5%", "±10%"}},
+                  {"package", "Package", withChips({"Axial [THT]"})}};
     addPin(d, "pin0", "Pin 0", {0, 0}, {0, 0}, {0, 0});
     addPin(d, "pin1", "Pin 1", {400, 0}, {400, 0}, {400, 0});
 
@@ -241,6 +269,8 @@ void makeResistor(PartDef& d, const Props& p) {
 
     G pc{d.gfx[PCB]};
     silkRect(pc, 70, -45, 260, 90);
+    std::string pk = prop(p, "package", "Axial [THT]");
+    if (pk != "Axial [THT]") applyPackage(d, pk, {0, 1}, formatSI(ohms, ""), "resistor");
 }
 
 struct LedColor { const char* name; uint32_t c; };
@@ -259,7 +289,7 @@ void makeLed(PartDef& d, const Props& p) {
     d.valueProp = "color";
     d.sim = "led";
     d.propDefs = {{"color", "Color", {"Red", "Green", "Blue", "Yellow", "White", "Orange"}},
-                  {"package", "Package", {"5 mm [THT]", "3 mm [THT]"}}};
+                  {"package", "Package", {"5 mm [THT]", "3 mm [THT]", "0603 [SMD]", "0805 [SMD]", "1206 [SMD]"}}};
     addPin(d, "cathode", "cathode (−)", {0, 0}, {300, 0}, {0, 0}).square = true;
     addPin(d, "anode", "anode (+)", {100, 0}, {0, 0}, {100, 0});
 
@@ -291,16 +321,21 @@ void makeLed(PartDef& d, const Props& p) {
     pc.arc(50, 0, small ? 85 : 120, 30, 330, SKW, SILK);
     float rr = small ? 85 : 120;
     pc.line(50 + rr * 0.866f, -rr * 0.5f, 50 + rr * 0.866f, rr * 0.5f, SKW, SILK);
+    std::string pk = prop(p, "package");
+    if (pk.find("[SMD]") != std::string::npos && applyPackage(d, pk, {0, 1}, "")) {  // pad 1 is the cathode
+        G sb{d.gfx[BB]};
+        sb.circle(50, -190, 55, lens).tag = 1;
+    }
 }
 
 void makeCapCeramic(PartDef& d, const Props& p) {
-    (void)p;
     d.title = "Ceramic Capacitor";
     d.description = "Non-polarized capacitor, typically 10pF–1µF. Used for decoupling and filtering.";
     d.labelPrefix = "C";
     d.valueProp = "capacitance";
     d.sim = "capacitor";
-    d.propDefs = {{"capacitance", "Capacitance", {"22pF", "100pF", "1nF", "10nF", "100nF", "1µF"}}, {"voltage", "Voltage", {"16V", "50V", "100V"}}};
+    d.propDefs = {{"capacitance", "Capacitance", {"22pF", "100pF", "1nF", "10nF", "100nF", "1µF"}}, {"voltage", "Voltage", {"16V", "50V", "100V"}},
+                  {"package", "Package", withChips({"Radial [THT]"}, 5)}};
     addPin(d, "pin0", "leg 0", {0, 0}, {0, 0}, {0, 0});
     addPin(d, "pin1", "leg 1", {100, 0}, {300, 0}, {100, 0});
     G bb{d.gfx[BB]};
@@ -315,6 +350,8 @@ void makeCapCeramic(PartDef& d, const Props& p) {
     s.line(170, -70, 170, 70, SW * 1.4f, INK);
     G pc{d.gfx[PCB]};
     silkRect(pc, -70, -55, 240, 110);
+    std::string pk = prop(p, "package", "Radial [THT]");
+    if (pk != "Radial [THT]") applyPackage(d, pk, {0, 1}, "");
 }
 
 void makeCapElectrolytic(PartDef& d, const Props& p) {
@@ -347,13 +384,17 @@ void makeCapElectrolytic(PartDef& d, const Props& p) {
 }
 
 void makeDiode(PartDef& d, const Props& p) {
-    (void)p;
-    d.title = "Rectifier Diode";
+    std::string kind = prop(p, "kind", "Rectifier");
+    d.title = kind == "Rectifier" ? "Rectifier Diode" : kind + " Diode";
     d.description = "Lets current flow from anode to cathode only. The band marks the cathode.";
+    if (kind == "Zener") d.description += " A Zener also conducts backwards above its breakdown voltage (simulated as a plain diode).";
     d.labelPrefix = "D";
     d.valueProp = "part";
     d.sim = "diode";
-    d.propDefs = {{"part", "Part #", {"1N4001", "1N4148", "1N5819"}}};
+    d.propDefs = {{"part", "Part #", {"1N4001", "1N4148", "1N5819", "1N4733A", "BZX55C5V1", "SS34", "P6KE15A"}},
+                  {"kind", "Kind", {"Rectifier", "Signal", "Schottky", "Zener", "TVS"}},
+                  {"package", "Package", {"DO-41 [THT]", "DO-35 [THT]", "DO-15 [THT]", "DO-201 [THT]", "SOD-123 [SMD]", "SOD-123F [SMD]", "SOD-323 [SMD]",
+                                          "SOD-523 [SMD]", "MINIMELF [SMD]", "MELF [SMD]", "SMA [SMD]", "SMB [SMD]", "SMC [SMD]", "0603 [SMD]", "0805 [SMD]"}}};
     addPin(d, "anode", "anode", {0, 0}, {0, 0}, {0, 0});
     addPin(d, "cathode", "cathode", {400, 0}, {300, 0}, {400, 0}).square = true;
     G bb{d.gfx[BB]};
@@ -366,19 +407,23 @@ void makeDiode(PartDef& d, const Props& p) {
     s.line(200, 0, 300, 0, SW, INK);
     s.poly({{100, -60}, {100, 60}, {200, 0}}, INK, INK, SW);
     s.line(200, -60, 200, 60, SW, INK);
+    if (kind == "Zener") { s.line(200, -60, 230, -80, SW, INK); s.line(200, 60, 170, 80, SW, INK); }
+    if (kind == "Schottky") { s.polyline({{230, -80}, {230, -60}, {200, -60}}, SW, INK); s.polyline({{170, 80}, {170, 60}, {200, 60}}, SW, INK); }
+    if (kind == "TVS") s.poly({{300, -60}, {300, 60}, {200, 0}}, INK, INK, SW);
     G pc{d.gfx[PCB]};
     silkRect(pc, 70, -45, 260, 90);
     pc.line(270, -45, 270, 45, SKW, SILK);
+    std::string pk = prop(p, "package", "DO-41 [THT]");
+    if (pk != "DO-41 [THT]") applyPackage(d, pk, {1, 0}, prop(p, "part", "1N4001"), "diode");  // pad 1 is the cathode
 }
 
 void makeInductor(PartDef& d, const Props& p) {
-    (void)p;
     d.title = "Inductor";
     d.description = "Coil that stores energy in a magnetic field.";
     d.labelPrefix = "L";
     d.valueProp = "inductance";
     d.sim = "inductor";
-    d.propDefs = {{"inductance", "Inductance", {"10µH", "100µH", "1mH", "10mH"}}};
+    d.propDefs = {{"inductance", "Inductance", {"10µH", "100µH", "1mH", "10mH"}}, {"package", "Package", withChips({"Axial [THT]"}, 5)}};
     addPin(d, "pin0", "leg 0", {0, 0}, {0, 0}, {0, 0});
     addPin(d, "pin1", "leg 1", {400, 0}, {400, 0}, {400, 0});
     G bb{d.gfx[BB]};
@@ -392,6 +437,8 @@ void makeInductor(PartDef& d, const Props& p) {
     for (int i = 0; i < 4; i++) s.arc(125 + i * 50, 0, 25, 180, 360, SW, INK);
     G pc{d.gfx[PCB]};
     silkRect(pc, 70, -60, 260, 120);
+    std::string pk = prop(p, "package", "Axial [THT]");
+    if (pk != "Axial [THT]") applyPackage(d, pk, {0, 1}, "", "inductor");
 }
 
 void makeCrystal(PartDef& d, const Props& p) {
@@ -594,7 +641,9 @@ void makeTransistor(PartDef& d, const Props& p) {
     d.labelPrefix = "Q";
     d.valueProp = "part";
     d.sim = pnp ? "pnp" : "npn";
-    d.propDefs = {{"polarity", "Type", {"NPN", "PNP"}}, {"part", "Part #", {"2N2222", "2N3904", "2N3906", "BC547", "BC557"}}};
+    d.propDefs = {{"polarity", "Type", {"NPN", "PNP"}}, {"part", "Part #", {"2N2222", "2N3904", "2N3906", "BC547", "BC557", "BC847", "BC857", "MMBT3904", "MMBT3906"}},
+                  {"package", "Package", {"TO-92 [THT]", "SOT-23 [SMD]", "SOT-323 [SMD]", "SOT-89 [SMD]", "SOT-223 [SMD]", "TO-126 [THT]", "TO-220-3 [THT]"}},
+                  {"pinout", "Pinout (pins 1-2-3)", {"EBC", "CBE", "BCE", "BEC", "ECB", "CEB"}}};
     addPin(d, "E", "emitter", {0, 0}, {200, 200}, {0, 0});
     addPin(d, "B", "base", {100, 0}, {0, 0}, {100, 0});
     addPin(d, "C", "collector", {200, 0}, {200, -200}, {200, 0});
@@ -612,16 +661,25 @@ void makeTransistor(PartDef& d, const Props& p) {
     G pc{d.gfx[PCB]};
     pc.arc(100, 30, 170, 180, 360, SKW, SILK);
     pc.line(-70, 30, 270, 30, SKW, SILK);
+    std::string pk = prop(p, "package", "TO-92 [THT]"), po = prop(p, "pinout", "EBC");
+    if (pk != "TO-92 [THT]" || po != "EBC") {
+        d.description = std::string("Bipolar junction transistor (") + packageSpecOf(pk) + ", pins 1-2-3 = " + po + "). A small base current switches a larger collector current.";
+        applyPackage(d, pk, pinoutPads(d, po, {{"E", "E"}, {"B", "B"}, {"C", "C"}}), prop(p, "part", "2N2222"));
+    }
 }
 
 void makeMosfet(PartDef& d, const Props& p) {
-    (void)p;
-    d.title = "N-Channel MOSFET";
-    d.description = "Logic-level power MOSFET (TO-220, G-D-S). Drives motors and LED strips from a microcontroller pin.";
+    bool pch = prop(p, "channel", "N") == "P";
+    d.title = pch ? "P-Channel MOSFET" : "N-Channel MOSFET";
+    d.description = pch ? "P-channel MOSFET (high-side switch). Pinout only in the simulator."
+                        : "Logic-level power MOSFET (TO-220, G-D-S). Drives motors and LED strips from a microcontroller pin.";
     d.labelPrefix = "Q";
     d.valueProp = "part";
-    d.sim = "nmos";
-    d.propDefs = {{"part", "Part #", {"IRLZ44N", "IRF520", "2N7000"}}};
+    d.sim = pch ? "" : "nmos";
+    d.propDefs = {{"part", "Part #", {"IRLZ44N", "IRF520", "2N7000", "2N7002", "AO3400", "AO3401", "IRF9540", "IRLML6402", "BSS138"}},
+                  {"channel", "Channel", {"N", "P"}},
+                  {"package", "Package", {"TO-220-3 [THT]", "TO-92 [THT]", "SOT-23 [SMD]", "SOT-223 [SMD]", "TO-252-2 [SMD]", "TO-263-2 [SMD]", "TO-247-3 [THT]"}},
+                  {"pinout", "Pinout (pins 1-2-3)", {"GDS", "GSD", "SGD", "DGS", "SDG", "DSG"}}};
     addPin(d, "G", "gate", {0, 0}, {0, 100}, {0, 0}).square = true;
     addPin(d, "D", "drain", {100, 0}, {200, -100}, {100, 0});
     addPin(d, "S", "source", {200, 0}, {200, 300}, {200, 0});
@@ -639,21 +697,25 @@ void makeMosfet(PartDef& d, const Props& p) {
     s.polyline({{120, 180}, {200, 180}, {200, 300}}, SW, INK);
     s.line(120, 100, 200, 100, SW, INK);
     s.line(200, 100, 200, 180, SW, INK);
-    arrowHead(s, {125, 100}, {-1, 0}, 40, INK);
+    if (pch) arrowHead(s, {195, 100}, {1, 0}, 40, INK);
+    else arrowHead(s, {125, 100}, {-1, 0}, 40, INK);
     G pc{d.gfx[PCB]};
     silkRect(pc, -110, -90, 420, 180);
     pc.line(-110, -50, 310, -50, SKW, SILK);
+    std::string pk = prop(p, "package", "TO-220-3 [THT]"), po = prop(p, "pinout", "GDS");
+    if (pk != "TO-220-3 [THT]" || po != "GDS") applyPackage(d, pk, pinoutPads(d, po, {{"G", "G"}, {"D", "D"}, {"S", "S"}}), prop(p, "part", "IRLZ44N"));
 }
 
 void makeRegulator(PartDef& d, const Props& p) {
-    (void)p;
     d.title = "Voltage Regulator";
     d.description = "Linear regulator (TO-220, IN-GND-OUT). Needs ~2V of headroom above the output voltage.";
     d.labelPrefix = "U";
     d.valueProp = "voltage";
     d.sim = "reg";
     d.simParams = "IN=1;GND=2;OUT=3;VPROP=voltage;DROP=2";
-    d.propDefs = {{"voltage", "Output", {"3.3V", "5V", "9V", "12V"}}, {"part", "Part #", {"7805", "LM1117", "7809", "7812"}}};
+    d.propDefs = {{"voltage", "Output", {"3.3V", "5V", "9V", "12V"}}, {"part", "Part #", {"7805", "LM1117", "AMS1117", "7809", "7812", "78L05"}},
+                  {"package", "Package", {"TO-220-3 [THT]", "TO-92 [THT]", "SOT-223 [SMD]", "SOT-89 [SMD]", "TO-252-2 [SMD]", "TO-263-2 [SMD]"}},
+                  {"pinout", "Pinout (pins 1-2-3)", {"IN-GND-OUT", "GND-OUT-IN", "OUT-GND-IN", "GND-IN-OUT", "IN-OUT-GND"}}};
     addPin(d, "in", "IN", {0, 0}, {0, 100}, {0, 0}).square = true;
     addPin(d, "gnd", "GND", {100, 0}, {400, 400}, {100, 0});
     addPin(d, "out", "OUT", {200, 0}, {800, 100}, {200, 0});
@@ -675,6 +737,9 @@ void makeRegulator(PartDef& d, const Props& p) {
     G pc{d.gfx[PCB]};
     silkRect(pc, -110, -90, 420, 180);
     pc.line(-110, -50, 310, -50, SKW, SILK);
+    std::string pk = prop(p, "package", "TO-220-3 [THT]"), po = prop(p, "pinout", "IN-GND-OUT");
+    if (pk != "TO-220-3 [THT]" || po != "IN-GND-OUT")
+        applyPackage(d, pk, pinoutPads(d, po, {{"IN", "in"}, {"GND", "gnd"}, {"OUT", "out"}}), prop(p, "part", "7805"));
 }
 
 // DIP packages: pin i (0-based) — bottom row left→right, then top row right→left.
@@ -771,6 +836,100 @@ void makeHeader(PartDef& d, const Props& p, bool female) {
     }
     G pc{d.gfx[PCB]};
     silkRect(pc, -50, -50, w, 100);
+}
+
+// Generic pin header / socket: 1–4 rows, any of the usual numbering schemes,
+// 2.54 / 2.00 / 1.27 mm pitch, optional shield or mounting pin.
+void makeConnector(PartDef& d, const Props& p) {
+    int rows = std::max(1, std::min(4, std::atoi(prop(p, "rows", "1").c_str())));
+    int cols = std::max(1, std::min(60, std::atoi(prop(p, "pins per row", "4").c_str())));
+    std::string num = prop(p, "numbering", "Sequential"), extra = prop(p, "extra", "None");
+    bool female = prop(p, "gender", "Male") == "Female";
+    float pitchMm = (float)std::atof(prop(p, "pitch", "2.54 mm").c_str());
+    if (pitchMm < 1) pitchMm = 2.54f;
+    float pitch = pitchMm * 1000 / 25.4f;
+    d.title = std::string(female ? "Socket" : "Header") + " " + std::to_string(rows) + "×" + std::to_string(cols);
+    d.description = "Generic connector: " + std::to_string(rows) + " row(s) of " + std::to_string(cols) + " pins, " + prop(p, "pitch", "2.54 mm") +
+                    " pitch, numbered " + num + ".";
+    d.labelPrefix = "J";
+    d.valueProp = "pins per row";
+    std::vector<std::string> counts;
+    for (int i = 1; i <= 60; i++) counts.push_back(std::to_string(i));
+    d.propDefs = {{"rows", "Rows", {"1", "2", "3", "4"}},
+                  {"pins per row", "Pins per row", counts},
+                  {"numbering", "Numbering", {"Sequential", "Odd/Even", "Top/Bottom", "Counter-clockwise", "Row letter first (A1)", "Row letter last (1A)"}},
+                  {"pitch", "Pitch", {"2.54 mm", "2.00 mm", "1.27 mm"}},
+                  {"gender", "Type", {"Male", "Female"}},
+                  {"extra", "Extra pin", {"None", "Shield", "Mounting pins"}}};
+    const char* letters = "ABCDEFGH";
+    struct Slot { int r, c; std::string label; int order; };
+    std::vector<Slot> slots;
+    for (int r = 0; r < rows; r++)
+        for (int c = 0; c < cols; c++) {
+            Slot s{r, c, "", 0};
+            if (num == "Odd/Even") s.order = c * rows + r;
+            else if (num == "Counter-clockwise" && rows == 2) s.order = r == 1 ? c : 2 * cols - 1 - c;
+            else s.order = r * cols + c;
+            if (num.rfind("Row letter first", 0) == 0) s.label = std::string(1, letters[r]) + std::to_string(c + 1);
+            else if (num.rfind("Row letter last", 0) == 0) s.label = std::to_string(c + 1) + letters[r];
+            else s.label = std::to_string(s.order + 1);
+            slots.push_back(s);
+        }
+    std::sort(slots.begin(), slots.end(), [](const Slot& a, const Slot& b) { return a.order < b.order; });
+    float padD = pitchMm >= 2.5f ? 67 : pitchMm >= 2 ? 53 : 39, drill = pitchMm >= 2.5f ? 40 : pitchMm >= 2 ? 31 : 26;
+    for (auto& s : slots) {
+        PinDef& pin = addPin(d, "pin" + s.label, s.label, {s.c * 100.f, s.r * 100.f}, {0, 0}, {s.c * pitch, s.r * pitch});
+        pin.pad = padD;
+        pin.drill = drill;
+        pin.square = s.order == 0;
+    }
+    G bb{d.gfx[BB]};
+    for (int r = 0; r < rows; r++) {
+        float y = r * 100.f;
+        if (female) {
+            bb.rect(-50, y - 50, cols * 100.f, 100, rgba(30, 30, 30), rgba(10, 10, 10), 4, 6);
+            for (int c = 0; c < cols; c++) bb.rect(c * 100.f - 18, y - 18, 36, 36, rgba(80, 80, 80));
+        } else {
+            bb.rect(-50, y - 45, cols * 100.f, 90, rgba(30, 30, 30), 0, 0, 4);
+            for (int c = 0; c < cols; c++) bb.rect(c * 100.f - 14, y - 14, 28, 28, rgba(220, 180, 60));
+        }
+    }
+    // schematic: one row → a single column; two or more → odd/first row left, the rest right
+    G sc{d.gfx[SCH]};
+    std::vector<int> left, right;
+    for (size_t i = 0; i < d.pins.size(); i++) (slots[i].r == 0 || rows == 1 ? left : right).push_back((int)i);
+    auto byCol = [&](std::vector<int>& v) { std::stable_sort(v.begin(), v.end(), [&](int a, int b) { return slots[(size_t)a].c < slots[(size_t)b].c; }); };
+    byCol(left);
+    byCol(right);
+    if (rows > 2) {  // rows 2..n stack under each other on the right
+        std::stable_sort(right.begin(), right.end(), [&](int a, int b) { return slots[(size_t)a].r * 1000 + slots[(size_t)a].c < slots[(size_t)b].r * 1000 + slots[(size_t)b].c; });
+    }
+    size_t n = std::max(left.size(), right.size());
+    float bw = right.empty() ? 200.f : 300.f;
+    sc.rect(200, -60, bw, n * 100.f + 20, rgba(255, 255, 255), INK, SW);
+    for (size_t k = 0; k < left.size(); k++) {
+        PinDef& pin = d.pins[(size_t)left[k]];
+        pin.pos[SCH] = {0, k * 100.f};
+        sc.line(0, k * 100.f, 200, k * 100.f, SW, INK);
+        sc.text(230, k * 100.f, pin.name, 40, INKTXT, 0);
+    }
+    for (size_t k = 0; k < right.size(); k++) {
+        PinDef& pin = d.pins[(size_t)right[k]];
+        pin.pos[SCH] = {400 + bw, k * 100.f};
+        sc.line(200 + bw, k * 100.f, 400 + bw, k * 100.f, SW, INK);
+        sc.text(170 + bw, k * 100.f, pin.name, 40, INKTXT, 2);
+    }
+    G pc{d.gfx[PCB]};
+    silkRect(pc, -pitch / 2, -pitch / 2, cols * pitch, rows * pitch);
+    if (extra != "None") {
+        bool shield = extra == "Shield";
+        PinDef& pin = addPin(d, shield ? "SH" : "MP", shield ? "Shield" : "Mounting pin", {-150, 0}, {shield ? 100.f : 300.f, n * 100.f + 100},
+                             {-pitch * 1.6f, (rows - 1) * pitch / 2});
+        pin.pad = 110;
+        pin.drill = 65;
+        sc.line(pin.pos[SCH].x, n * 100.f - 40, pin.pos[SCH].x, n * 100.f + 100, SW, INK);
+        bb.circle(-150, 0, 26, rgba(160, 160, 165));
+    }
 }
 
 void makeBuzzer(PartDef& d, const Props& p) {
@@ -1145,21 +1304,21 @@ void makeBoard(PartDef& d, const Props& p) {
 
 const std::map<std::string, Gen>& generators() {
     static std::map<std::string, Gen> g = {
-        {"resistor", {"Resistor", "Core", {{"resistance", "220Ω"}, {"power", "1/4W"}, {"tolerance", "±5%"}}, makeResistor}},
+        {"resistor", {"Resistor", "Core", {{"resistance", "220Ω"}, {"power", "1/4W"}, {"tolerance", "±5%"}, {"package", "Axial [THT]"}}, makeResistor}},
         {"led", {"LED", "Core", {{"color", "Red"}, {"package", "5 mm [THT]"}}, makeLed}},
-        {"capacitor_ceramic", {"Ceramic Capacitor", "Core", {{"capacitance", "100nF"}, {"voltage", "50V"}}, makeCapCeramic}},
+        {"capacitor_ceramic", {"Ceramic Capacitor", "Core", {{"capacitance", "100nF"}, {"voltage", "50V"}, {"package", "Radial [THT]"}}, makeCapCeramic}},
         {"capacitor_electrolytic", {"Electrolytic Capacitor", "Core", {{"capacitance", "100µF"}, {"voltage", "16V"}}, makeCapElectrolytic}},
-        {"diode", {"Diode", "Core", {{"part", "1N4001"}}, makeDiode}},
-        {"inductor", {"Inductor", "Core", {{"inductance", "100µH"}}, makeInductor}},
+        {"diode", {"Diode", "Core", {{"part", "1N4001"}, {"kind", "Rectifier"}, {"package", "DO-41 [THT]"}}, makeDiode}},
+        {"inductor", {"Inductor", "Core", {{"inductance", "100µH"}, {"package", "Axial [THT]"}}, makeInductor}},
         {"crystal", {"Crystal", "Core", {{"frequency", "16MHz"}}, makeCrystal}},
         {"potentiometer", {"Potentiometer", "Input", {{"resistance", "10kΩ"}, {"wiper", "50"}}, makePot}},
         {"photocell", {"Photocell (LDR)", "Input", {{"light", "50"}}, makePhotocell}},
         {"pushbutton", {"Pushbutton", "Input", {{"form", "[THT] 6mm"}, {"pressed", "no"}}, makePushbutton}},
         {"switch", {"Slide Switch", "Input", {{"position", "left"}}, makeSwitch}},
         {"battery", {"Battery", "Power", {{"voltage", "9V"}, {"style", "9V block"}}, makeBattery}},
-        {"regulator", {"Voltage Regulator", "Power", {{"voltage", "5V"}, {"part", "7805"}}, makeRegulator}},
-        {"transistor", {"Transistor", "ICs", {{"polarity", "NPN"}, {"part", "2N2222"}}, makeTransistor}},
-        {"mosfet", {"MOSFET", "ICs", {{"part", "IRLZ44N"}}, makeMosfet}},
+        {"regulator", {"Voltage Regulator", "Power", {{"voltage", "5V"}, {"part", "7805"}, {"package", "TO-220-3 [THT]"}, {"pinout", "IN-GND-OUT"}}, makeRegulator}},
+        {"transistor", {"Transistor", "Discretes", {{"polarity", "NPN"}, {"part", "2N2222"}, {"package", "TO-92 [THT]"}, {"pinout", "EBC"}}, makeTransistor}},
+        {"mosfet", {"MOSFET", "Discretes", {{"part", "IRLZ44N"}, {"channel", "N"}, {"package", "TO-220-3 [THT]"}, {"pinout", "GDS"}}, makeMosfet}},
         {"timer555", {"555 Timer", "ICs", {{"part", "NE555"}}, make555}},
         {"ic_dip", {"IC (DIP)", "ICs", {{"pins", "8"}, {"chip label", "IC"}, {"pin names", ""}}, makeIcDip}},
         {"buzzer", {"Piezo Buzzer", "Output", {}, makeBuzzer}},
@@ -1168,6 +1327,7 @@ const std::map<std::string, Gen>& generators() {
         {"breadboard", {"Breadboard", "Breadboard", {{"size", "half+"}}, makeBreadboard}},
         {"header_male", {"Pin Header", "Connection", {{"pins", "4"}}, [](PartDef& d, const Props& p) { makeHeader(d, p, false); }}},
         {"header_female", {"Female Header", "Connection", {{"pins", "4"}}, [](PartDef& d, const Props& p) { makeHeader(d, p, true); }}},
+        {"connector", {"Connector", "Connection", {{"rows", "2"}, {"pins per row", "5"}, {"numbering", "Odd/Even"}, {"pitch", "2.54 mm"}, {"gender", "Male"}, {"extra", "None"}}, makeConnector}},
         {"ground", {"Ground", "Schematic", {{"net", "GND"}}, makeGround}},
         {"power_label", {"Power Label", "Schematic", {{"net", "5V"}}, makePowerLabel}},
         {"net_label", {"Net Label", "Schematic", {{"net", "NET1"}}, makeNetLabel}},
@@ -1176,7 +1336,7 @@ const std::map<std::string, Gen>& generators() {
         {"hole", {"Mounting Hole", "PCB", {{"diameter", "3.2mm"}}, makeHole}},
         {"multimeter", {"Multimeter", "Tools", {{"mode", "Voltage (V)"}}, makeMultimeter}},
     };
-    static bool catalogAdded = [] { addCatalogGenerators(g); return true; }();
+    static bool catalogAdded = [] { addCatalogGenerators(g); addDataGenerators(g); return true; }();
     (void)catalogAdded;
     return g;
 }
@@ -1235,6 +1395,9 @@ const std::vector<LibEntry>& partLibrary() {
         add("breadboard", "Mini Breadboard", {{"size", "mini"}});
         add("header_male", "Pin Header");
         add("header_female", "Female Header");
+        add("connector", "2×5 Header (odd/even)");
+        add("connector", "2×20 Header (odd/even)", {{"rows", "2"}, {"pins per row", "20"}});
+        add("connector", "Socket 1×8", {{"rows", "1"}, {"pins per row", "8"}, {"numbering", "Sequential"}, {"gender", "Female"}});
         add("ground", "Ground");
         add("power_label", "Power Label");
         add("net_label", "Net Label");
@@ -1242,14 +1405,15 @@ const std::vector<LibEntry>& partLibrary() {
         add("via", "Via");
         add("hole", "Mounting Hole");
         add("multimeter", "Multimeter");
-        for (auto& e : catalogEntries()) v.push_back(e);
+        for (auto& e : catalogEntries()) if (!isDataType(e.type)) v.push_back(e);  // data parts replace catalog ones
+        for (auto& e : dataEntries()) v.push_back(e);
         return v;
     }();
     return lib;
 }
 
 const std::vector<std::string>& partCategories() {
-    static std::vector<std::string> c = {"Core", "Input", "Output", "Power", "ICs", "Logic", "Analog ICs", "Drivers", "Microcontroller", "Sensors", "Displays", "Modules", "Breadboard", "Connection", "Schematic", "PCB", "Tools"};
+    static std::vector<std::string> c = {"Core", "Passives", "Discretes", "Input", "Output", "Power", "ICs", "Logic", "Analog ICs", "Drivers", "Interface", "Memory", "Timing", "Microcontroller", "Processors & FPGAs", "RF", "Sensors", "Displays", "Optoelectronics", "Electromechanical", "Modules", "Breadboard", "Connection", "Schematic", "PCB", "Tools"};
     return c;
 }
 
@@ -1386,6 +1550,7 @@ Json partDefToJson(const PartDef& d) {
         for (int v = 0; v < NUM_VIEWS; v++) o.set(viewKey(v), vec(p.pos[v]));
         o.set("pad", p.pad);
         o.set("drill", p.drill);
+        if (p.padH > 0) o.set("padH", p.padH);
         if (p.square) o.set("square", true);
         pins.push(o);
     }
@@ -1460,6 +1625,7 @@ bool partDefFromJson(const Json& j, PartDef& d, std::string* err) {
         for (int v = 0; v < NUM_VIEWS; v++) p.pos[v] = vecOf(o[viewKey(v)]);
         p.pad = o["pad"].f(70);
         p.drill = o["drill"].f(38);
+        p.padH = o["padH"].f(0);
         p.square = o["square"].boolean();
         if (p.id.empty()) { if (err) *err = "pin without id"; return false; }
         d.pins.push_back(p);

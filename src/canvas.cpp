@@ -42,12 +42,24 @@ void App::zoomAt(float f, Vec2 s) {
     c.pan = s - w * c.zoom;
 }
 
+// PCB pad: rectangle (square/SMD), oval or round copper with its drill hole.
+static void drawPad(Gfx& g, Vec2 ctr, const PinDef& pin, Vec2 size, float z) {
+    Rect r(ctr.x - size.x / 2 * z, ctr.y - size.y / 2 * z, size.x * z, size.y * z);
+    if (pin.rectPad()) g.fillRect(r, kCopper);
+    else if (size.x != size.y) g.fillRoundRect(r, std::min(r.w, r.h) / 2, kCopper);
+    else g.fillCircle(ctr, r.w / 2, kCopper);
+    if (!pin.smd()) g.fillCircle(ctr, pin.drill / 2 * z, rgba(30, 30, 32));
+}
+
 // ---------------------------------------------------------------------------
 // Hit testing
 // ---------------------------------------------------------------------------
 
 static float pinRadius(const PartInst& p, int pin, int v) {
-    if (v == PCB) return std::max(20.f, p.def->pins[(size_t)pin].pad / 2);
+    if (v == PCB) {
+        Vec2 sz = p.def->pins[(size_t)pin].padSize();
+        return std::max(12.f, std::min(sz.x, sz.y) / 2);  // fine-pitch SMD pads sit closer than 40 mil
+    }
     if (p.def->isBreadboard) return 40;
     return 35;
 }
@@ -721,11 +733,7 @@ void App::drawPartIcon(const PartDefPtr& def, Rect r) {
     tmp.id = -1;
     drawPrims(tmp, v, c, true);
     if (v == PCB) {
-        for (auto& pin : def->pins) {
-            Vec2 p = c.pan + pin.pos[PCB] * c.zoom;
-            g.fillCircle(p, pin.pad / 2 * c.zoom, kCopper);
-            g.fillCircle(p, pin.drill / 2 * c.zoom, rgba(40, 40, 40));
-        }
+        for (auto& pin : def->pins) drawPad(g, c.pan + pin.pos[PCB] * c.zoom, pin, pin.padSize(), c.zoom);
         for (auto& h : def->holes) g.fillCircle(c.pan + h.first * c.zoom, h.second / 2 * c.zoom, rgba(60, 60, 60));
     }
 }
@@ -833,11 +841,7 @@ void App::drawCanvas(int v, const Camera& c, Rect vp, bool exporting) {
             if (!p.inView(PCB) || p.def->isBoard || !visible(p.worldBounds(PCB)) || !shownPcb(p, LY_PADS)) continue;
             for (size_t i = 0; i < p.def->pins.size(); i++) {
                 const PinDef& pin = p.def->pins[i];
-                Vec2 ctr = S(p.pinPos((int)i, PCB));
-                float r = pin.pad / 2 * z;
-                if (pin.square) g.fillRect({ctr.x - r, ctr.y - r, 2 * r, 2 * r}, kCopper);
-                else g.fillCircle(ctr, r, kCopper);
-                g.fillCircle(ctr, pin.drill / 2 * z, rgba(30, 30, 32));
+                drawPad(g, S(p.pinPos((int)i, PCB)), pin, pin.padSize(p.place[PCB]), z);
             }
             for (auto& h : p.def->holes) g.fillCircle(S(p.place[PCB].apply(h.first)), h.second / 2 * z, rgba(30, 30, 32));
         }

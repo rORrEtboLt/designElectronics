@@ -1023,10 +1023,10 @@ SDL_AppResult App::iterate() {
     if (codeOpen && rCode.h > 0) drawCodePanel(rCode);
     drawToolbar();
     if (binDrag >= 0) {
-        std::vector<LibEntry> all = partLibrary();
-        all.insert(all.end(), customEntries.begin(), customEntries.end());
-        if (binDrag < (int)all.size()) {
-            PartDefPtr def = getPartDef(all[(size_t)binDrag].type, all[(size_t)binDrag].props);
+        const std::vector<LibEntry>& lib = partLibrary();
+        if (binDrag < (int)(lib.size() + customEntries.size())) {
+            const LibEntry& e = (size_t)binDrag < lib.size() ? lib[(size_t)binDrag] : customEntries[(size_t)binDrag - lib.size()];
+            PartDefPtr def = getPartDef(e.type, e.props);
             float sz = 72 * ui.s;
             Rect r(in.mouse.x - sz / 2, in.mouse.y - sz / 2, sz, sz);
             g.fillRoundRect(r, 8 * ui.s, rgba(255, 255, 255, 200));
