@@ -63,6 +63,47 @@ struct TB {
     int net(Connectivity& c, int part, const std::string& p) { return c.netOf(part, pin(part, p)); }
 };
 
+// Parts library data (parts/*.txt) and surface-mount pads end to end.
+void partDataTests(int& failures) {
+    printf("Parts library data\n");
+    auto problems = checkPartData();
+    for (size_t i = 0; i < problems.size() && i < 40; i++) printf("    %s\n", problems[i].c_str());
+    check(problems.empty(), "every data part fits its packages, with no overlapping pads", failures);
+    {   // an SMD chip and an SMD resistor on a board: route, DRC, Gerber paste layer
+        TB t;
+        int board = t.add("pcb_board", {{"width", "40"}, {"height", "30"}});
+        int u = t.add("lm358", {{"package", "SOIC-8"}});
+        int r = t.add("lm358", {{"package", "TSSOP-8"}});
+        t.wire(u, "1OUT", r, "2IN+");
+        t.wire(u, "VCC", r, "VCC");
+        PartInst* b = t.d.part(board);
+        b->place[PCB].pos = {0, 0};
+        t.d.part(u)->place[PCB].pos = {400, 500};
+        t.d.part(r)->place[PCB].pos = {1100, 600};
+        Connectivity c;
+        c.build(t.d);
+        RouteResult rr = autoroute(t.d, c, true);
+        c.build(t.d);
+        RoutingStatus st;
+        c.ratsnest(t.d, PCB, &st);
+        bool topOnly = true;
+        for (auto& w : t.d.wires) if (w.view == PCB && w.autorouted && w.layer != TOP) {
+            for (auto& e : w.ends) if (e.attached() && t.d.part(e.part)->type != "via") topOnly = false;
+        }
+        check(st.connectionsToRoute == 0 && topOnly && rr.routed >= 2, ("SMD pads are routed on the top layer (" + rr.message + ")").c_str(), failures);
+        int clr = 0;
+        for (auto& is : runDrc(t.d, c))
+            if (is.message.rfind("Too close", 0) == 0 || is.message.find("surface-mount") != std::string::npos) { clr++; printf("    drc: %s\n", is.message.c_str()); }
+        check(clr == 0, "no DRC errors around fine-pitch SMD pads", failures);
+        const char* tmp = SDL_GetPrefPath("designElectronics", "selftest");
+        std::string zip = std::string(tmp ? tmp : "") + "gerber_smd.zip", msg;
+        check(exportGerberZip(t.d, c, zip, &msg), "Gerber export with SMD pads", failures);
+        Document d2;
+        std::string err;
+        check(d2.deserialize(t.d.serialize(true), &err) && d2.part(u)->def->pins[0].smd(), "SMD parts save and load", failures);
+    }
+}
+
 int simTests(int& failures) {
     printf("Simulation models\n");
     {   // 555 astable blinker: f = 1.44 / ((R1 + 2 R2) C)
@@ -227,7 +268,7 @@ int simTests(int& failures) {
             "void loop() { digitalWrite(latch, LOW); shiftOut(data, clk, MSBFIRST, 0xA5); digitalWrite(latch, HIGH); delay(500); }\n"}});
         int sr = t.add("74hc595");
         t.wire(uno, "D11", sr, "SER"); t.wire(uno, "D12", sr, "SRCLK"); t.wire(uno, "D8", sr, "RCLK");
-        t.wire(uno, "5V", sr, "VCC"); t.wire(uno, "5V", sr, "SRCLR"); t.wire(uno, "GND", sr, "GND"); t.wire(uno, "GND", sr, "OE");
+        t.wire(uno, "5V", sr, "VCC"); t.wire(uno, "5V", sr, "~SRCLR"); t.wire(uno, "GND", sr, "GND"); t.wire(uno, "GND", sr, "~OE");
         const char* q[] = {"QA", "QB", "QC", "QD", "QE", "QF", "QG", "QH"};
         int leds[8];
         for (int i = 0; i < 8; i++) {
@@ -287,7 +328,7 @@ int simTests(int& failures) {
         int esp = t.add("esp32_devkit", {{"outputs", "GPIO4=BLINK:50, GPIO5=LOW"}});
         int c = t.add("cd4017");
         t.wire(esp, "3V3", c, "VDD"); t.wire(esp, "GND", c, "VSS"); t.wire(esp, "GPIO4", c, "CLK");
-        t.wire(esp, "GPIO5", c, "INH"); t.wire(esp, "GPIO5", c, "RST");
+        t.wire(esp, "GPIO5", c, "~CLKINH"); t.wire(esp, "GPIO5", c, "RST");
         int ld = t.add("led");
         int rr = t.add("resistor", {{"resistance", "100Ω"}});
         t.wire(c, "Q3", rr, "pin0"); t.wire(rr, "pin1", ld, "anode"); t.wire(ld, "cathode", esp, "GND");
@@ -317,7 +358,7 @@ int simTests(int& failures) {
         int dec = t.add("cd4511"), seg = t.add("seg7_cc");
         t.wire(esp, "3V3", dec, "VDD"); t.wire(esp, "GND", dec, "VSS");
         t.wire(esp, "GPIO12", dec, "A"); t.wire(esp, "GPIO13", dec, "B"); t.wire(esp, "GPIO14", dec, "C"); t.wire(esp, "GPIO27", dec, "D");
-        t.wire(esp, "GPIO26", dec, "LT"); t.wire(esp, "GPIO26", dec, "BL"); t.wire(esp, "GPIO27", dec, "LE");
+        t.wire(esp, "GPIO26", dec, "~LT"); t.wire(esp, "GPIO26", dec, "~BL"); t.wire(esp, "GPIO27", dec, "LE");
         const char* segs[] = {"a", "b", "c", "d", "e", "f", "g"};
         for (auto* sg : segs) {
             int r = t.add("resistor", {{"resistance", "220Ω"}});
@@ -567,6 +608,7 @@ int selftest() {
         std::string msg;
         check(exportGerberZip(d, c, zip, &msg), "Gerber zip export", failures);
     }
+    partDataTests(failures);
     simTests(failures);
     historyTests(failures);
     layerTests(failures);

@@ -70,8 +70,16 @@ struct ArduinoSpec {
 };
 void makeArduinoBoard(PartDef& d, const ArduinoSpec& s);
 
+const std::map<std::string, Gen>& generators();
+
 // catalog.cpp
 void addCatalogGenerators(std::map<std::string, Gen>& g);
 const std::vector<LibEntry>& catalogEntries();
+
+// partdata.cpp (parts/*.txt)
+void addDataGenerators(std::map<std::string, Gen>& g);
+const std::vector<LibEntry>& dataEntries();
+bool isDataType(const std::string& type);
+std::vector<std::string> checkDataParts();
 
 }  // namespace plib

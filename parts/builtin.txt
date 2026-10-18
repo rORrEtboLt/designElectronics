@@ -1,0 +1,107 @@
+# Built-in parts (src/partlib.cpp) and the generic KiCad symbols each one
+# stands for. These blocks add nothing to the app; tools/kicad_checklist.py
+# reads them to track coverage. `covers` takes shell-style patterns.
+
+[resistor]
+builtin = yes
+covers  = R, R_Small, R_US, R_Small_US, R_45deg, R_Trim, R_Variable, R_Variable_US
+
+[capacitor_ceramic]
+builtin = yes
+covers  = C, C_Small, C_US, C_Small_US, C_45deg, C_Trim, C_Trim_Small, C_Variable
+
+[capacitor_electrolytic]
+builtin = yes
+covers  = C_Polarized, C_Polarized_Small, C_Polarized_US, C_Polarized_Small_US
+
+[inductor]
+builtin = yes
+covers  = L, L_Small, L_45deg, L_Iron, L_Iron_Small, L_Ferrite, L_Ferrite_Small, L_Trim, L_Polarized
+
+[diode]
+builtin = yes
+covers  = D, D_Small, D_Filled, D_Small_Filled, D_45deg, D_45deg_Filled, D_Schottky, D_Schottky_Small, D_Schottky_Filled,
+          D_Schottky_Small_Filled, D_Zener, D_Zener_Small, D_Zener_Filled, D_Zener_Small_Filled, D_TVS, D_TVS_Small,
+          D_TVS_Filled, D_TVS_Small_Filled
+
+[led]
+builtin = yes
+covers  = LED, LED_Small, LED_Filled, LED_Small_Filled, LED_45deg, LED_45deg_Filled
+
+[transistor]
+builtin = yes
+covers  = Q_NPN, Q_PNP, Q_NPN_???, Q_PNP_???, Q_NPN_????, Q_PNP_????, Q_NPN_Darlington_*, Q_PNP_Darlington_*
+
+[mosfet]
+builtin = yes
+covers  = Q_NMOS, Q_PMOS, Q_NMOS_???, Q_PMOS_???, Q_NMOS_????, Q_PMOS_????
+
+[crystal]
+builtin = yes
+covers  = Crystal, Crystal_Small
+
+[potentiometer]
+builtin = yes
+covers  = R_Potentiometer, R_Potentiometer_Small, R_Potentiometer_US, R_Potentiometer_Trim, R_Potentiometer_Trim_US
+
+[photocell]
+builtin = yes
+covers  = R_Photo
+
+[battery]
+builtin = yes
+covers  = Battery, Battery_Cell
+
+[buzzer]
+builtin = yes
+covers  = Buzzer
+
+[dc_motor]
+builtin = yes
+covers  = Motor_DC, Motor_DC_ALT
+
+[pushbutton]
+builtin = yes
+covers  = SW_Push, SW_Push_45deg, SW_Push_Open
+
+[switch]
+builtin = yes
+covers  = SW_SPDT, SW_Slide_SPDT
+
+[regulator]
+builtin = yes
+covers  = LM78*, L78*, LM7805*, LM7812*, MC78*, LM1117*, AMS1117*
+
+[connector]
+builtin = yes
+covers  = Conn_0?x??, Conn_0?x??_Shielded, Conn_0?x??_MountingPin,
+          Conn_0?x??_Odd_Even*, Conn_0?x??_Top_Bottom*, Conn_0?x??_Counter_Clockwise*, Conn_0?x??_Row_Letter_*
+
+[header_male]
+builtin = yes
+covers  = Conn_01x??_Pin, Conn_01x??_Male
+
+[header_female]
+builtin = yes
+covers  = Conn_01x??_Socket, Conn_01x??_Female
+
+[ground]
+builtin = yes
+covers  = GND, GND?, GNDA, GNDD, GNDPWR, GNDREF, GNDS, Earth, Earth_Clean, Earth_Protective, VSS, VSSA, 0
+
+[power_label]
+builtin = yes
+covers  = +*V*, -*V*, +BATT, -BATT, +VDC, -VDC, +VSW, -VSW, +12C, +12L, +12LF, +12P, +5C, +5F, +5P, VAA, VAC, VBUS, VCC,
+          VCCQ, VCOM, VD, VDC, VDD, VDDA, VDDF, VEE, VINT, VMEM, VPP, VS, Vdrive, AC, HT, LINE, NEUT, PRI_HI, PRI_LO, PRI_MID
+
+[hole]
+builtin = yes
+covers  = MountingHole, MountingHole_Pad, MountingHole_Pad_MP
+
+[via]
+builtin = yes
+covers  = Thermal_Jumper
+
+[multimeter]
+builtin = yes
+covers  = Voltmeter_DC, Ammeter_DC, Ohmmeter, VOLTMETER_DIFF

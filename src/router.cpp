@@ -69,6 +69,22 @@ struct Node {
     bool operator<(const Node& o) const { return f > o.f; }
 };
 
+// Surface-mount pads are entered along their long axis (outwards, away from
+// the part's centre) from a point just past the pad's end, clear of the
+// neighbouring pads; the trace runs from there straight onto the pad. Returns
+// the pad centre itself for through-hole and square pads.
+Vec2 escapePoint(const PartInst& p, int pin, float clr, float tw) {
+    const PinDef& pd = p.def->pins[(size_t)pin];
+    Vec2 c = p.pinPos(pin, PCB);
+    if (!pd.smd()) return c;
+    Vec2 sz = pd.padSize(p.place[PCB]), from = c - p.place[PCB].pos;
+    bool alongX = p.def->pins.size() <= 2 ? std::fabs(from.x) >= std::fabs(from.y) : sz.x > sz.y;
+    if (p.def->pins.size() > 2 && std::fabs(sz.x - sz.y) < 1) return c;  // exposed pad / square
+    Vec2 dir = alongX ? Vec2(from.x >= 0 ? 1.f : -1.f, 0) : Vec2(0, from.y >= 0 ? 1.f : -1.f);
+    float lng = alongX ? sz.x : sz.y, shrt = alongX ? sz.y : sz.x;
+    return c + dir * (lng / 2 + shrt / 2 * 1.2f + clr + tw / 2 + kCell);
+}
+
 const int DX[8] = {1, 1, 0, -1, -1, -1, 0, 1};
 const int DY[8] = {0, 1, 1, 1, 0, -1, -1, -1};
 
@@ -115,6 +131,7 @@ RouteResult autoroute(Document& doc, const Connectivity& connIn, bool ripUp) {
         g.h = (int)std::ceil((board.b() - g.origin.y) / kCell) + 1;
         if ((long)g.w * g.h > 4000000) { res.message = "Board too large for the autorouter grid."; return res; }
         g.owner.assign((size_t)(g.w * g.h * 2), -1);
+        const int smdLayer = single ? BOTTOM : TOP;  // SMD parts sit on the copper side
         float edge = tw / 2 + clr;
         for (int l = 0; l < 2; l++)
             for (int y = 0; y < g.h; y++)
@@ -127,11 +144,15 @@ RouteResult autoroute(Document& doc, const Connectivity& connIn, bool ripUp) {
         for (auto& p : doc.parts) {
             if (!p.inView(PCB) || p.def->isBoard) continue;
             for (size_t i = 0; i < p.def->pins.size(); i++) {
-                Vec2 c = p.pinPos((int)i, PCB);
+                const PinDef& pin = p.def->pins[i];
                 int pn = conn.netOf(p.id, (int)i);
-                float r = p.def->pins[i].pad / 2 + clr + tw / 2;
-                if (p.def->pins[i].square) r *= 1.2f;
-                for (int l = 0; l < 2; l++) g.markSeg(c, c, r, l, pn);
+                Vec2 a, b;
+                float r;
+                padStadium(p.pinPos((int)i, PCB), pin.padSize(p.place[PCB]), a, b, r);
+                r += clr + tw / 2;
+                if (pin.rectPad()) r *= 1.2f;
+                for (int l = 0; l < 2; l++)
+                    if (!pin.smd() || l == smdLayer) g.markSeg(a, b, r, l, pn);
             }
             for (auto& hole : p.def->holes) {
                 Vec2 c = p.place[PCB].apply(hole.first);
@@ -147,15 +168,20 @@ RouteResult autoroute(Document& doc, const Connectivity& connIn, bool ripUp) {
         // --- sources and targets: all pins of the two islands ---
         int ga = conn.viewGroup(PCB, rl.pa.part, rl.pa.pin), gb = conn.viewGroup(PCB, rl.pb.part, rl.pb.pin);
         std::unordered_map<int, PinRef> srcCells, dstCells;  // cell (layer 0 index) -> pin
+        std::unordered_map<int, int> cellLayers;              // cell -> layer mask (SMD pads: one layer)
+        std::unordered_map<int, Vec2> cellEscape;             // cell -> where the path meets it (SMD escape point)
         for (auto& pr : conn.netPins(net)) {
             const PartInst* p = doc.part(pr.part);
             if (!p || !p->inView(PCB) || p->def->isBreadboard) continue;
             int grp = conn.viewGroup(PCB, pr.part, pr.pin);
-            Vec2 c = p->pinPos(pr.pin, PCB);
+            Vec2 c = escapePoint(*p, pr.pin, clr, tw);
             int x = g.cx(c.x), y = g.cy(c.y);
             if (!g.inside(x, y)) continue;
             if (grp == ga) srcCells[g.idx(x, y, 0)] = pr;
             else if (grp == gb) dstCells[g.idx(x, y, 0)] = pr;
+            else continue;
+            cellLayers[g.idx(x, y, 0)] = p->def->pins[(size_t)pr.pin].smd() ? 1 << smdLayer : 3;
+            cellEscape[g.idx(x, y, 0)] = c;
         }
         if (srcCells.empty() || dstCells.empty()) { failed.insert({rl.pa, rl.pb}); res.failed++; continue; }
 
@@ -177,7 +203,7 @@ RouteResult autoroute(Document& doc, const Connectivity& connIn, bool ripUp) {
         for (auto& kv : srcCells) {
             int x = kv.first % g.w, y = (kv.first / g.w) % g.h;
             for (int l = 0; l < layers; l++) {
-                if (single && l == TOP) continue;
+                if ((single && l == TOP) || !(cellLayers[kv.first] >> l & 1)) continue;
                 int s = sid(x, y, l, 8);
                 cost[(size_t)s] = 0;
                 pq.push({heur(x, y), s});
@@ -194,7 +220,7 @@ RouteResult autoroute(Document& doc, const Connectivity& connIn, bool ripUp) {
             float c = cost[(size_t)s];
             if (n.f - heur(x, y) > c + 1e-3f) continue;
             expanded++;
-            if (dstCells.count(g.idx(x, y, 0))) { goal = s; break; }
+            if (dstCells.count(g.idx(x, y, 0)) && (cellLayers[g.idx(x, y, 0)] >> l & 1)) { goal = s; break; }
             for (int k = 0; k < 8; k++) {
                 int nx = x + DX[k], ny = y + DY[k];
                 if (!g.inside(nx, ny)) continue;
@@ -220,7 +246,7 @@ RouteResult autoroute(Document& doc, const Connectivity& connIn, bool ripUp) {
                 bool ok = g.usable(x, y, ol, net);
                 for (int k = 0; k < 8 && ok; k += 2)
                     if (!g.inside(x + DX[k], y + DY[k]) || !g.usable(x + DX[k], y + DY[k], 0, net) || !g.usable(x + DX[k], y + DY[k], 1, net)) ok = false;
-                if (ok && !srcCells.count(g.idx(x, y, 0))) {
+                if (ok && !srcCells.count(g.idx(x, y, 0)) && !dstCells.count(g.idx(x, y, 0))) {
                     int ns = sid(x, y, ol, 8);
                     float nc = c + 12;
                     if (nc < cost[(size_t)ns]) {
@@ -254,7 +280,14 @@ RouteResult autoroute(Document& doc, const Connectivity& connIn, bool ripUp) {
         const PartInst* sp = doc.part(srcPin.part);
         const PartInst* dp = doc.part(dstPin.part);
         Vec2 srcPos = sp->pinPos(srcPin.pin, PCB), dstPos = dp->pinPos(dstPin.pin, PCB);
+        Vec2 srcEsc = cellEscape[g.idx(path.front().x, path.front().y, 0)], dstEsc = cellEscape[g.idx(path.back().x, path.back().y, 0)];
         Vec2 dstPosCopy = dstPos;
+        // a trace onto a fine-pitch SMD pad is no wider than the pad
+        float runW = tw;
+        for (auto pr : {std::make_pair(sp, srcPin.pin), std::make_pair(dp, dstPin.pin)}) {
+            const PinDef& pd = pr.first->def->pins[(size_t)pr.second];
+            if (pd.smd()) { Vec2 sz = pd.padSize(); runW = std::min(runW, std::min(sz.x, sz.y)); }
+        }
         std::vector<Wire> newWires;
         for (size_t r = 0; r < runs.size(); r++) {
             auto& run = runs[r];
@@ -268,11 +301,17 @@ RouteResult autoroute(Document& doc, const Connectivity& connIn, bool ripUp) {
                 if (!pts.empty() && pts.back() == p) continue;
                 pts.push_back(p);
             }
-            if (r == 0) { if (!pts.empty()) pts.front() = srcPos; }
+            if (r == 0 && !pts.empty()) {
+                pts.front() = srcEsc;
+                if (srcEsc != srcPos) pts.insert(pts.begin(), srcPos);
+            }
             bool last = r + 1 == runs.size();
             WireEnd endRef;
             if (last) {
-                if (!pts.empty()) pts.back() = dstPosCopy;
+                if (!pts.empty()) {
+                    pts.back() = dstEsc;
+                    if (dstEsc != dstPosCopy) pts.push_back(dstPosCopy);
+                }
                 endRef = {dstPin.part, dstPin.pin};
             } else {
                 // via at the end of this run
@@ -290,7 +329,7 @@ RouteResult autoroute(Document& doc, const Connectivity& connIn, bool ripUp) {
                 w.ends[0] = prevEnd;
                 w.ends[1] = endRef;
                 w.layer = run.front().l;
-                w.width = tw;
+                w.width = (r == 0 || last) ? runW : tw;
                 w.autorouted = true;
                 newWires.push_back(w);
             }

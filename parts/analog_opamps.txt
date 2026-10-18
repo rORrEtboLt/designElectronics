@@ -1,0 +1,15 @@
+# Operational amplifiers. Standard dual pinout (SOIC/DIP/MSOP/TSSOP-8):
+# 1 OUTA, 2 INA-, 3 INA+, 4 V-, 5 INB+, 6 INB-, 7 OUTB, 8 V+.
+
+[LM358]
+title     = Dual Op-Amp
+category  = Analog ICs
+desc      = Single-supply dual op-amp, 3–32 V; the output reaches ground but not V+. Simulated (high-gain amplifier with output limits).
+datasheet = https://www.ti.com/lit/ds/symlink/lm358.pdf
+package   = DIP-8, SOIC-8, TSSOP-8, VSSOP-8
+pins      = 1OUT 1IN- 1IN+ GND 2IN+ 2IN- 2OUT VCC
+ids       = numbers
+replaces  = yes
+aliases   = LM2904, LM358A, LM358B, LM2904B, LM158, LM258
+sim       = opamp
+simParams = VCC=VCC;GND=GND;HI=1.5;LO=0.02;OA 1IN+,1IN->1OUT;OA 2IN+,2IN->2OUT

@@ -42,10 +42,32 @@ struct Prim {
 struct PinDef {
     std::string id, name;
     Vec2 pos[NUM_VIEWS];
-    // PCB pad (mils)
-    float pad = 70, drill = 38;
+    // PCB pad (mils). padH > 0 makes a non-square pad pad × padH (oval when not
+    // square). drill 0 is a surface-mount pad: copper, mask and paste on the
+    // component side only, always rectangular.
+    float pad = 70, drill = 38, padH = 0;
     bool square = false;
+
+    bool smd() const { return drill <= 0; }
+    bool rectPad() const { return square || smd(); }
+    Vec2 padSize() const { return {pad, padH > 0 ? padH : pad}; }
+    // Pad size after a part's placement (quarter turns swap width and height).
+    Vec2 padSize(const Xform& xf) const {
+        Vec2 s = padSize();
+        return (((xf.rot % 4) + 4) % 4) & 1 ? Vec2(s.y, s.x) : s;
+    }
+    float padRadius() const { Vec2 s = padSize(); return std::max(s.x, s.y) / 2; }
 };
+
+// A placed pad of world size `size` centred at `c`, as the segment a–b swept by
+// radius r (exact for round and oval pads, close for rectangles): used by DRC
+// and the autorouter for clearances.
+inline void padStadium(Vec2 c, Vec2 size, Vec2& a, Vec2& b, float& r) {
+    r = std::min(size.x, size.y) / 2;
+    Vec2 h = size.x > size.y ? Vec2(size.x / 2 - r, 0) : Vec2(0, size.y / 2 - r);
+    a = c - h;
+    b = c + h;
+}
 
 struct PropDef {
     std::string key, label;
@@ -99,6 +121,10 @@ bool isCustomType(const std::string& type);
 
 Json partDefToJson(const PartDef& def);
 bool partDefFromJson(const Json& j, PartDef& out, std::string* err = nullptr);
+
+// Problems in the parts/*.txt library (bad pin lists, packages, overlapping
+// pads); empty when everything checks out. Used by --selftest.
+std::vector<std::string> checkPartData();
 
 // Display colour of an LED colour name ("Red", "Blue", …).
 uint32_t ledDisplayColor(const std::string& name);

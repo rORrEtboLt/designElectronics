@@ -118,7 +118,10 @@ A definition:
   "pins": [
     { "id": "vcc", "name": "VCC",
       "breadboard": [0, 0], "schematic": [0, 100], "pcb": [0, 0],
-      "pad": 70, "drill": 38, "square": true }
+      "pad": 70, "drill": 38, "square": true },
+    { "id": "out", "name": "OUT",               // surface-mount pad: drill 0
+      "breadboard": [100, 0], "schematic": [500, 100], "pcb": [100, 0],
+      "pad": 24, "padH": 60, "drill": 0 }
   ],
   "buses": [["gnd1", "gnd2"]],
   "holes": [ { "at": [100, 100], "diameter": 125 } ],   // non-plated PCB holes
@@ -129,6 +132,17 @@ A definition:
   }
 }
 ```
+
+### Pads
+
+Positions and sizes are in mils (1/1000 inch). `pad` is the pad width and
+`padH` its height (omit it, or 0, for a square/round pad). A pad with a `drill`
+is plated through-hole: copper on both layers, round, or oval when `padH`
+differs; `square: true` makes it rectangular. A pad with `"drill": 0` is
+surface-mount. It is always rectangular, and its copper, solder mask and paste
+go on the component side only: the top layer, or the bottom layer on a
+single-sided board. Gerber export adds a paste file whenever the board has SMD
+pads.
 
 ### Graphic primitives
 

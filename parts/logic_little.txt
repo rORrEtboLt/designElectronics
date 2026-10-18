@@ -1,0 +1,633 @@
+# Little logic: single, dual and triple gates. Pinouts from the TI datasheets
+# named in each block (DBV / DCK / DCT / DCU numbering). Generated; edit directly.
+
+[74LVC1G00]
+title     = Single 2-Input NAND
+category  = Logic
+desc      = 1.65-5.5 V single gate. Simulated as digital logic.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g00.pdf
+package   = SOT-23-5, SC-70-5
+pins      = A B GND Y VCC
+aliases   = 74AHC1G00, 74AHCT1G00, 74AUC1G00, 74AUP1G00, SN74LVC1G00DBV, SN74LVC1G00DCK, SN74LVC1G00DRL
+sim       = logic
+simParams = VCC=VCC;GND=GND;NAND A,B>Y
+
+[74LVC1G02]
+title     = Single 2-Input NOR
+category  = Logic
+desc      = 1.65-5.5 V single gate. Simulated as digital logic.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g02.pdf
+package   = SOT-23-5, SC-70-5
+pins      = A B GND Y VCC
+aliases   = 74AHC1G02, 74AHCT1G02, 74AUC1G02, 74AUP1G02
+sim       = logic
+simParams = VCC=VCC;GND=GND;NOR A,B>Y
+
+[74LVC1G08]
+title     = Single 2-Input AND
+category  = Logic
+desc      = 1.65-5.5 V single gate. Simulated as digital logic.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g08.pdf
+package   = SOT-23-5, SC-70-5
+pins      = A B GND Y VCC
+aliases   = 74AHC1G08, 74AHCT1G08, 74AUC1G08, 74AUP1G08
+sim       = logic
+simParams = VCC=VCC;GND=GND;AND A,B>Y
+
+[74LVC1G32]
+title     = Single 2-Input OR
+category  = Logic
+desc      = 1.65-5.5 V single gate. Simulated as digital logic.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g32.pdf
+package   = SOT-23-5, SC-70-5
+pins      = A B GND Y VCC
+aliases   = 74AHC1G32, 74AHCT1G32, 74AUC1G32, 74AUP1G32
+sim       = logic
+simParams = VCC=VCC;GND=GND;OR A,B>Y
+
+[74LVC1G86]
+title     = Single 2-Input XOR
+category  = Logic
+desc      = 1.65-5.5 V single gate. Simulated as digital logic.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g86.pdf
+package   = SOT-23-5, SC-70-5
+pins      = A B GND Y VCC
+aliases   = 74AHC1G86, 74AHCT1G86, 74AUC1G86
+sim       = logic
+simParams = VCC=VCC;GND=GND;XOR A,B>Y
+
+[74LVC1G38]
+title     = Single 2-Input NAND (Open Drain)
+category  = Logic
+desc      = 1.65-5.5 V single gate.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g38.pdf
+package   = SOT-23-5, SC-70-5
+pins      = A B GND Y VCC
+
+[74LVC1G04]
+title     = Single Inverter
+category  = Logic
+desc      = 1.65-5.5 V single gate. Simulated as digital logic.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g04.pdf
+package   = SOT-23-5, SC-70-5
+pins      = NC A GND Y VCC
+aliases   = 74AHC1G04, 74AHC1GU04, 74AHCT1G04, 74AHCT1GU04, 74AUC1G04, 74AUC1GU04, 74AUP1G04, 74AUP1GU04, 74LVC1GU04
+sim       = logic
+simParams = VCC=VCC;GND=GND;NOT A>Y
+
+[74LVC1G06]
+title     = Single Inverter (Open Drain)
+category  = Logic
+desc      = 1.65-5.5 V single gate.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g06.pdf
+package   = SOT-23-5, SC-70-5
+pins      = NC A GND Y VCC
+aliases   = 74AUC1G06, 74AUP1G06
+
+[74LVC1G07]
+title     = Single Buffer (Open Drain)
+category  = Logic
+desc      = 1.65-5.5 V single gate.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g07.pdf
+package   = SOT-23-5, SC-70-5
+pins      = NC A GND Y VCC
+aliases   = 74AUC1G07, 74AUP1G07
+
+[74LVC1G14]
+title     = Single Schmitt Inverter
+category  = Logic
+desc      = 1.65-5.5 V single gate. Simulated as digital logic.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g14.pdf
+package   = SOT-23-5, SC-70-5
+pins      = NC A GND Y VCC
+aliases   = 74AHC1G14, 74AHCT1G14, 74AUC1G14, 74AUP1G14, SN74LVC1G14DBV, SN74LVC1G14DRL
+sim       = logic
+simParams = VCC=VCC;GND=GND;SNOT A>Y
+
+[74LVC1G17]
+title     = Single Schmitt Buffer
+category  = Logic
+desc      = 1.65-5.5 V single gate. Simulated as digital logic.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g17.pdf
+package   = SOT-23-5, SC-70-5
+pins      = NC A GND Y VCC
+aliases   = 74AUC1G17, 74AUP1G17
+sim       = logic
+simParams = VCC=VCC;GND=GND;BUF A>Y
+
+[74LVC1G34]
+title     = Single Buffer
+category  = Logic
+desc      = 1.65-5.5 V single gate. Simulated as digital logic.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g34.pdf
+package   = SOT-23-5, SC-70-5
+pins      = NC A GND Y VCC
+aliases   = 74AUP1G34
+sim       = logic
+simParams = VCC=VCC;GND=GND;BUF A>Y
+
+[74LVC1GU04DRL]
+title     = Single Unbuffered Inverter
+category  = Logic
+desc      = Unbuffered inverter for crystal oscillators.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1gu04.pdf
+package   = SOT-23-5, SC-70-5
+pins      = NC A GND Y VCC
+
+[74LVC1G125]
+title     = Single Tri-State Buffer (~OE)
+category  = Logic
+desc      = Buffer with active-low output enable. Simulated as digital logic.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g125.pdf
+package   = SOT-23-5, SC-70-5
+pins      = ~OE A GND Y VCC
+aliases   = 74AHC1G125, 74AHCT1G125, 74AUC1G125, 74AUP1G125, SN74LVC1G125DBV, SN74LVC1G125DCK, SN74LVC1G125DRL
+sim       = logic
+simParams = VCC=VCC;GND=GND;TRI A,~OE>Y
+
+[74LVC1G126]
+title     = Single Tri-State Buffer (OE)
+category  = Logic
+desc      = Buffer with active-high output enable.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g126.pdf
+package   = SOT-23-5, SC-70-5
+pins      = OE A GND Y VCC
+aliases   = 74AHC1G126, 74AHCT1G126, 74AUC1G126, 74AUP1G126
+
+[74LVC1G240]
+title     = Single Tri-State Inverting Buffer
+category  = Logic
+desc      = Inverting buffer with active-low output enable.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g240.pdf
+package   = SOT-23-5, SC-70-5
+pins      = ~OE A GND ~Y VCC
+aliases   = 74AUC1G240, 74AUP1G240
+
+[74LVC1G79]
+title     = Single D Flip-Flop
+category  = Logic
+desc      = Positive-edge D flip-flop.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g79.pdf
+package   = SOT-23-5, SC-70-5
+pins      = D CLK GND Q VCC
+aliases   = 74AUC1G79, 74AUP1G79
+
+[74LVC1G80]
+title     = Single D Flip-Flop, Inverted Output
+category  = Logic
+desc      = Positive-edge D flip-flop with inverted output.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g80.pdf
+package   = SOT-23-5, SC-70-5
+pins      = D CLK GND ~Q VCC
+aliases   = 74AUC1G80, 74AUP1G80
+
+[74LVC1G10]
+title     = Single 3-Input NAND
+category  = Logic
+desc      = 3-input NAND gate.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g10.pdf
+package   = SOT-23-6, SC-70-6
+pins      = A GND B Y VCC C
+sim       = logic
+simParams = VCC=VCC;GND=GND;NAND A,B,C>Y
+
+[74LVC1G11]
+title     = Single 3-Input AND
+category  = Logic
+desc      = 3-input AND gate.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g11.pdf
+package   = SOT-23-6, SC-70-6
+pins      = A GND B Y VCC C
+sim       = logic
+simParams = VCC=VCC;GND=GND;AND A,B,C>Y
+
+[74LVC1G27]
+title     = Single 3-Input NOR
+category  = Logic
+desc      = 3-input NOR gate.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g27.pdf
+package   = SOT-23-6, SC-70-6
+pins      = A GND B Y VCC C
+sim       = logic
+simParams = VCC=VCC;GND=GND;NOR A,B,C>Y
+
+[74LVC1G57]
+title     = Configurable Multiple-Function Gate
+category  = Logic
+desc      = Wire the inputs to make AND, OR, NAND, NOR, XNOR, inverter or buffer.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g57.pdf
+package   = SOT-23-6, SC-70-6
+pins      = In1 GND In0 Y VCC In2
+aliases   = 74AUP1G57, 74AUP1G97, 74LVC1G97
+
+[74LVC1G58]
+title     = Configurable Multiple-Function Gate
+category  = Logic
+desc      = Configurable gate (see the datasheet's function table).
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g58.pdf
+package   = SOT-23-6, SC-70-6
+pins      = In1 GND In0 Y VCC In2
+aliases   = 74AUP1G58, 74AUP1G98, 74LVC1G98
+
+[74LVC1G99]
+title     = Ultra-Configurable Gate, Tri-State
+category  = Logic
+desc      = Configurable gate with output enable.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g99.pdf
+package   = SSOP-8 P0.65 2.9x2.8, VSSOP-8 P0.5 2.3x2.0
+pins      = ~OE A B GND C D Y VCC
+aliases   = 74AUP1G99
+
+[74LVC1G3157]
+title     = SPDT Analog Switch
+category  = Logic
+desc      = Single-pole double-throw analog switch.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g3157.pdf
+package   = SOT-23-6, SC-70-6
+pins      = B2 GND B1 A VCC S
+
+[74LVC1G66]
+title     = Single Bilateral Analog Switch
+category  = Logic
+desc      = SPST analog switch.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g66.pdf
+package   = SOT-23-5, SC-70-5
+pins      = A B GND C VCC
+aliases   = 74AUC1G66
+
+[74LVC1G18]
+title     = 1-of-2 Demultiplexer, Tri-State
+category  = Logic
+desc      = Routes A to Y0 or Y1.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g18.pdf
+package   = SOT-23-6, SC-70-6
+pins      = S GND A Y1 VCC Y0
+aliases   = 74AUC1G18
+
+[74LVC1G19]
+title     = 1-of-2 Decoder/Demultiplexer
+category  = Logic
+desc      = Two-output decoder with enable.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g19.pdf
+package   = SOT-23-6, SC-70-6
+pins      = A GND ~E ~Y1 VCC ~Y0
+aliases   = 74AUC1G19
+
+[74LVC1G0832]
+title     = Single 3-Input AND-OR
+category  = Logic
+desc      = Y = (A AND B) OR C.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g0832.pdf
+package   = SOT-23-6, SC-70-6
+pins      = A GND B Y VCC C
+
+[74LVC1G332]
+title     = Single 3-Input OR
+category  = Logic
+desc      = 3-input OR gate.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g332.pdf
+package   = SOT-23-6, SC-70-6
+pins      = A GND B Y VCC C
+sim       = logic
+simParams = VCC=VCC;GND=GND;OR A,B,C>Y
+
+[74LVC1G3208]
+title     = Single 3-Input OR-AND
+category  = Logic
+desc      = Y = (A OR B) AND C.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g3208.pdf
+package   = SOT-23-6, SC-70-6
+pins      = A GND B Y VCC C
+
+[74LVC1G175]
+title     = Single D Flip-Flop with Clear
+category  = Logic
+desc      = Positive-edge D flip-flop with asynchronous clear.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g175.pdf
+package   = SOT-23-6, SC-70-6
+pins      = CLK GND D Q VCC ~CLR
+
+[74LVC1G373]
+title     = Single D Latch, Tri-State
+category  = Logic
+desc      = Transparent latch with tri-state output.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g373.pdf
+package   = SOT-23-6, SC-70-6
+pins      = LE GND D Q VCC ~OE
+
+[74LVC1G374]
+title     = Single D Flip-Flop, Tri-State
+category  = Logic
+desc      = Edge-triggered D flip-flop with tri-state output.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g374.pdf
+package   = SOT-23-6, SC-70-6
+pins      = CLK GND D Q VCC ~OE
+
+[74LVC1G74]
+title     = Single D Flip-Flop with Set and Clear
+category  = Logic
+desc      = Positive-edge D flip-flop with preset and clear.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g74.pdf
+package   = VSSOP-8 P0.5 2.3x2.0, SSOP-8 P0.65 2.9x2.8
+pins      = CLK D ~Q GND Q ~CLR ~PRE VCC
+
+[74AUC1G74]
+title     = Single D Flip-Flop with Set and Clear
+category  = Logic
+desc      = 0.8-2.7 V positive-edge D flip-flop.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74auc1g74.pdf
+package   = VSSOP-8 P0.5 2.3x2.0, SSOP-8 P0.65 2.9x2.8
+pins      = CLK D ~Q GND Q ~CLR ~PRE VCC
+aliases   = 74AUP1G74
+
+[74LVC1G123]
+title     = Single Retriggerable Monostable
+category  = Logic
+desc      = One-shot with clear.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g123.pdf
+package   = VSSOP-8 P0.5 2.3x2.0, SSOP-8 P0.65 2.9x2.8
+pins      = ~A B ~CLR GND Q CEXT REXT/CEXT VCC
+
+[74LVC1G139]
+title     = 2-to-4 Line Decoder
+category  = Logic
+desc      = Two address inputs, four active-low outputs.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g139.pdf
+package   = VSSOP-8 P0.5 2.3x2.0, SSOP-8 P0.65 2.9x2.8
+pins      = A B ~Y3 GND ~Y2 ~Y1 ~Y0 VCC
+
+[74LVC1G29]
+title     = 2-of-3 Decoder/Demultiplexer
+category  = Logic
+desc      = Two inputs, three outputs.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc1g29.pdf
+package   = VSSOP-8 P0.5 2.3x2.0, SSOP-8 P0.65 2.9x2.8
+pins      = ~G Y1 A0 GND Y2 A1 Y0 VCC
+
+[74LVC2G00]
+title     = Dual 2-Input NAND
+category  = Logic
+desc      = Two NAND gates. Simulated as digital logic.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc2g00.pdf
+package   = VSSOP-8 P0.5 2.3x2.0, SSOP-8 P0.65 2.9x2.8
+pins      = 1A 1B 2Y GND 2A 2B 1Y VCC
+aliases   = 74AHC2G00, 74AHCT2G00, 74AUC2G00
+sim       = logic
+simParams = VCC=VCC;GND=GND;NAND 1A,1B>1Y;NAND 2A,2B>2Y
+
+[74LVC2G02]
+title     = Dual 2-Input NOR
+category  = Logic
+desc      = Two NOR gates. Simulated as digital logic.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc2g02.pdf
+package   = VSSOP-8 P0.5 2.3x2.0, SSOP-8 P0.65 2.9x2.8
+pins      = 1A 1B 2Y GND 2A 2B 1Y VCC
+aliases   = 74AUC2G02
+sim       = logic
+simParams = VCC=VCC;GND=GND;NOR 1A,1B>1Y;NOR 2A,2B>2Y
+
+[74LVC2G08]
+title     = Dual 2-Input AND
+category  = Logic
+desc      = Two AND gates. Simulated as digital logic.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc2g08.pdf
+package   = VSSOP-8 P0.5 2.3x2.0, SSOP-8 P0.65 2.9x2.8
+pins      = 1A 1B 2Y GND 2A 2B 1Y VCC
+aliases   = 74AUC2G08
+sim       = logic
+simParams = VCC=VCC;GND=GND;AND 1A,1B>1Y;AND 2A,2B>2Y
+
+[74LVC2G32]
+title     = Dual 2-Input OR
+category  = Logic
+desc      = Two OR gates. Simulated as digital logic.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc2g32.pdf
+package   = VSSOP-8 P0.5 2.3x2.0, SSOP-8 P0.65 2.9x2.8
+pins      = 1A 1B 2Y GND 2A 2B 1Y VCC
+aliases   = 74AUC2G32
+sim       = logic
+simParams = VCC=VCC;GND=GND;OR 1A,1B>1Y;OR 2A,2B>2Y
+
+[74LVC2G86]
+title     = Dual 2-Input XOR
+category  = Logic
+desc      = Two XOR gates. Simulated as digital logic.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc2g86.pdf
+package   = VSSOP-8 P0.5 2.3x2.0, SSOP-8 P0.65 2.9x2.8
+pins      = 1A 1B 2Y GND 2A 2B 1Y VCC
+aliases   = 74AUC2G86
+sim       = logic
+simParams = VCC=VCC;GND=GND;XOR 1A,1B>1Y;XOR 2A,2B>2Y
+
+[74LVC2G38]
+title     = Dual 2-Input NAND (Open Drain)
+category  = Logic
+desc      = Two open-drain NAND gates.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc2g38.pdf
+package   = VSSOP-8 P0.5 2.3x2.0, SSOP-8 P0.65 2.9x2.8
+pins      = 1A 1B 2Y GND 2A 2B 1Y VCC
+
+[74LVC2G04]
+title     = Dual Inverter
+category  = Logic
+desc      = Two gates in six pins. Simulated as digital logic.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc2g04.pdf
+package   = SOT-23-6, SC-70-6
+pins      = 1A GND 2A 2Y VCC 1Y
+aliases   = 74AUC2G04, 74AUC2GU04, 74LVC2GU04
+sim       = logic
+simParams = VCC=VCC;GND=GND;NOT 1A>1Y;NOT 2A>2Y
+
+[74LVC2G06]
+title     = Dual Inverter (Open Drain)
+category  = Logic
+desc      = Two gates in six pins.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc2g06.pdf
+package   = SOT-23-6, SC-70-6
+pins      = 1A GND 2A 2Y VCC 1Y
+aliases   = 74AUC2G06
+
+[74LVC2G07]
+title     = Dual Buffer (Open Drain)
+category  = Logic
+desc      = Two gates in six pins.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc2g07.pdf
+package   = SOT-23-6, SC-70-6
+pins      = 1A GND 2A 2Y VCC 1Y
+aliases   = 74AUC2G07
+
+[74LVC2G14]
+title     = Dual Schmitt Inverter
+category  = Logic
+desc      = Two gates in six pins. Simulated as digital logic.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc2g14.pdf
+package   = SOT-23-6, SC-70-6
+pins      = 1A GND 2A 2Y VCC 1Y
+sim       = logic
+simParams = VCC=VCC;GND=GND;SNOT 1A>1Y;SNOT 2A>2Y
+
+[74LVC2G17]
+title     = Dual Schmitt Buffer
+category  = Logic
+desc      = Two gates in six pins. Simulated as digital logic.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc2g17.pdf
+package   = SOT-23-6, SC-70-6
+pins      = 1A GND 2A 2Y VCC 1Y
+sim       = logic
+simParams = VCC=VCC;GND=GND;BUF 1A>1Y;BUF 2A>2Y
+
+[74LVC2G34]
+title     = Dual Buffer
+category  = Logic
+desc      = Two gates in six pins. Simulated as digital logic.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc2g34.pdf
+package   = SOT-23-6, SC-70-6
+pins      = 1A GND 2A 2Y VCC 1Y
+aliases   = 74AUC2G34
+sim       = logic
+simParams = VCC=VCC;GND=GND;BUF 1A>1Y;BUF 2A>2Y
+
+[74LVC2G125]
+title     = Dual Tri-State Buffer (~OE)
+category  = Logic
+desc      = Two buffers with active-low enables.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc2g125.pdf
+package   = VSSOP-8 P0.5 2.3x2.0, SSOP-8 P0.65 2.9x2.8
+pins      = ~1OE 1A 2Y GND 2A 1Y ~2OE VCC
+aliases   = 74AUC2G125
+
+[74LVC2G126]
+title     = Dual Tri-State Buffer (OE)
+category  = Logic
+desc      = Two buffers with active-high enables.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc2g126.pdf
+package   = VSSOP-8 P0.5 2.3x2.0, SSOP-8 P0.65 2.9x2.8
+pins      = 1OE 1A 2Y GND 2A 1Y 2OE VCC
+aliases   = 74AUC2G126
+
+[74LVC2G240]
+title     = Dual Tri-State Inverting Buffer
+category  = Logic
+desc      = Two inverting buffers with active-low enables.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc2g240.pdf
+package   = VSSOP-8 P0.5 2.3x2.0, SSOP-8 P0.65 2.9x2.8
+pins      = ~1OE 1A ~2Y GND 2A ~1Y ~2OE VCC
+aliases   = 74AUC2G240
+
+[74LVC2G241]
+title     = Dual Tri-State Buffer (~OE and OE)
+category  = Logic
+desc      = Two buffers, one enable active low and one active high.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc2g241.pdf
+package   = VSSOP-8 P0.5 2.3x2.0, SSOP-8 P0.65 2.9x2.8
+pins      = ~1OE 1A 2Y GND 2A 1Y 2OE VCC
+aliases   = 74AUC2G241
+
+[74LVC2G157]
+title     = Single 2-Line to 1-Line Data Selector
+category  = Logic
+desc      = 2:1 multiplexer with true and inverted outputs.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc2g157.pdf
+package   = VSSOP-8 P0.5 2.3x2.0, SSOP-8 P0.65 2.9x2.8
+pins      = A B ~Y GND Y S ~G VCC
+
+[74LVC2G53]
+title     = SPDT Analog Switch (2:1 Mux)
+category  = Logic
+desc      = Single-pole double-throw analog switch.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc2g53.pdf
+package   = VSSOP-8 P0.5 2.3x2.0, SSOP-8 P0.65 2.9x2.8
+pins      = COM ~INH GND GND A Y2 Y1 VCC
+aliases   = 74AUC2G53
+
+[74LVC2G66]
+title     = Dual Bilateral Analog Switch
+category  = Logic
+desc      = Two SPST analog switches.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc2g66.pdf
+package   = VSSOP-8 P0.5 2.3x2.0, SSOP-8 P0.65 2.9x2.8
+pins      = 1A 1B 2C GND 2A 2B 1C VCC
+aliases   = 74AUC2G66
+
+[74LVC2G74]
+title     = Single D Flip-Flop with Set and Clear
+category  = Logic
+desc      = Positive-edge D flip-flop with preset and clear.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc2g74.pdf
+package   = VSSOP-8 P0.5 2.3x2.0, SSOP-8 P0.65 2.9x2.8
+pins      = CLK D ~Q GND Q ~CLR ~PRE VCC
+
+[74LVC2G79]
+title     = Dual D Flip-Flop
+category  = Logic
+desc      = Two positive-edge D flip-flops.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc2g79.pdf
+package   = VSSOP-8 P0.5 2.3x2.0, SSOP-8 P0.65 2.9x2.8
+pins      = 1CLK 1D 2Q GND 2CLK 2D 1Q VCC
+aliases   = 74AUC2G79
+
+[74LVC2G80]
+title     = Dual D Flip-Flop, Inverted Outputs
+category  = Logic
+desc      = Two D flip-flops with inverted outputs.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc2g80.pdf
+package   = VSSOP-8 P0.5 2.3x2.0, SSOP-8 P0.65 2.9x2.8
+pins      = 1CLK 1D ~2Q GND 2CLK 2D ~1Q VCC
+aliases   = 74AUC2G80
+
+[74LVC3G04]
+title     = Triple Inverter
+category  = Logic
+desc      = Three gates in eight pins. Simulated as digital logic.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc3g04.pdf
+package   = VSSOP-8 P0.5 2.3x2.0, SSOP-8 P0.65 2.9x2.8
+pins      = 1A 3Y 2A GND 2Y 3A 1Y VCC
+aliases   = 74LVC3GU04
+sim       = logic
+simParams = VCC=VCC;GND=GND;NOT 1A>1Y;NOT 2A>2Y;NOT 3A>3Y
+
+[74LVC3G06]
+title     = Triple Inverter (Open Drain)
+category  = Logic
+desc      = Three gates in eight pins.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc3g06.pdf
+package   = VSSOP-8 P0.5 2.3x2.0, SSOP-8 P0.65 2.9x2.8
+pins      = 1A 3Y 2A GND 2Y 3A 1Y VCC
+
+[74LVC3G07]
+title     = Triple Buffer (Open Drain)
+category  = Logic
+desc      = Three gates in eight pins.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc3g07.pdf
+package   = VSSOP-8 P0.5 2.3x2.0, SSOP-8 P0.65 2.9x2.8
+pins      = 1A 3Y 2A GND 2Y 3A 1Y VCC
+
+[74LVC3G14]
+title     = Triple Schmitt Inverter
+category  = Logic
+desc      = Three gates in eight pins. Simulated as digital logic.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc3g14.pdf
+package   = VSSOP-8 P0.5 2.3x2.0, SSOP-8 P0.65 2.9x2.8
+pins      = 1A 3Y 2A GND 2Y 3A 1Y VCC
+sim       = logic
+simParams = VCC=VCC;GND=GND;SNOT 1A>1Y;SNOT 2A>2Y;SNOT 3A>3Y
+
+[74LVC3G17]
+title     = Triple Schmitt Buffer
+category  = Logic
+desc      = Three gates in eight pins. Simulated as digital logic.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc3g17.pdf
+package   = VSSOP-8 P0.5 2.3x2.0, SSOP-8 P0.65 2.9x2.8
+pins      = 1A 3Y 2A GND 2Y 3A 1Y VCC
+sim       = logic
+simParams = VCC=VCC;GND=GND;BUF 1A>1Y;BUF 2A>2Y;BUF 3A>3Y
+
+[74LVC3G34]
+title     = Triple Buffer
+category  = Logic
+desc      = Three gates in eight pins. Simulated as digital logic.
+datasheet = https://www.ti.com/lit/ds/symlink/sn74lvc3g34.pdf
+package   = VSSOP-8 P0.5 2.3x2.0, SSOP-8 P0.65 2.9x2.8
+pins      = 1A 3Y 2A GND 2Y 3A 1Y VCC
+sim       = logic
+simParams = VCC=VCC;GND=GND;BUF 1A>1Y;BUF 2A>2Y;BUF 3A>3Y
