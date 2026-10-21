@@ -129,7 +129,7 @@ src/
   sim.cpp        simulator             export.cpp  Gerber/SVG/BOM/netlist/SPICE
   examples.cpp   built-in example projects
   mcp.cpp        MCP server for AI assistants (--mcp)
-  logo.cpp       the logo, a flat white LED on a blue disc (top bar, window icon, --export-logo)
+  logo.cpp       the logo, a flat blue LED on a navy disc (top bar, window icon, --export-logo)
   history.cpp    local version history + GitHub REST client
   app_history.cpp Version History / Commit / GitHub Account screens
   json.*         tiny JSON parser/writer

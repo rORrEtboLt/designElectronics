@@ -1,20 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
   <title>designElectronics</title>
-  <circle cx="128" cy="128" r="128" fill="#1572c8"/>
-  <g fill="none" stroke="#ffffff" stroke-width="12.8" stroke-linejoin="round">
+  <circle cx="128" cy="128" r="128" fill="#0a142e"/>
+  <g fill="none" stroke="#3c8cff" stroke-width="12.8" stroke-linejoin="round">
     <path d="M92.2 148.5 V107.5 A35.8 35.8 0 0 1 163.8 107.5 V148.5"/>
     <line x1="112.6" y1="162.6" x2="112.6" y2="186.9"/>
     <line x1="143.4" y1="162.6" x2="143.4" y2="199.7"/>
     <circle cx="112.6" cy="195.8" r="9.0"/>
     <circle cx="143.4" cy="208.6" r="9.0"/>
   </g>
-  <g stroke="#ffffff" stroke-width="12.8" stroke-linecap="round">
+  <g stroke="#3c8cff" stroke-width="12.8" stroke-linecap="round">
     <line x1="128.0" y1="55.0" x2="128.0" y2="37.1"/>
     <line x1="90.9" y1="70.4" x2="78.2" y2="57.7"/>
     <line x1="165.1" y1="70.4" x2="177.8" y2="57.7"/>
   </g>
-  <g fill="#ffffff">
+  <g fill="#3c8cff">
     <rect x="81.9" y="148.5" width="92.2" height="14.1" rx="3.1"/>
-    <circle cx="128.0" cy="120.3" r="9.0"/>
   </g>
 </svg>

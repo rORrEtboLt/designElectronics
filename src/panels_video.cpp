@@ -205,7 +205,7 @@ bool App::renderVideoFrame() {
         const char* link = "rorretbolt.github.io/designElectronics";
         float x = W - m - g.textWidth(link, px);
         uint32_t ink = v == PCB ? rgba(255, 255, 255, 150) : rgba(30, 40, 60, 130);
-        drawLogo(g, Rect(x - lg - 10 * u, H - m - lg, lg, lg), 0.55f);
+        drawLogo(g, Rect(x - lg - 10 * u, H - m - lg, lg, lg), 0.75f);
         g.text({x, H - m - lg / 2}, link, px, ink, 0);
     }
     g.flush();

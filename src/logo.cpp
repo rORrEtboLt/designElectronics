@@ -1,5 +1,5 @@
-// designElectronics — the logo: a lit LED drawn as flat white line art on a
-// blue disc (pads on the legs, three rays of light). No gradients or glow.
+// designElectronics — the logo: a lit LED drawn as flat blue line art on a
+// navy disc (pads on the legs, three rays of light). No gradients or glow.
 // The same geometry (unit square, y down) feeds the on-screen drawing, the
 // rasterised app icon and the SVG.
 #include "logo.h"
@@ -14,7 +14,7 @@
 namespace {
 
 struct RGB { float r, g, b; };
-constexpr RGB kDisc{21, 114, 200}, kInk{255, 255, 255};
+constexpr RGB kDisc{10, 20, 46}, kInk{60, 140, 255};
 
 // geometry
 constexpr float kStroke = 0.05f;                                     // line width
@@ -24,8 +24,6 @@ constexpr float kRimX0 = 0.32f, kRimX1 = 0.68f, kRimY0 = 0.58f, kRimY1 = 0.635f;
 const Vec2 kLegA0{0.44f, 0.635f}, kLegA1{0.44f, 0.73f};  // cathode (short)
 const Vec2 kLegB0{0.56f, 0.635f}, kLegB1{0.56f, 0.78f};  // anode (long)
 constexpr float kPadR = 0.035f;                          // pad ring at each leg's end
-const Vec2 kDie{0.5f, 0.47f};
-constexpr float kDieR = 0.035f;
 constexpr float kRayR0 = 0.205f, kRayR1 = 0.275f;        // rays, measured from the dome centre
 const float kRayDeg[] = {-90.f, -135.f, -45.f};
 
@@ -56,7 +54,6 @@ float sdInk(Vec2 p) {
     d = std::min(d, sdBox(p, kRimX0, kRimY0, kRimX1, kRimY1, 0.012f));
     d = std::min({d, sdSeg(p, kLegA0, kLegA1, kStroke), sdSeg(p, kLegB0, kLegB1, kStroke)});
     for (Vec2 e : {kLegA1, kLegB1}) d = std::min(d, std::fabs(len(p - pad(e)) - kPadR) - kStroke / 2);
-    d = std::min(d, len(p - kDie) - kDieR);
     for (float a : kRayDeg) d = std::min(d, sdSeg(p, ray(a, kRayR0), ray(a, kRayR1), kStroke));
     return d;
 }
@@ -85,7 +82,6 @@ void drawLogo(Gfx& g, Rect r, float opacity) {
     g.line(P(kLegB0), P(kLegB1), w, ink, false);
     g.strokeCircle(P(pad(kLegA1)), S * kPadR, w, ink);
     g.strokeCircle(P(pad(kLegB1)), S * kPadR, w, ink);
-    g.fillCircle(P(kDie), S * kDieR, ink);
     for (float d : kRayDeg) g.line(P(ray(d, kRayR0)), P(ray(d, kRayR1)), w, ink);
 }
 
@@ -128,8 +124,7 @@ std::string logoSvg() {
     for (float a : kRayDeg) s += ln(ray(a, kRayR0), ray(a, kRayR1));
     s += "  </g>\n  <g fill=\"" + hex(kInk) + "\">\n";
     s += "    <rect x=\"" + n(kRimX0) + "\" y=\"" + n(kRimY0) + "\" width=\"" + n(kRimX1 - kRimX0) + "\" height=\"" + n(kRimY1 - kRimY0) +
-         "\" rx=\"" + n(0.012f) + "\"/>\n";
-    s += "    <circle cx=\"" + n(kDie.x) + "\" cy=\"" + n(kDie.y) + "\" r=\"" + n(kDieR) + "\"/>\n  </g>\n";
+         "\" rx=\"" + n(0.012f) + "\"/>\n  </g>\n";
     s += "</svg>\n";
     return s;
 }
