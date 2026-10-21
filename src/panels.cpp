@@ -138,6 +138,9 @@ std::vector<MenuItem> App::routingMenu() {
         widths.push_back(item(w.first, [this, v]() { doc.rules.traceWidth = v; changed(); }, "", true, std::fabs(doc.rules.traceWidth - v) < 0.1f));
     }
     return {
+        item("Tidy Wires", [this]() { tidyCommand(); }, "T"),
+        item("Tidy New Wires Automatically", [this]() { autoTidy = !autoTidy; }, "", true, autoTidy),
+        MenuItem::sep(),
         item("Autoroute PCB", [this]() { setView(PCB); runAutoroute(); }),
         item("Delete Autorouted Traces", [this]() {
             checkpoint();

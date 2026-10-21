@@ -118,6 +118,7 @@ public:
     int activeLayer = TOP;
     bool showGrid = true;
     bool snapToGrid = true;
+    bool autoTidy = true;  // new wires are laid out as tidy right-angle runs
     bool showRatsnest = true;
     bool showPartLabels = true;
     bool layerOff[NUM_VIEWS][LY_COUNT] = {};
@@ -200,6 +201,8 @@ public:
     void setPartProp(int partId, const std::string& key, const std::string& value);
     void bringToFront(bool front);
     void runAutoroute();
+    void tidyCommand();
+    void retidyAround(const std::set<int>& parts, const std::set<int>& skipWires = {});
     void runDrc();
     void toggleSim();
     void setView(int v);

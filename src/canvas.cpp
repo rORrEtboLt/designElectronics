@@ -302,10 +302,12 @@ void App::finishPointer() {
                 if (in.doubleClick && wr && h.kind == Hit::WIRE_BEND) {
                     checkpoint();
                     wr->pts.erase(wr->pts.begin() + h.index);
+                    wr->tidy = false;
                     changed();
                 } else if (in.doubleClick && wr && h.kind == Hit::WIRE_SEG) {
                     checkpoint();
                     wr->pts.insert(wr->pts.begin() + h.index + 1, snapToGrid ? snapv(w, gridSize(view) / 2) : w);
+                    wr->tidy = false;
                     changed();
                 }
                 if (add) { if (!selWires.erase(h.wire)) selWires.insert(h.wire); }
@@ -325,6 +327,7 @@ void App::finishPointer() {
                 wr.layer = activeLayer;
                 wr.width = doc.rules.traceWidth;
                 doc.wires.push_back(wr);
+                if (autoTidy) tidyWire(doc, wr.id);
                 selWires = {wr.id};
                 selParts.clear(); selNotes.clear();
                 changed();
@@ -342,13 +345,26 @@ void App::finishPointer() {
                 float l = 0;
                 for (size_t i = 0; i + 1 < wr->pts.size(); i++) l += dist(wr->pts[i], wr->pts[i + 1]);
                 if (l < 5) { doc.removeWire(wr->id); selWires.clear(); }
+                else if (autoTidy && (drag == DRAG_WIRE_NEW || wr->tidy)) tidyWire(doc, wr->id);
             }
             changed();
             endEdit();
             break;
         }
         case DRAG_WIRE_BEND:
-        case DRAG_MOVE:
+            if (Wire* wr = doc.wire(dragWire)) wr->tidy = false;  // laid out by hand now
+            changed();
+            endEdit();
+            break;
+        case DRAG_MOVE: {
+            std::set<int> moved, rigid;
+            for (auto& kv : moveStart) moved.insert(kv.first);
+            for (auto& kv : moveWireStart) rigid.insert(kv.first);  // moved whole with both its parts
+            retidyAround(moved, rigid);
+            changed();
+            endEdit();
+            break;
+        }
         case DRAG_NOTE_RESIZE:
             changed();
             endEdit();
@@ -579,9 +595,10 @@ std::vector<MenuItem> App::contextMenu(const Hit& h) {
                 changed();
             }));
         }
+        m.push_back(item("Tidy Wire", [this]() { tidyCommand(); }));
         m.push_back(item("Straighten (remove bends)", [this, wid]() {
             checkpoint();
-            if (Wire* w = doc.wire(wid)) w->pts = {w->pts.front(), w->pts.back()};
+            if (Wire* w = doc.wire(wid)) { w->pts = {w->pts.front(), w->pts.back()}; w->tidy = false; }
             changed();
         }));
         m.push_back(MenuItem::sep());
@@ -593,6 +610,7 @@ std::vector<MenuItem> App::contextMenu(const Hit& h) {
         m.push_back(item("Add Note", [this]() { addNote(); }));
         m.push_back(item("Select All", [this]() { selectAll(); }, "Ctrl+A"));
         m.push_back(item("Fit in Window", [this]() { fitView(view, rCanvas); }, "0"));
+        m.push_back(item("Tidy All Wires", [this]() { selWires.clear(); tidyCommand(); }));
         if (view == PCB) m.push_back(item("Autoroute", [this]() { runAutoroute(); }));
     }
     return m;

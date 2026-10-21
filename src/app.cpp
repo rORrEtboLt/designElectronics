@@ -519,7 +519,7 @@ void App::showShortcuts() {
                "Ctrl/⌘ + Z / Shift+Z / Y — undo / redo",
                "Ctrl/⌘ + C, X, V, D — copy, cut, paste, duplicate",
                "Ctrl/⌘ + A — select all;  Delete/Backspace — delete",
-               "R / Shift+R — rotate 90° clockwise / counter-clockwise;  F — flip",
+               "R / Shift+R — rotate 90° clockwise / counter-clockwise;  F — flip;  T — tidy wires",
                "Arrow keys — nudge (Shift = 10×)",
                "Ctrl/⌘ + 1, 2, 3 — breadboard, schematic, PCB view",
                "+ / − / 0 — zoom in / out / fit;  wheel or pinch to zoom",
@@ -568,6 +568,7 @@ void App::rotateSelection(int dir) {
         if (snapToGrid) snapPart(*p, view, gridSize(view));
     }
     doc.syncWireEnds();
+    retidyAround(selParts);
     changed();
 }
 
@@ -583,6 +584,7 @@ void App::flipSelection() {
         if (snapToGrid) snapPart(*p, view, gridSize(view));
     }
     doc.syncWireEnds();
+    retidyAround(selParts);
     changed();
 }
 
@@ -752,6 +754,29 @@ void App::runAutoroute() {
     ui.toast(r.message, 5);
 }
 
+// Tidies the selected wires in this view, or all of them.
+void App::tidyCommand() {
+    std::set<int> only;
+    for (int id : selWires) if (const Wire* w = doc.wire(id)) if (w->view == view) only.insert(id);
+    checkpoint();
+    int n = tidyWires(doc, view, only.empty() ? nullptr : &only);
+    doc.syncWireEnds();
+    changed();
+    ui.toast(n ? "Tidied " + std::to_string(n) + (n == 1 ? " wire" : " wires") : "No wires to tidy: a wire needs both ends on pins.");
+}
+
+// Moving or rotating parts stretches their wires; lay the tidy ones out again.
+void App::retidyAround(const std::set<int>& parts, const std::set<int>& skipWires) {
+    if (!autoTidy || parts.empty()) return;
+    std::set<int> ids;
+    for (auto& w : doc.wires) {
+        if (w.view != view || !w.tidy || skipWires.count(w.id)) continue;
+        for (auto& e : w.ends)
+            if (e.attached() && parts.count(e.part)) ids.insert(w.id);
+    }
+    if (!ids.empty()) tidyWires(doc, view, &ids);
+}
+
 void App::runDrc() {
     ensureConn();
     drcIssues = ::runDrc(doc, conn);
@@ -817,6 +842,7 @@ void App::handleShortcuts() {
             case SDLK_DELETE: case SDLK_BACKSPACE: deleteSelection(); break;
             case SDLK_R: rotateSelection(sh ? -1 : 1); break;
             case SDLK_F: flipSelection(); break;
+            case SDLK_T: tidyCommand(); break;
             case SDLK_EQUALS: case SDLK_PLUS: case SDLK_KP_PLUS: zoomAt(1.25f, rCanvas.center()); break;
             case SDLK_MINUS: case SDLK_KP_MINUS: zoomAt(0.8f, rCanvas.center()); break;
             case SDLK_0: fitView(view, rCanvas); break;

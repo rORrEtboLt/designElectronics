@@ -54,6 +54,7 @@ struct Wire {
     float width = 24;       // PCB trace width (mils); breadboard/schematic use fixed widths
     int layer = TOP;        // PCB only
     bool autorouted = false;
+    bool tidy = false;      // laid out by the tidy router: re-tidied when its parts move
 };
 
 struct Note {

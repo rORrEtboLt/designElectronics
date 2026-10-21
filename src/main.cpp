@@ -8,7 +8,7 @@
 //   designElectronics --export-logo DIR         write logo.svg and app icon PNGs
 //   designElectronics --mcp                     run as an MCP server on stdin/stdout (for AI assistants)
 //   designElectronics --screenshot OUT.png [--example N] [--view bb|sch|pcb] [--sim]
-//                     [--autoroute] [--size WxH] [--drawer parts|inspector] [--select N]
+//                     [--autoroute] [--tidy] [--size WxH] [--drawer parts|inspector] [--select N]
 #define SDL_MAIN_USE_CALLBACKS 1
 #include <cmath>
 #include <cctype>
@@ -454,6 +454,89 @@ void videoTests(int& failures) {
 }
 
 // ---- layers: hidden / locked survive save + load ----
+// ---- tidy wiring: right angles, same connections, no overlaps with other nets ----
+void tidyTests(int& failures) {
+    printf("Tidy wiring\n");
+    bool allOrtho = true, sameNets = true, endsKept = true, noOverlap = true, sameRats = true;
+    int tidied = 0;
+    for (size_t i = 0; i < examples().size(); i++) {
+        Document d;
+        examples()[i].build(d);
+        d.syncWireEnds();
+        // the examples leave schematic wiring to the ratsnest: draw it as straight wires first
+        Connectivity c;
+        c.build(d);
+        for (auto& r : c.ratsnest(d, SCH)) {
+            Wire w;
+            w.id = d.newId();
+            w.view = SCH;
+            w.pts = {r.a, r.b};
+            w.ends[0] = {r.pa.part, r.pa.pin};
+            w.ends[1] = {r.pb.part, r.pb.pin};
+            d.wires.push_back(w);
+        }
+        c.build(d);
+        std::map<std::pair<int, int>, int> before;
+        for (auto& p : d.parts)
+            for (int k = 0; k < (int)p.def->pins.size(); k++) before[{p.id, k}] = c.netOf(p.id, k);
+        size_t ratsBefore[2] = {c.ratsnest(d, BB).size(), c.ratsnest(d, SCH).size()};
+        for (int v : {BB, SCH, PCB}) tidied += tidyWires(d, v);
+        d.syncWireEnds();
+        Connectivity c2;
+        c2.build(d);
+        // same partition of pins into nets
+        std::map<int, int> map;
+        for (auto& kv : before) {
+            int n2 = c2.netOf(kv.first.first, kv.first.second);
+            auto it = map.find(kv.second);
+            if (it == map.end()) map[kv.second] = n2;
+            else if (it->second != n2) sameNets = false;
+        }
+        if (c2.ratsnest(d, BB).size() != ratsBefore[0] || c2.ratsnest(d, SCH).size() != ratsBefore[1]) sameRats = false;
+        for (auto& w : d.wires) {
+            if (!w.tidy) continue;
+            for (size_t k = 0; k + 1 < w.pts.size(); k++)
+                if (std::fabs(w.pts[k].x - w.pts[k + 1].x) > 0.5f && std::fabs(w.pts[k].y - w.pts[k + 1].y) > 0.5f) allOrtho = false;
+            for (int e = 0; e < 2; e++) {
+                const PartInst* p = d.part(w.ends[e].part);
+                if (!p || dist(p->pinPos(w.ends[e].pin, w.view), e ? w.pts.back() : w.pts.front()) > 0.5f) endsKept = false;
+            }
+        }
+        // schematic: a wire must not run along, or bend on, a wire of another net
+        for (auto& a : d.wires) {
+            if (a.view != SCH) continue;
+            for (auto& b : d.wires) {
+                if (b.view != SCH || b.id <= a.id || c2.wireNet(a.id) == c2.wireNet(b.id)) continue;
+                for (size_t m = 0; m + 1 < a.pts.size(); m++)
+                    for (size_t n = 0; n + 1 < b.pts.size(); n++) {
+                        Vec2 p0 = a.pts[m], p1 = a.pts[m + 1], q0 = b.pts[n], q1 = b.pts[n + 1];
+                        bool hh = std::fabs(p0.y - p1.y) < 0.5f && std::fabs(q0.y - q1.y) < 0.5f && std::fabs(p0.y - q0.y) < 0.5f;
+                        bool vv = std::fabs(p0.x - p1.x) < 0.5f && std::fabs(q0.x - q1.x) < 0.5f && std::fabs(p0.x - q0.x) < 0.5f;
+                        float lo = hh ? std::max(std::min(p0.x, p1.x), std::min(q0.x, q1.x)) : std::max(std::min(p0.y, p1.y), std::min(q0.y, q1.y));
+                        float hi = hh ? std::min(std::max(p0.x, p1.x), std::max(q0.x, q1.x)) : std::min(std::max(p0.y, p1.y), std::max(q0.y, q1.y));
+                        if ((hh || vv) && hi - lo > 1) noOverlap = false;
+                    }
+            }
+        }
+    }
+    printf("  %d wire(s) tidied across the examples\n", tidied);
+    check(tidied > 0, "examples have wires to tidy", failures);
+    check(allOrtho, "tidied wires are horizontal and vertical runs only", failures);
+    check(endsKept, "tidied wires still end on their pins", failures);
+    check(sameNets && sameRats, "tidying keeps every connection the same", failures);
+    check(noOverlap, "schematic wires never run along another net's wire", failures);
+    Document d;
+    examples()[4].build(d);
+    d.syncWireEnds();
+    tidyWires(d, BB);
+    Document e;
+    std::string err;
+    bool ok = e.deserialize(d.serialize(true), &err);
+    bool flag = ok && !e.wires.empty();
+    for (auto& w : e.wires) if (w.view == BB && w.ends[0].attached() && w.ends[1].attached() && !w.tidy) flag = false;
+    check(flag, "tidy wires are saved and loaded as tidy", failures);
+}
+
 void layerTests(int& failures) {
     printf("Layers\n");
     Document d;
@@ -612,6 +695,7 @@ int selftest() {
     simTests(failures);
     historyTests(failures);
     layerTests(failures);
+    tidyTests(failures);
     videoTests(failures);
     printf(failures ? "\n%d FAILURE(S)\n" : "\nAll tests passed.\n", failures);
     return failures ? 1 : 0;
@@ -650,7 +734,7 @@ struct Screenshot {
     int frames = 12;
     int example = -1;
     int view = -1;
-    bool sim = false, route = false;
+    bool sim = false, route = false, tidy = false;
     int w = 0, h = 0;
     std::string drawer;
     int select = -1;
@@ -809,6 +893,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
         else if (a == "--view") { std::string v = next(); g_shot.view = (v == "sch" || v == "schematic") ? SCH : v == "pcb" ? PCB : BB; }
         else if (a == "--sim") g_shot.sim = true;
         else if (a == "--autoroute") g_shot.route = true;
+        else if (a == "--tidy") g_shot.tidy = true;
         else if (a == "--frames") g_shot.frames = std::atoi(next().c_str());
         else if (a == "--drawer") g_shot.drawer = next();
         else if (a == "--select") g_shot.select = std::atoi(next().c_str());
@@ -879,6 +964,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
         }
         if (g_shot.view >= 0) g_app->view = g_shot.view;
         if (g_shot.route) { g_app->ensureConn(); autoroute(g_app->doc, g_app->conn, true); g_app->doc.touch(); }
+        if (g_shot.tidy) { for (int v = 0; v < NUM_VIEWS; v++) tidyWires(g_app->doc, v); g_app->doc.syncWireEnds(); g_app->doc.touch(); }
         if (g_shot.sim) g_app->simOn = true;
         if (g_shot.select >= 0 && g_shot.select < (int)g_app->doc.parts.size()) g_app->selParts = {g_app->doc.parts[(size_t)g_shot.select].id};
         // screenshots are for sharing: no local file path or "Opened…" toast in them
