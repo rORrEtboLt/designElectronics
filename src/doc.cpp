@@ -211,6 +211,7 @@ Json Document::toJson(bool full) const {
             o.set("layer", w.layer == TOP ? "top" : "bottom");
             if (w.autorouted) o.set("autorouted", true);
         }
+        if (w.tidy) o.set("tidy", true);
         warr.push(o);
     }
     j.set("wires", warr);
@@ -336,6 +337,7 @@ bool Document::fromJson(const Json& j, std::string* err) {
         w.width = o["width"].f(24);
         w.layer = o["layer"].str() == "bottom" ? BOTTOM : TOP;
         w.autorouted = o["autorouted"].boolean();
+        w.tidy = o["tidy"].boolean();
         maxId = std::max(maxId, w.id);
         d.wires.push_back(w);
     }

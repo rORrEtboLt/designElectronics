@@ -196,7 +196,7 @@ RouteResult autoroute(Document& doc, const Connectivity& connIn, bool ripUp) {
             float best = 1e30f;
             for (auto& kv : dstCells) {
                 int dx = kv.first % g.w, dy = (kv.first / g.w) % g.h;
-                best = std::min(best, std::hypot((float)(dx - x), (float)(dy - y)));
+                best = std::min(best, (float)(std::abs(dx - x) + std::abs(dy - y)));
             }
             return best;
         };
@@ -221,16 +221,12 @@ RouteResult autoroute(Document& doc, const Connectivity& connIn, bool ripUp) {
             if (n.f - heur(x, y) > c + 1e-3f) continue;
             expanded++;
             if (dstCells.count(g.idx(x, y, 0)) && (cellLayers[g.idx(x, y, 0)] >> l & 1)) { goal = s; break; }
-            for (int k = 0; k < 8; k++) {
+            for (int k = 0; k < 8; k += 2) {  // right angles only: tidy, Apple-I-style runs
                 int nx = x + DX[k], ny = y + DY[k];
                 if (!g.inside(nx, ny)) continue;
                 bool isDst = dstCells.count(g.idx(nx, ny, 0)) > 0;
                 if (!isDst && !g.usable(nx, ny, l, net)) continue;
-                if (k % 2 == 1) {  // diagonal: don't cut corners
-                    if (!g.usable(x + DX[k], y, l, net) && !isDst) continue;
-                    if (!g.usable(x, y + DY[k], l, net) && !isDst) continue;
-                }
-                float step = (k % 2) ? 1.414f : 1.0f;
+                float step = 1.0f;
                 if (d != 8 && d != k) step += 0.6f;
                 if (l == TOP && !single) step += 0.02f;  // slight preference for bottom layer
                 int ns = sid(nx, ny, l, k);

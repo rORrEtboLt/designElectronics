@@ -33,6 +33,7 @@ set(DE_SOURCES
   src/packages.cpp
   src/doc.cpp
   src/router.cpp
+  src/tidy.cpp
   src/drc.cpp
   src/sim.cpp
   src/arduino.cpp

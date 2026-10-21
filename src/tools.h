@@ -18,6 +18,12 @@ struct RouteResult {
 };
 RouteResult autoroute(Document& doc, const Connectivity& conn, bool ripUpAutorouted);
 
+// ---- tidy wiring (tidy.cpp): right-angle runs on the grid, around parts ----
+// Re-routes one wire with both ends on pins and marks it tidy; false if no route was found.
+bool tidyWire(Document& doc, int wireId);
+// Tidies the view's wires (or just `only`); returns how many were re-routed.
+int tidyWires(Document& doc, int view, const std::set<int>* only = nullptr);
+
 // ---- design rule check ----
 struct DrcIssue {
     Vec2 pos;
