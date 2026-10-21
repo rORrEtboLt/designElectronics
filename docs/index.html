@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>designElectronics — open-source breadboard, schematic &amp; PCB design</title>
+<title>designElectronics: open-source breadboard, schematic &amp; PCB design</title>
 <meta name="description" content="Free, open-source electronics design app for desktop and phone. Build circuits on a virtual breadboard, draw the schematic, lay out a PCB, simulate it live and export Gerbers. Works offline; a design is one shareable file.">
 <link rel="canonical" href="https://rorretbolt.github.io/designElectronics/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="designElectronics">
-<meta property="og:title" content="designElectronics — open-source breadboard, schematic & PCB design">
+<meta property="og:title" content="designElectronics: open-source breadboard, schematic & PCB design">
 <meta property="og:description" content="Build circuits on a virtual breadboard, draw the schematic, lay out a PCB, simulate it live and export Gerbers. Desktop and phone, offline, MIT licensed.">
 <meta property="og:url" content="https://rorretbolt.github.io/designElectronics/">
 <meta property="og:image" content="https://rorretbolt.github.io/designElectronics/assets/social-preview.png">
@@ -16,7 +16,7 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="designElectronics: a 555 blinker circuit on a virtual breadboard, simulating">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="designElectronics — open-source breadboard, schematic & PCB design">
+<meta name="twitter:title" content="designElectronics: open-source breadboard, schematic & PCB design">
 <meta name="twitter:description" content="Breadboard, schematic and PCB in one free app for desktop and phone, with live simulation and Gerber export.">
 <meta name="twitter:image" content="https://rorretbolt.github.io/designElectronics/assets/social-preview.png">
 <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
@@ -26,17 +26,17 @@
 :root {
   --bg: #f6f7f9; --surface: #ffffff; --surface-2: #eef1f6; --text: #1d2330; --muted: #5b6577; --border: #dde2ea;
   --accent: #1f6fe5; --accent-2: #0b4fbf; --accent-soft: #e6f0ff; --code-bg: #0f1729; --code-text: #e4ecff;
-  --ok: #1f9d55; --warn: #b7791f; --hero-1: #0a1430; --hero-2: #12306b; --shadow: 0 1px 2px rgba(16,24,40,.06), 0 8px 24px rgba(16,24,40,.08);
+  --ok: #1f9d55; --warn: #b7791f; --shadow: 0 1px 2px rgba(16,24,40,.06);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #0c111c; --surface: #131a28; --surface-2: #19223430; --text: #e6ebf4; --muted: #9aa6bb; --border: #263247;
-    --accent: #5b9bff; --accent-2: #8bb8ff; --accent-soft: #16294a; --code-bg: #0a0f1a; --code-text: #dfe8fb; --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+    --accent: #5b9bff; --accent-2: #8bb8ff; --accent-soft: #16294a; --code-bg: #0a0f1a; --code-text: #dfe8fb; --shadow: 0 1px 2px rgba(0,0,0,.4);
   }
 }
 :root[data-theme="dark"] {
   --bg: #0c111c; --surface: #131a28; --surface-2: #19223430; --text: #e6ebf4; --muted: #9aa6bb; --border: #263247;
-  --accent: #5b9bff; --accent-2: #8bb8ff; --accent-soft: #16294a; --code-bg: #0a0f1a; --code-text: #dfe8fb; --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+  --accent: #5b9bff; --accent-2: #8bb8ff; --accent-soft: #16294a; --code-bg: #0a0f1a; --code-text: #dfe8fb; --shadow: 0 1px 2px rgba(0,0,0,.4);
 }
 * { box-sizing: border-box; }
 html { scroll-padding-top: 120px; }
@@ -52,7 +52,7 @@ h1, h2, h3 { line-height: 1.25; } h2 { font-size: 1.6rem; margin: 0 0 .4em; } h3
 p { margin: .5em 0 1em; }
 
 /* header + tabs */
-.topbar { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: saturate(1.4) blur(10px); border-bottom: 1px solid var(--border); }
+.topbar { position: sticky; top: 0; z-index: 20; background: var(--bg); border-bottom: 1px solid var(--border); }
 .topbar-inner { max-width: 1120px; margin: 0 auto; padding: 10px 16px 0; }
 .brand-row { display: flex; align-items: center; gap: 12px; }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.1rem; color: var(--text); }
@@ -63,7 +63,6 @@ p { margin: .5em 0 1em; }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
 .btn.primary:hover { background: var(--accent-2); }
 .btn svg { width: 18px; height: 18px; }
-.icon-btn { width: 38px; height: 38px; padding: 0; justify-content: center; }
 .tabs { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; margin-top: 8px; }
 .tabs::-webkit-scrollbar { display: none; }
 .tab { flex: none; padding: 10px 14px; border: 0; background: none; color: var(--muted); font: inherit; font-weight: 600; font-size: .95rem; border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; }
@@ -72,34 +71,26 @@ p { margin: .5em 0 1em; }
 
 main { max-width: 1120px; margin: 0 auto; padding: 28px 16px 64px; }
 .panel[hidden] { display: none; }
-.panel { animation: fade .18s ease; }
-@keyframes fade { from { opacity: .3; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
 /* hero */
-.hero { background: radial-gradient(1200px 500px at 15% -10%, #2a5fd0 0%, transparent 60%), linear-gradient(160deg, var(--hero-1), var(--hero-2)); color: #fff; border-radius: 20px; padding: 44px 40px; display: grid; grid-template-columns: 1.05fr 1.25fr; gap: 36px; align-items: center; box-shadow: var(--shadow); }
-.hero h1 { font-size: clamp(2rem, 4vw, 2.9rem); margin: 0 0 12px; letter-spacing: -.02em; }
-.hero p.lead { font-size: 1.15rem; color: #cfdcf7; margin: 0 0 22px; }
+.hero { padding: 12px 0 8px; display: grid; grid-template-columns: 1fr 1.3fr; gap: 36px; align-items: center; }
+.hero h1 { font-size: clamp(1.9rem, 3.6vw, 2.6rem); margin: 0 0 12px; }
+.hero p.lead { font-size: 1.1rem; color: var(--muted); margin: 0 0 22px; }
 .hero .actions { display: flex; flex-wrap: wrap; gap: 10px; }
-.hero .btn { border-color: rgba(255,255,255,.25); background: rgba(255,255,255,.08); color: #fff; }
-.hero .btn.primary { background: #fff; color: #0b2a66; border-color: #fff; }
-.hero .shot { border-radius: 12px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,.45); cursor: zoom-in; }
-.badges { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; padding: 0; list-style: none; }
-.badges li { font-size: .82rem; padding: 4px 10px; border-radius: 99px; background: rgba(255,255,255,.1); color: #dbe6ff; }
-.ph-card { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 18px 0 0; padding: 16px 20px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); box-shadow: var(--shadow); }
+.hero .shot { border-radius: 8px; border: 1px solid var(--border); cursor: zoom-in; }
+.facts { margin: 18px 0 0; color: var(--muted); font-size: .92rem; }
+.ph-card { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 28px 0 0; padding: 14px 18px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
 .ph-card img { width: 56px; height: 56px; border-radius: 10px; flex-shrink: 0; }
 .ph-card .ph-text { flex: 1 1 220px; min-width: 0; }
 .ph-card h3 { margin: 0; font-size: 1.05rem; }
 .ph-card p { margin: 2px 0 0; color: var(--muted); font-size: .92rem; }
-.ph-card .btn.ph { background: #ff6154; border-color: #ff6154; color: #fff; border-radius: 99px; }
-.ph-card .btn.ph:hover { background: #e8483b; border-color: #e8483b; }
 
 .grid { display: grid; gap: 16px; }
-.grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
 .grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; box-shadow: var(--shadow); }
-.card h3 { margin: 0 0 6px; font-size: 1.05rem; }
-.card p { margin: 0; color: var(--muted); font-size: .95rem; }
-.card .ic { font-size: 1.4rem; margin-bottom: 6px; }
+.features { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 40px; margin: 0; }
+.features div { border-top: 1px solid var(--border); padding: 14px 0 16px; }
+.features dt { font-weight: 700; margin-bottom: 4px; }
+.features dd { margin: 0; color: var(--muted); font-size: .95rem; }
 .section-title { margin: 44px 0 16px; }
 .section-title p { color: var(--muted); margin: 0; }
 
@@ -128,10 +119,9 @@ tr:last-child td { border-bottom: 0; }
 .subtab { padding: 7px 14px; border-radius: 99px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); font: inherit; font-weight: 600; font-size: .9rem; cursor: pointer; }
 .subtab[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
 
-a.card.dl { display: block; color: var(--text); text-decoration: none; transition: border-color .15s, transform .15s; }
-a.card.dl:hover { border-color: var(--accent); transform: translateY(-2px); }
-a.card.dl .btn { margin-top: 14px; }
-a.card.dl.recommended { border: 2px solid var(--accent); }
+.downloads td { vertical-align: middle; }
+.downloads tr.recommended td { background: var(--accent-soft); }
+.downloads tr.recommended td:first-child::after { content: " (your system)"; color: var(--muted); font-weight: 400; }
 .os { display: flex; gap: 6px; margin: 10px 0 0; }
 .os button { padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); font: inherit; font-weight: 600; font-size: .88rem; cursor: pointer; }
 .os button[aria-selected="true"] { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
@@ -168,13 +158,11 @@ footer .inner { max-width: 1120px; margin: 0 auto; padding: 22px 16px 40px; disp
 .lightbox img { max-width: min(1600px, 100%); max-height: 92vh; border-radius: 10px; }
 
 @media (max-width: 860px) {
-  .hero { grid-template-columns: 1fr; padding: 28px 20px; }
-  .grid.cols-3 { grid-template-columns: 1fr 1fr; }
-  .grid.cols-2 { grid-template-columns: 1fr; }
+  .hero { grid-template-columns: 1fr; }
+  .grid.cols-2, .features { grid-template-columns: 1fr; }
   .brand-row .gh-label { display: none; }
 }
 @media (max-width: 560px) {
-  .grid.cols-3 { grid-template-columns: 1fr; }
   .phones { grid-template-columns: 1fr 1fr; }
   .phones figure:last-child { display: none; }
   main { padding-top: 20px; }
@@ -187,9 +175,7 @@ footer .inner { max-width: 1120px; margin: 0 auto; padding: 22px 16px 40px; disp
     <div class="brand-row">
       <a class="brand" href="#overview"><img src="assets/logo.svg" alt="" width="32" height="32">designElectronics</a>
       <span class="spacer"></span>
-      <button class="btn icon-btn" id="theme" title="Toggle dark mode" aria-label="Toggle dark mode">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
-      </button>
+      <button class="btn" id="theme" type="button">Dark</button>
       <a class="btn" href="https://github.com/rORrEtboLt/designElectronics">
         <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
         <span class="gh-label">GitHub</span>
@@ -219,13 +205,13 @@ footer .inner { max-width: 1120px; margin: 0 auto; padding: 22px 16px 40px; disp
   <div class="hero">
     <div>
       <h1>The free breadboard-to-PCB designer that runs on your phone.</h1>
-      <p class="lead">Build a circuit on a virtual breadboard, draw the schematic, lay out a PCB and watch it run in a live simulator — on your laptop or your phone. Free and open source.</p>
+      <p class="lead">Build a circuit on a virtual breadboard, draw the schematic, lay out a PCB and watch it run in a live simulator, on your laptop or your phone. Free and open source.</p>
       <div class="actions">
         <a class="btn primary" href="#install">Download free</a>
         <a class="btn" href="#app">Try it in your browser</a>
-        <a class="btn" href="https://github.com/rORrEtboLt/designElectronics">★ Star on GitHub</a>
+        <a class="btn" href="https://github.com/rORrEtboLt/designElectronics">Source on GitHub</a>
       </div>
-      <ul class="badges"><li>MIT licensed</li><li>Downloads for macOS · Windows · Linux</li><li>Runs in your phone's browser</li><li>Works offline</li><li>No account</li></ul>
+      <p class="facts">MIT licensed. macOS, Windows and Linux downloads, or run it in a phone browser. Works offline, no account.</p>
     </div>
     <img class="shot" src="assets/img/breadboard.webp" width="1600" height="1000" alt="A 555 timer blinker on a virtual breadboard with the simulator running; the red LED is lit">
   </div>
@@ -236,22 +222,22 @@ footer .inner { max-width: 1120px; margin: 0 auto; padding: 22px 16px 40px; disp
       <h3>We're on Product Hunt</h3>
       <p>Describe a circuit, watch an AI agent build it.</p>
     </div>
-    <a class="btn ph" href="https://www.producthunt.com/products/designelectronics?embed=true&amp;utm_source=embed&amp;utm_medium=post_embed" target="_blank" rel="noopener">Check it out on Product Hunt →</a>
+    <a class="btn ph" href="https://www.producthunt.com/products/designelectronics?embed=true&amp;utm_source=embed&amp;utm_medium=post_embed" target="_blank" rel="noopener">View on Product Hunt</a>
   </div>
 
   <div class="section-title"><h2>Everything from idea to PCB</h2><p>One app, three linked views, one file you can share.</p></div>
-  <div class="grid cols-3">
-    <div class="card"><div class="ic">🧩</div><h3>Breadboard, schematic &amp; PCB</h3><p>Every connection you make in one view shows up in the others as a dashed ratsnest line until you wire it there too.</p></div>
-    <div class="card"><div class="ic">⚡</div><h3>Live simulation</h3><p>LEDs glow, 555s blink, logic clocks, op-amps amplify, meters read volts — and overloaded parts smoke, with an explanation.</p></div>
-    <div class="card"><div class="ic">🏭</div><h3>Ready for the fab</h3><p>Two-layer autorouter, design-rules check and one-click Gerber + drill export you can upload to any PCB maker.</p></div>
-    <div class="card"><div class="ic">📦</div><h3>178 real parts</h3><p>Arduino, ESP32, Raspberry Pi &amp; Pico boards, 74HC/CD4000 logic, op-amps, regulators, drivers, sensors and displays — true to size.</p></div>
-    <div class="card"><div class="ic">🕘</div><h3>Version history &amp; GitHub</h3><p>Every save is a version you can restore. Optionally commit designs to your own private GitHub repository.</p></div>
-    <div class="card"><div class="ic">💻</div><h3>Program the boards</h3><p>Write an Arduino sketch for an Uno, ESP32 or Pico, watch it run line by line with a Serial Monitor, then upload it to the real board.</p></div>
-    <div class="card"><div class="ic">🤖</div><h3>Build by chatting</h3><p>The AI tab drives Claude Code (or Codex, Gemini…) to build circuits live in your design — and an MCP server lets any AI app do the same.</p></div>
-    <div class="card"><div class="ic">📱</div><h3>Made for touch too</h3><p>On phones the panels become drawers; pan with a finger, pinch to zoom, long-press for menus.</p></div>
-    <div class="card"><div class="ic">🗂️</div><h3>Layers</h3><p>A Photoshop-style Layers panel: toggle copper and silkscreen, hide or lock parts, find anything by name.</p></div>
-    <div class="card"><div class="ic">🔗</div><h3>One shareable file</h3><p>A <code>.dez</code> design is plain JSON that embeds every part it uses. It opens offline in any copy of the app.</p></div>
-  </div>
+  <dl class="features">
+    <div><dt>Breadboard, schematic &amp; PCB</dt><dd>Every connection you make in one view shows up in the others as a dashed ratsnest line until you wire it there too.</dd></div>
+    <div><dt>Live simulation</dt><dd>LEDs glow, 555s blink, logic clocks, op-amps amplify, meters read volts, and overloaded parts smoke, with an explanation.</dd></div>
+    <div><dt>Ready for the fab</dt><dd>Two-layer autorouter, design-rules check and one-click Gerber + drill export you can upload to any PCB maker.</dd></div>
+    <div><dt>178 real parts</dt><dd>Arduino, ESP32, Raspberry Pi &amp; Pico boards, 74HC/CD4000 logic, op-amps, regulators, drivers, sensors and displays, all true to size.</dd></div>
+    <div><dt>Version history &amp; GitHub</dt><dd>Every save is a version you can restore. Optionally commit designs to your own private GitHub repository.</dd></div>
+    <div><dt>Program the boards</dt><dd>Write an Arduino sketch for an Uno, ESP32 or Pico, watch it run line by line with a Serial Monitor, then upload it to the real board.</dd></div>
+    <div><dt>Build by chatting</dt><dd>The AI tab drives Claude Code (or Codex, Gemini…) to build circuits live in your design. An MCP server lets any AI app do the same.</dd></div>
+    <div><dt>Made for touch too</dt><dd>On phones the panels become drawers; pan with a finger, pinch to zoom, long-press for menus.</dd></div>
+    <div><dt>Layers</dt><dd>A Photoshop-style Layers panel: toggle copper and silkscreen, hide or lock parts, find anything by name.</dd></div>
+    <div><dt>One shareable file</dt><dd>A <code>.dez</code> design is plain JSON that embeds every part it uses. It opens offline in any copy of the app.</dd></div>
+  </dl>
 
   <div class="section-title"><h2>A closer look</h2></div>
   <div class="grid cols-2">
@@ -272,7 +258,7 @@ footer .inner { max-width: 1120px; margin: 0 auto; padding: 22px 16px 40px; disp
   <div class="app-bar">
     <div>
       <h2 style="margin:0">designElectronics in your browser</h2>
-      <p class="muted" style="margin:.2em 0 0">The full app, running right here (WebAssembly). Nothing to install — your work stays in this browser; use <b>File ▸ Save</b> to download it.</p>
+      <p class="muted" style="margin:.2em 0 0">The full app, running right here (WebAssembly). Nothing to install. Your work stays in this browser; use <b>File ▸ Save</b> to download it.</p>
     </div>
     <div class="app-actions">
       <label class="sr-only" for="app-example">Start with</label>
@@ -299,24 +285,25 @@ footer .inner { max-width: 1120px; margin: 0 auto; padding: 22px 16px 40px; disp
 <section class="panel doc" role="tabpanel" id="install" hidden>
   <h2>Download</h2>
   <p>Free, about 3–7 MB, no installer and no account. Built automatically from the source on GitHub and tested on every platform.</p>
-  <div class="grid cols-3 downloads">
-    <a class="card dl" data-dl="mac" href="https://github.com/rORrEtboLt/designElectronics/releases/latest/download/designElectronics-macOS.zip"><div class="ic">🍎</div><h3>macOS</h3><p>macOS 11 or newer · Apple Silicon &amp; Intel</p><span class="btn primary">Download .zip</span></a>
-    <a class="card dl" data-dl="win" href="https://github.com/rORrEtboLt/designElectronics/releases/latest/download/designElectronics-Windows-x64.zip"><div class="ic">🪟</div><h3>Windows</h3><p>Windows 10 / 11 · 64-bit</p><span class="btn primary">Download .zip</span></a>
-    <a class="card dl" data-dl="linux" href="https://github.com/rORrEtboLt/designElectronics/releases/latest/download/designElectronics-Linux-x86_64.tar.gz"><div class="ic">🐧</div><h3>Linux</h3><p>x86_64 · Ubuntu 22.04+ or similar · X11 / Wayland</p><span class="btn primary">Download .tar.gz</span></a>
-  </div>
-  <p style="margin-top:14px"><a href="https://github.com/rORrEtboLt/designElectronics/releases">All releases and release notes →</a></p>
+  <div class="table-wrap"><table class="downloads">
+    <tr><th>System</th><th>Requirements</th><th></th></tr>
+    <tr data-dl="mac"><td><b>macOS</b></td><td>macOS 11 or newer · Apple Silicon &amp; Intel</td><td><a class="btn primary" href="https://github.com/rORrEtboLt/designElectronics/releases/latest/download/designElectronics-macOS.zip">Download .zip</a></td></tr>
+    <tr data-dl="win"><td><b>Windows</b></td><td>Windows 10 / 11 · 64-bit</td><td><a class="btn primary" href="https://github.com/rORrEtboLt/designElectronics/releases/latest/download/designElectronics-Windows-x64.zip">Download .zip</a></td></tr>
+    <tr data-dl="linux"><td><b>Linux</b></td><td>x86_64 · Ubuntu 22.04+ or similar · X11 / Wayland</td><td><a class="btn primary" href="https://github.com/rORrEtboLt/designElectronics/releases/latest/download/designElectronics-Linux-x86_64.tar.gz">Download .tar.gz</a></td></tr>
+  </table></div>
+  <p style="margin-top:14px"><a href="https://github.com/rORrEtboLt/designElectronics/releases">All releases and release notes</a></p>
   <h3>First launch</h3>
   <p>The downloads aren't code-signed yet, so your system asks once before opening them:</p>
   <ul>
-    <li><b>macOS</b> — unzip, move <code>designElectronics.app</code> to Applications, then <b>right-click ▸ Open ▸ Open</b>. If macOS says the app is damaged, run <code>xattr -dr com.apple.quarantine /Applications/designElectronics.app</code> once.</li>
-    <li><b>Windows</b> — unzip and run <code>designElectronics.exe</code>; if SmartScreen appears, choose <b>More info ▸ Run anyway</b>. Keep the <code>assets</code> folder next to the exe.</li>
-    <li><b>Linux</b> — <code>tar xzf designElectronics-Linux-x86_64.tar.gz &amp;&amp; ./designElectronics/designElectronics</code></li>
+    <li><b>macOS:</b> unzip, move <code>designElectronics.app</code> to Applications, then <b>right-click ▸ Open ▸ Open</b>. If macOS says the app is damaged, run <code>xattr -dr com.apple.quarantine /Applications/designElectronics.app</code> once.</li>
+    <li><b>Windows:</b> unzip and run <code>designElectronics.exe</code>; if SmartScreen appears, choose <b>More info ▸ Run anyway</b>. Keep the <code>assets</code> folder next to the exe.</li>
+    <li><b>Linux:</b> <code>tar xzf designElectronics-Linux-x86_64.tar.gz &amp;&amp; ./designElectronics/designElectronics</code></li>
   </ul>
   <p>Then open <b>File ▸ Examples</b> or follow the <a href="#quickstart">quick start</a>.</p>
 
   <h2 style="margin-top:2em">Build from source</h2>
   <p>designElectronics is a native app written in C++ with <a href="https://libsdl.org">SDL3</a>. Building takes a few minutes.</p>
-  <div class="note">You need CMake 3.20+, a C++17 compiler, and SDL3 + SDL3_ttf. libcurl is optional — it enables GitHub sync and is already part of macOS and most Linux systems.</div>
+  <div class="note">You need CMake 3.20+, a C++17 compiler, and SDL3 + SDL3_ttf. libcurl is optional. It enables GitHub sync and is already part of macOS and most Linux systems.</div>
   <div class="os" role="tablist" aria-label="Operating system">
     <button role="tab" data-os="mac">macOS</button><button role="tab" data-os="linux">Linux</button><button role="tab" data-os="win">Windows</button><button role="tab" data-os="mobile">Phone</button>
   </div>
@@ -347,7 +334,7 @@ cmake --build build --config Release
 build\Release\designElectronics.exe</code></pre>
   </div>
   <div data-os-panel="mobile" hidden>
-    <p>On a phone, open the <a href="#app">web app</a> in your browser. There's nothing to install, and the layout adapts to small screens and touch. Native iOS and Android apps aren't in the app stores yet. To build them yourself you need Xcode or Android Studio — follow <a href="https://github.com/rORrEtboLt/designElectronics/blob/main/docs/BUILDING.md">docs/BUILDING.md</a>. On phones, GitHub sync isn't available yet; local version history works.</p>
+    <p>On a phone, open the <a href="#app">web app</a> in your browser. There's nothing to install, and the layout adapts to small screens and touch. Native iOS and Android apps aren't in the app stores yet. To build them yourself you need Xcode or Android Studio; follow <a href="https://github.com/rORrEtboLt/designElectronics/blob/main/docs/BUILDING.md">docs/BUILDING.md</a>. On phones, GitHub sync isn't available yet; local version history works.</p>
   </div>
   <h3>Check your build</h3>
 <pre><code># macOS: ./build/designElectronics.app/Contents/MacOS/designElectronics --selftest
@@ -360,17 +347,17 @@ build\Release\designElectronics.exe</code></pre>
   <h2>Quick start: your first circuit</h2>
   <p>Light an LED from a battery in about two minutes. On a phone, tap <b>Parts</b> in the toolbar to open the parts drawer.</p>
   <ol class="steps">
-    <li><b>Start a design.</b> <b>File ▸ New</b> gives you a breadboard. Want a shortcut? <b>File ▸ Examples</b> has ready-made circuits — start with <i>LED with battery</i> or <i>555 LED blinker</i>.</li>
-    <li><b>Add parts.</b> Search the parts bin for <i>Resistor</i>, <i>Red LED</i> and <i>Battery</i> and drag each onto the canvas. Drop the resistor and LED so their legs sit in breadboard holes — holes in use light up green.</li>
+    <li><b>Start a design.</b> <b>File ▸ New</b> gives you a breadboard. Want a shortcut? <b>File ▸ Examples</b> has ready-made circuits. Start with <i>LED with battery</i> or <i>555 LED blinker</i>.</li>
+    <li><b>Add parts.</b> Search the parts bin for <i>Resistor</i>, <i>Red LED</i> and <i>Battery</i> and drag each onto the canvas. Drop the resistor and LED so their legs sit in breadboard holes. Holes in use light up green.</li>
     <li><b>Set values.</b> Click the resistor and change <i>Resistance</i> to <code>220Ω</code> in the Inspector. Set the battery to <code>3V</code>.</li>
     <li><b>Wire it.</b> Drag from a battery terminal to a breadboard hole to draw a wire. Each column of five holes (a–e and f–j) is connected, so put the resistor, the LED's long leg (anode) and the battery's + in a chain, and the LED's short leg back to −.</li>
     <li><b>Simulate.</b> Press <b>Simulate</b> in the toolbar. The LED glows; hover a pin to see its voltage. Swap in a 10&nbsp;Ω resistor and the LED smokes, with a warning that 47&nbsp;mA is too much for it.</li>
-    <li><b>Save &amp; share.</b> <b>File ▸ Save As / Share…</b> writes one <code>.dez</code> file. Send it to anyone with designElectronics — it opens offline on any platform.</li>
+    <li><b>Save &amp; share.</b> <b>File ▸ Save As / Share…</b> writes one <code>.dez</code> file. Send it to anyone with designElectronics and it opens offline on any platform.</li>
   </ol>
   <div class="note">Every save is also kept in <b>File ▸ Version History</b>, so you can always go back.</div>
   <h3>Then try</h3>
   <ul>
-    <li><a href="#design/schematic">Draw the schematic</a> — your breadboard connections are already there as dashed lines.</li>
+    <li><a href="#design/schematic">Draw the schematic</a>: your breadboard connections are already there as dashed lines.</li>
     <li><a href="#design/pcb">Make a PCB</a> and export Gerbers.</li>
     <li>Open <b>File ▸ Examples ▸ ESP32 blink</b> or <b>Raspberry Pi LED</b> and change the board's <i>Pin outputs</i>.</li>
   </ul>
@@ -379,7 +366,7 @@ build\Release\designElectronics.exe</code></pre>
 <!-- ============================== DESIGN ============================== -->
 <section class="panel doc" role="tabpanel" id="design" hidden>
   <h2>Design</h2>
-  <p>A design has three linked views. Switch with the tabs at the top of the app or <kbd>Ctrl/⌘</kbd>+<kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd>. A connection made in <i>any</i> view counts in all of them; views where it isn't wired yet show a dashed <b>ratsnest</b> line — click it to turn it into a wire or trace.</p>
+  <p>A design has three linked views. Switch with the tabs at the top of the app or <kbd>Ctrl/⌘</kbd>+<kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd>. A connection made in <i>any</i> view counts in all of them; views where it isn't wired yet show a dashed <b>ratsnest</b> line. Click it to turn it into a wire or trace.</p>
   <div class="subtabs" role="tablist" aria-label="Design views">
     <button class="subtab" role="tab" data-sub="breadboard">Breadboard</button>
     <button class="subtab" role="tab" data-sub="schematic">Schematic</button>
@@ -397,7 +384,7 @@ build\Release\designElectronics.exe</code></pre>
       <li>Wire ends are green when connected and red when loose.</li>
       <li>Boards that are too wide for a breadboard (Arduino Uno, ESP32 DevKitC, Raspberry Pi) sit beside it and connect with jumpers.</li>
     </ul>
-    <figure><img src="assets/img/rpi.webp" width="1600" height="1000" loading="lazy" alt="Raspberry Pi 4 wired to an LED on a breadboard"><figcaption>A Raspberry Pi 4 driving an LED from GPIO17 — its real 40-pin header, wired with jumpers</figcaption></figure>
+    <figure><img src="assets/img/rpi.webp" width="1600" height="1000" loading="lazy" alt="Raspberry Pi 4 wired to an LED on a breadboard"><figcaption>A Raspberry Pi 4 driving an LED from GPIO17 using its real 40-pin header, wired with jumpers</figcaption></figure>
   </div>
 
   <div data-sub-panel="schematic" hidden>
@@ -427,10 +414,10 @@ build\Release\designElectronics.exe</code></pre>
     <h3>Layers panel</h3>
     <p>Open the <b>Layers</b> tab next to <b>Parts</b> (on phones: the <b>Layers</b> button in the toolbar).</p>
     <ul>
-      <li><b>View layers</b> — eye toggles for what's drawn: parts, wires, notes and ratsnest; on the PCB, board, top copper, bottom copper, pads, silkscreen and labels.</li>
-      <li><b>Everything in the design</b> — parts plugged into a breadboard are grouped under it. Click to select, <kbd>Shift</kbd>-click to add, double-click to zoom to a part. Filter by label, value or pin name (try <code>GPIO</code>).</li>
+      <li><b>View layers</b>: eye toggles for what's drawn: parts, wires, notes and ratsnest; on the PCB, board, top copper, bottom copper, pads, silkscreen and labels.</li>
+      <li><b>Everything in the design</b>: parts plugged into a breadboard are grouped under it. Click to select, <kbd>Shift</kbd>-click to add, double-click to zoom to a part. Filter by label, value or pin name (try <code>GPIO</code>).</li>
       <li><b>Hide</b> a part in the current view (the eye). Hiding is visual only: the part still connects, simulates and exports.</li>
-      <li><b>Lock</b> a part so it can't be moved, rotated or deleted — handy for the breadboard or the board outline.</li>
+      <li><b>Lock</b> a part so it can't be moved, rotated or deleted. Handy for the breadboard or the board outline.</li>
       <li><b>Badges</b>: orange = unrouted connections in this view, hollow = no simulation model, red = damaged in simulation, coloured = live LED brightness.</li>
     </ul>
     <figure><img src="assets/img/layers.webp" width="1600" height="1000" loading="lazy" alt="Layers panel with a locked breadboard and nested parts"><figcaption>A locked breadboard with its LEDs and resistors nested underneath; one LED is hidden</figcaption></figure>
@@ -442,7 +429,7 @@ build\Release\designElectronics.exe</code></pre>
       <li>Undo/redo everything; copy, cut, paste and duplicate (the clipboard is JSON, so you can paste between windows).</li>
       <li>Rubber-band select by dragging on empty canvas; arrow keys nudge (<kbd>Shift</kbd> = 10×).</li>
       <li>Right-click (or long-press) a part for its context menu: rotate, flip, bring to front/back, export the part definition.</li>
-      <li><b>Notes</b> are sticky notes on the canvas — great for explaining a circuit to whoever you share it with.</li>
+      <li><b>Notes</b> are sticky notes on the canvas, useful for explaining a circuit to whoever you share it with.</li>
       <li>Designs autosave continuously, so nothing is lost if the app (or your phone) closes it.</li>
     </ul>
   </div>
@@ -465,7 +452,7 @@ build\Release\designElectronics.exe</code></pre>
   </table></div>
   <div class="note warn">Overdo it and parts <b>smoke</b>: an LED without a resistor, a shorted battery or an overloaded transistor shows smoke and a warning explaining what went wrong.</div>
   <h3>Microcontroller boards</h3>
-  <p>Boards supply their power rails (5V, 3V3, GND). Give a board a real program in the <a href="#code">Code</a> tab — or, for a quick test, drive pins without code by listing them in the Inspector under <b>Pin outputs</b>:</p>
+  <p>Boards supply their power rails (5V, 3V3, GND). Give a board a real program in the <a href="#code">Code</a> tab. Or, for a quick test, drive pins without code by listing them in the Inspector under <b>Pin outputs</b>:</p>
 <pre><code>GPIO2=HIGH          # steady high (3.3 V on ESP32/Pi, 5 V on Uno/Mega)
 D13=LOW
 GPIO17=BLINK:500    # toggle every 500 ms
@@ -477,12 +464,12 @@ D9=PWM:30           # 30 % duty, simulated as the average voltage</code></pre>
 <!-- ============================== CODE ============================== -->
 <section class="panel doc" role="tabpanel" id="code" hidden>
   <h2>Program your board</h2>
-  <p>Every microcontroller board — Arduino, ESP32, ESP8266, Raspberry Pi Pico, STM32, Teensy… — can hold an <b>Arduino sketch</b>. It's saved inside the design, runs in the simulator, and uploads to a real board.</p>
+  <p>Every microcontroller board (Arduino, ESP32, ESP8266, Raspberry Pi Pico, STM32, Teensy…) can hold an <b>Arduino sketch</b>. It's saved inside the design, runs in the simulator, and uploads to a real board.</p>
   <ol class="steps">
     <li>Select the board and click <b>Write a program…</b> in the Inspector (or right-click the board ▸ <b>Edit Program…</b>). You get a ready-to-run blink sketch for that board.</li>
     <li>Press <b>▶ Run</b>. The program runs in step with the circuit: LEDs follow <code>digitalWrite</code>, <code>digitalRead</code> sees your buttons, <code>analogRead</code> measures real voltages, and the line that's executing is highlighted.</li>
     <li>Watch <code>Serial.print</code> output in the <b>Serial Monitor</b>, and type into it to send text to <code>Serial.read()</code>.</li>
-    <li>Edit while it runs — the board restarts with your changes. Mistakes are underlined with the line and a plain-English message, like a compiler would.</li>
+    <li>Edit while it runs and the board restarts with your changes. Mistakes are underlined with the line and a plain-English message, like a compiler would.</li>
   </ol>
   <h3>What runs in the simulator</h3>
   <div class="table-wrap"><table>
@@ -493,9 +480,9 @@ D9=PWM:30           # 30 % duty, simulated as the average voltage</code></pre>
     <tr><td>Serial</td><td><code>begin</code>, <code>print/println</code> (DEC/HEX/BIN, decimals), <code>printf</code>, <code>available/read/readString/parseInt</code></td></tr>
     <tr><td>Helpers</td><td><code>map</code>, <code>constrain</code>, <code>min/max/abs</code>, math, <code>random</code>, <code>bitRead/bitWrite/bitSet</code>, <code>String</code> methods</td></tr>
   </table></div>
-  <div class="note">Pin numbers follow each board: <code>2</code> is GPIO2 on an ESP32, <code>13</code> is D13 on an Uno, <code>D4</code> works on a NodeMCU, <code>PC13</code> on a Blue Pill. <b>OLED displays</b> driven with Adafruit_SSD1306 / SH1106 show the sketch's text and graphics on the OLED part. Other library calls the simulator can't model (WiFi, Servo, LCD…) are skipped with one grey note per library — the sketch still compiles and runs for real when you upload it.</div>
+  <div class="note">Pin numbers follow each board: <code>2</code> is GPIO2 on an ESP32, <code>13</code> is D13 on an Uno, <code>D4</code> works on a NodeMCU, <code>PC13</code> on a Blue Pill. <b>OLED displays</b> driven with Adafruit_SSD1306 / SH1106 show the sketch's text and graphics on the OLED part. Other library calls the simulator can't model (WiFi, Servo, LCD…) are skipped with one grey note per library. The sketch still compiles and runs for real when you upload it.</div>
   <h3>Upload to a real board</h3>
-  <p>Click <b>Upload to board…</b>. designElectronics uses <b>arduino-cli</b>, the engine of the Arduino IDE — if you have <a href="https://www.arduino.cc/en/software">Arduino IDE 2</a> installed it's found automatically, or install <a href="https://arduino.github.io/arduino-cli/latest/installation/">arduino-cli</a> (<code>brew install arduino-cli</code>, <code>winget install ArduinoSA.CLI</code>). Pick the USB port, press <b>Compile &amp; Upload</b>, and follow the log. <b>Install board support</b> fetches the ESP32, ESP8266, Pico, STM32 or Teensy core the first time. Uploading works in the desktop apps; in the browser use <b>Export .ino</b>.</p>
+  <p>Click <b>Upload to board…</b>. designElectronics uses <b>arduino-cli</b>, the engine of the Arduino IDE. If you have <a href="https://www.arduino.cc/en/software">Arduino IDE 2</a> installed it's found automatically, or install <a href="https://arduino.github.io/arduino-cli/latest/installation/">arduino-cli</a> (<code>brew install arduino-cli</code>, <code>winget install ArduinoSA.CLI</code>). Pick the USB port, press <b>Compile &amp; Upload</b>, and follow the log. <b>Install board support</b> fetches the ESP32, ESP8266, Pico, STM32 or Teensy core the first time. Uploading works in the desktop apps; in the browser use <b>Export .ino</b>.</p>
 </section>
 
 <!-- ============================== PARTS ============================== -->
@@ -514,7 +501,7 @@ D9=PWM:30           # 30 % duty, simulated as the average voltage</code></pre>
     <tr><td>Basics</td><td>Resistors, LEDs, capacitors, diodes, inductors, crystals, transistors, MOSFETs, switches, buttons, potentiometers, LDRs, buzzers, motors, batteries, headers, breadboards, a generic DIP IC with any pin count</td></tr>
   </table></div>
   <h3>Custom parts</h3>
-  <p>Right-click a part ▸ <b>Export Part Definition…</b> saves it as a <code>.dezpart</code> JSON file. Edit the graphics, pins or simulation model, then <b>File ▸ Import Part</b>. Custom parts are embedded in every design that uses them, so shared files always open. A custom chip can even declare its own simulation — for example a quad NAND as <code>VCC=14;GND=7;NAND 1,2&gt;3;…</code>. See the <a href="https://github.com/rORrEtboLt/designElectronics/blob/main/docs/FILE_FORMAT.md">file format</a>.</p>
+  <p>Right-click a part ▸ <b>Export Part Definition…</b> saves it as a <code>.dezpart</code> JSON file. Edit the graphics, pins or simulation model, then <b>File ▸ Import Part</b>. Custom parts are embedded in every design that uses them, so shared files always open. A custom chip can even declare its own simulation, for example a quad NAND as <code>VCC=14;GND=7;NAND 1,2&gt;3;…</code>. See the <a href="https://github.com/rORrEtboLt/designElectronics/blob/main/docs/FILE_FORMAT.md">file format</a>.</p>
   <figure><img src="assets/img/boards.webp" width="1600" height="1000" loading="lazy" alt="Several microcontroller boards"><figcaption>Arduino Mega 2560 and Uno R4 WiFi, Raspberry Pi 5 and Zero, Arduino Nano, Wemos D1 Mini</figcaption></figure>
 </section>
 
@@ -522,7 +509,7 @@ D9=PWM:30           # 30 % duty, simulated as the average voltage</code></pre>
 <section class="panel doc" role="tabpanel" id="history" hidden>
   <h2>Version history &amp; GitHub</h2>
   <h3>Versions on your device</h3>
-  <p>Every time you save, a version is kept — with a summary of what changed (<i>“R1 resistance 220Ω → 330Ω · Added LED2”</i>) and the note you gave it. Open <b>File ▸ Version History…</b> (<kbd>Ctrl/⌘</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd>):</p>
+  <p>Every time you save, a version is kept, with a summary of what changed (<i>“R1 resistance 220Ω → 330Ω · Added LED2”</i>) and the note you gave it. Open <b>File ▸ Version History…</b> (<kbd>Ctrl/⌘</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd>):</p>
   <ul>
     <li><b>Restore</b> brings an old version back into the open design. It's undoable; save to keep it.</li>
     <li><b>Open copy</b> opens an old version as a new, separate design.</li>
@@ -533,7 +520,7 @@ D9=PWM:30           # 30 % duty, simulated as the average voltage</code></pre>
   <ol class="steps">
     <li><b>Connect.</b> <b>File ▸ Connect GitHub…</b> For now you paste a fine-grained personal access token (the window links to the GitHub page and lists the permissions it needs: <i>Contents: read &amp; write</i>, plus <i>Administration</i> so the app can create a private repository). A one-click “Sign in with GitHub” is coming.</li>
     <li><b>Commit.</b> <b>File ▸ Commit to GitHub…</b> (<kbd>Ctrl/⌘</kbd>+<kbd>Shift</kbd>+<kbd>K</kbd>), describe the change, and push.</li>
-    <li><b>Browse.</b> The <b>GitHub</b> tab in Version History lists every commit of the design — restore one or open it as a copy, from any device.</li>
+    <li><b>Browse.</b> The <b>GitHub</b> tab in Version History lists every commit of the design. Restore one or open it as a copy, from any device.</li>
   </ol>
   <div class="note">Designs go to a <b>private</b> repository you own (<code>electronics-designs</code> by default), each design in <b>its own folder</b>. You can also give a design its <b>own repository</b>. Turn on <i>Commit automatically every time I save</i> in the account window if you like. Your token is stored only on your device.</div>
 </section>
@@ -542,7 +529,7 @@ D9=PWM:30           # 30 % duty, simulated as the average voltage</code></pre>
 <section class="panel doc" role="tabpanel" id="embed" hidden>
   <h2>Share: videos, GIFs and blog embeds</h2>
   <h3>Videos and GIFs for Instagram, YouTube and TikTok</h3>
-  <p><b>File ▸ Export ▸ Video or GIF for social media…</b> records your circuit — with the simulation running, so LEDs blink and displays count — in the shape each platform wants:</p>
+  <p><b>File ▸ Export ▸ Video or GIF for social media…</b> records your circuit with the simulation running, so LEDs blink and displays count, in the shape each platform wants:</p>
   <div class="table-wrap"><table>
     <tr><th>Format</th><th>Size</th><th>Use it for</th></tr>
     <tr><td>Reels / Shorts</td><td>9:16 · 1080×1920</td><td>Instagram Reels, YouTube Shorts, TikTok, Stories</td></tr>
@@ -550,26 +537,26 @@ D9=PWM:30           # 30 % duty, simulated as the average voltage</code></pre>
     <tr><td>Square</td><td>1:1 · 1080×1080</td><td>Feeds, X / Twitter, LinkedIn</td></tr>
     <tr><td>YouTube</td><td>16:9 · 1920×1080</td><td>YouTube videos, presentations</td></tr>
   </table></div>
-  <p>Choose MP4 (H.264, 30 fps — uploads everywhere) or an animated GIF (half size, 15 fps — for chats, READMEs and blog posts), the view (or a <b>tour</b> through breadboard → schematic → PCB), the length and a title. Videos are rendered frame by frame with real simulation timing, entirely on your device.</p>
+  <p>Choose MP4 (H.264, 30 fps, uploads everywhere) or an animated GIF (half size, 15 fps, for chats, READMEs and blog posts), the view (or a <b>tour</b> through breadboard → schematic → PCB), the length and a title. Videos are rendered frame by frame with real simulation timing, entirely on your device.</p>
   <h3>Made with Export ▸ Video</h3>
   <div class="media-grid">
     <figure class="media-tall">
       <video data-autoplay src="assets/video/reel-555-blinker.mp4" poster="assets/video/reel-555-blinker.jpg" width="1080" height="1920" controls muted loop playsinline preload="none"></video>
-      <figcaption>Reels / Shorts · 9:16 — the 555 blinker simulating</figcaption>
+      <figcaption>Reels / Shorts · 9:16. The 555 blinker simulating</figcaption>
     </figure>
     <div class="media-col">
       <figure>
         <video data-autoplay src="assets/video/youtube-tour-arduino.mp4" poster="assets/video/youtube-tour-arduino.jpg" width="1920" height="1080" controls muted loop playsinline preload="none"></video>
-        <figcaption>YouTube · 16:9 — a tour of breadboard, schematic and PCB while the Arduino sketch runs</figcaption>
+        <figcaption>YouTube · 16:9. A tour of breadboard, schematic and PCB while the Arduino sketch runs</figcaption>
       </figure>
       <figure>
         <img data-src="assets/video/esp32-blink.gif" width="540" height="540" alt="Animated GIF of an ESP32 blinking an LED" class="gif">
-        <figcaption>Animated GIF · square — 22 KB</figcaption>
+        <figcaption>Animated GIF · square, 22 KB</figcaption>
       </figure>
     </div>
   </div>
   <h3>Embed circuits in your blog</h3>
-  <p>Put a live, interactive circuit in any web page with an <code>&lt;iframe&gt;</code>. Readers can switch between breadboard, schematic and PCB, pan and zoom, and press <b>Simulate</b> — right in your post. This is one, live:</p>
+  <p>Put a live, interactive circuit in any web page with an <code>&lt;iframe&gt;</code>. Readers can switch between breadboard, schematic and PCB, pan and zoom, and press <b>Simulate</b> right in your post. This is one, live:</p>
   <div class="embed-demo">
     <iframe data-src="embed/#example=4&amp;view=breadboard&amp;sim=1" title="Embedded 555 blinker" loading="lazy" allowfullscreen></iframe>
   </div>
@@ -586,7 +573,7 @@ D9=PWM:30           # 30 % duty, simulated as the average voltage</code></pre>
   <div class="table-wrap"><table>
     <tr><th>After <code>#</code></th><th>Meaning</th></tr>
     <tr><td><code>d=…</code></td><td>The design itself (made by <i>Embed in a Website</i>)</td></tr>
-    <tr><td><code>src=https://…/design.dez</code></td><td>Load a hosted <code>.dez</code> file instead — e.g. from a GitHub repo (<code>raw.githubusercontent.com</code>) or a gist. Handy for very large designs, and the embed updates when you update the file.</td></tr>
+    <tr><td><code>src=https://…/design.dez</code></td><td>Load a hosted <code>.dez</code> file instead, e.g. from a GitHub repo (<code>raw.githubusercontent.com</code>) or a gist. Handy for very large designs, and the embed updates when you update the file.</td></tr>
     <tr><td><code>example=0</code>…<code>6</code></td><td>A built-in example</td></tr>
     <tr><td><code>view=breadboard|schematic|pcb</code></td><td>Start view</td></tr>
     <tr><td><code>sim=1</code></td><td>Start simulating</td></tr>
@@ -597,9 +584,9 @@ D9=PWM:30           # 30 % duty, simulated as the average voltage</code></pre>
 <!-- ============================== AI / MCP ============================== -->
 <section class="panel doc" role="tabpanel" id="ai" hidden>
   <h2>Build circuits by chatting with your AI</h2>
-  <p>Open the <b>AI</b> tab (next to Parts and Layers) and describe what you want — <i>“a traffic light with an Arduino Nano”</i>, <i>“add a button that turns the LED on”</i>, <i>“make a PCB for this”</i>. The AI tool you already use on your computer builds it in the open design while you watch: it picks parts, plugs them into the breadboard, wires them, writes the board's sketch and runs the simulation to check its work.</p>
-  <figure><img src="assets/img/ai.webp" width="1600" height="1013" loading="lazy" alt="The AI tab: Claude Code built a traffic light with an Arduino Nano and reports its simulation results"><figcaption>Claude Code built this traffic light from one sentence in 85 s — parts, wiring, sketch and a simulation check</figcaption></figure>
-  <figure><video data-autoplay src="assets/video/ai-esp32-logger.mp4" poster="assets/video/ai-esp32-logger.jpg" width="1600" height="900" controls muted loop playsinline preload="none"></video><figcaption>An ESP32 thermocouple logger built by Claude Code — MAX6675, an SSD1306 OLED graph and a simulation check, done in 66 s</figcaption></figure>
+  <p>Open the <b>AI</b> tab (next to Parts and Layers) and describe what you want: <i>“a traffic light with an Arduino Nano”</i>, <i>“add a button that turns the LED on”</i>, <i>“make a PCB for this”</i>. The AI tool you already use on your computer builds it in the open design while you watch: it picks parts, plugs them into the breadboard, wires them, writes the board's sketch and runs the simulation to check its work.</p>
+  <figure><img src="assets/img/ai.webp" width="1600" height="1013" loading="lazy" alt="The AI tab: Claude Code built a traffic light with an Arduino Nano and reports its simulation results"><figcaption>Claude Code built this traffic light from one sentence in 85 s: parts, wiring, sketch and a simulation check</figcaption></figure>
+  <figure><video data-autoplay src="assets/video/ai-esp32-logger.mp4" poster="assets/video/ai-esp32-logger.jpg" width="1600" height="900" controls muted loop playsinline preload="none"></video><figcaption>An ESP32 thermocouple logger built by Claude Code: MAX6675, an SSD1306 OLED graph and a simulation check, done in 66 s</figcaption></figure>
   <div class="table-wrap"><table>
     <tr><th>Agent</th><th>Setup</th></tr>
     <tr><td><b>Claude Code</b> (recommended)</td><td><code>npm install -g @anthropic-ai/claude-code</code>, then run <code>claude</code> once to sign in. Conversations continue across messages.</td></tr>
@@ -608,18 +595,18 @@ D9=PWM:30           # 30 % duty, simulated as the average voltage</code></pre>
     <tr><td>Custom</td><td>Any command that accepts an MCP config: e.g. <code>mytool --mcp-config {mcp_config} -p {prompt}</code></td></tr>
   </table></div>
   <ul>
-    <li><b>Live:</b> every change appears on the canvas as it happens, and each one is a normal edit — press <kbd>Ctrl/⌘</kbd>+<kbd>Z</kbd> to undo anything.</li>
-    <li><b>Safe by design:</b> the agent runs in an empty folder and may only use designElectronics' tools — no shell, no file access. It connects to the app over <code>127.0.0.1</code> with a one-time token.</li>
+    <li><b>Live:</b> every change appears on the canvas as it happens, and each one is a normal edit. Press <kbd>Ctrl/⌘</kbd>+<kbd>Z</kbd> to undo anything.</li>
+    <li><b>Safe by design:</b> the agent runs in an empty folder and may only use designElectronics' tools: no shell, no file access. It connects to the app over <code>127.0.0.1</code> with a one-time token.</li>
     <li><b>Your account:</b> it uses your own AI subscription or API key; usage is billed by your AI provider as usual. Nothing goes through a designElectronics server.</li>
     <li>The AI tab is in the desktop apps (it needs a command-line AI installed). The app finds tools from your terminal's PATH automatically.</li>
   </ul>
   <h2 style="margin-top:1.6em">Use designElectronics from other AI apps (MCP)</h2>
-  <p>Prefer Claude Desktop, Cursor, VS Code, Conductor or another MCP client? designElectronics has a built-in <a href="https://modelcontextprotocol.io">Model Context Protocol</a> server — the AI tab's <b>Copy MCP config for other apps</b> button copies the setup below. Started with <code>--mcp</code>, any MCP client can search parts, wire circuits, plug parts into a breadboard, simulate, autoroute, run DRC and export Gerbers — and save a <code>.dez</code> you open in the app. It runs locally; nothing goes over the network.</p>
+  <p>Prefer Claude Desktop, Cursor, VS Code, Conductor or another MCP client? designElectronics has a built-in <a href="https://modelcontextprotocol.io">Model Context Protocol</a> server. The AI tab's <b>Copy MCP config for other apps</b> button copies the setup below. Started with <code>--mcp</code>, any MCP client can search parts, wire circuits, plug parts into a breadboard, simulate, autoroute, run DRC and export Gerbers, then save a <code>.dez</code> you open in the app. It runs locally; nothing goes over the network.</p>
   <h3>Set up</h3>
   <p><b>Claude Code</b></p>
 <pre><code>claude mcp add designElectronics -- /path/to/designElectronics --mcp
 # macOS: /path/to/designElectronics.app/Contents/MacOS/designElectronics</code></pre>
-  <p><b>Claude Desktop, Cursor, VS Code and others</b> — add to the client's MCP config:</p>
+  <p><b>Claude Desktop, Cursor, VS Code and others</b>: add to the client's MCP config:</p>
 <pre><code>{
   "mcpServers": {
     "designElectronics": { "command": "/path/to/designElectronics", "args": ["--mcp"] }
@@ -689,12 +676,12 @@ designElectronics --export-examples DIR   write the example designs as .dez file
 <!-- ============================== FAQ ============================== -->
 <section class="panel doc" role="tabpanel" id="faq" hidden>
   <h2>FAQ</h2>
-  <details open><summary>Is it free?</summary><p>Yes. designElectronics is open source under the MIT licence — use it, change it, ship it.</p></details>
+  <details open><summary>Is it free?</summary><p>Yes. designElectronics is open source under the MIT licence. Use it, change it, ship it.</p></details>
   <details><summary>Does it need an internet connection or an account?</summary><p>No. Everything runs on your device. GitHub sync is optional and only talks to GitHub when you commit.</p></details>
-  <details><summary>Will my Arduino / ESP32 / Pico code run in the simulator?</summary><p>Yes — Arduino sketches run in a built-in interpreter covering the core Arduino API (see <a href="#code">Code</a>), and you can upload the same sketch to a real board. SSD1306/SH1106 OLED drawing is shown on the OLED part; other library calls it can't model (WiFi, most I²C devices…) are skipped. Raspberry Pi Linux/Python programs aren't simulated yet.</p></details>
-  <details><summary>How accurate is the simulator?</summary><p>It's a real transient circuit solver (modified nodal analysis, 1 ms steps) with behavioural models for chips. It's built for learning and sanity checks — LED currents, 555 timing, logic, op-amp gain — not for analog precision work; export SPICE for that.</p></details>
+  <details><summary>Will my Arduino / ESP32 / Pico code run in the simulator?</summary><p>Yes. Arduino sketches run in a built-in interpreter covering the core Arduino API (see <a href="#code">Code</a>), and you can upload the same sketch to a real board. SSD1306/SH1106 OLED drawing is shown on the OLED part; other library calls it can't model (WiFi, most I²C devices…) are skipped. Raspberry Pi Linux/Python programs aren't simulated yet.</p></details>
+  <details><summary>How accurate is the simulator?</summary><p>It's a real transient circuit solver (modified nodal analysis, 1 ms steps) with behavioural models for chips. It's built for learning and sanity checks (LED currents, 555 timing, logic, op-amp gain), not for analog precision work; export SPICE for that.</p></details>
   <details><summary>Can I order a real PCB from it?</summary><p>Yes. Export Gerbers (File ▸ Export) and upload the zip to a PCB maker. Run DRC first, and check the board in the fab's Gerber viewer before ordering.</p></details>
-  <details><summary>A part I need is missing.</summary><p>Open an <a href="https://github.com/rORrEtboLt/designElectronics/issues">issue</a> with the part name and a datasheet link, or make it yourself as a <code>.dezpart</code> — and send it as a pull request so everyone gets it.</p></details>
+  <details><summary>A part I need is missing.</summary><p>Open an <a href="https://github.com/rORrEtboLt/designElectronics/issues">issue</a> with the part name and a datasheet link, or make it yourself as a <code>.dezpart</code> and send it as a pull request so everyone gets it.</p></details>
   <h3>Contribute</h3>
   <p>Parts are the easiest way to help: each one is a small generator in <code>src/catalog.cpp</code> (or a table row). Run <code>--selftest</code> before you open a pull request. Bug reports with a <code>.dez</code> file attached are gold.</p>
   <p><a class="btn primary" href="https://github.com/rORrEtboLt/designElectronics">Open the GitHub repository</a></p>
@@ -789,11 +776,15 @@ designElectronics --export-examples DIR   write the example designs as .dez file
 
   // theme toggle (remembered per browser; falls back to the system setting)
   const root = document.documentElement;
+  const themeBtn = document.getElementById('theme');
+  const isDark = () => root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  const labelTheme = () => { themeBtn.textContent = isDark() ? 'Light' : 'Dark'; themeBtn.title = 'Switch to ' + themeBtn.textContent.toLowerCase() + ' mode'; };
   try { const t = localStorage.getItem('de-theme'); if (t) root.dataset.theme = t; } catch (e) {}
-  document.getElementById('theme').addEventListener('click', () => {
-    const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
-    root.dataset.theme = dark ? 'light' : 'dark';
+  labelTheme();
+  themeBtn.addEventListener('click', () => {
+    root.dataset.theme = isDark() ? 'light' : 'dark';
     try { localStorage.setItem('de-theme', root.dataset.theme); } catch (e) {}
+    labelTheme();
   });
 })();
 </script>
