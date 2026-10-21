@@ -88,6 +88,20 @@ struct CodeEditorState {
     std::vector<std::pair<std::string, size_t>> undo, redo;
 };
 
+// Platform text editing. The web build sets these to overlay a real <input>/<textarea> on the
+// focused field, which brings the phone's keyboard, cursor handles and cut/copy/paste.
+struct NativeTextEdit {
+    void (*begin)(Rect r, const std::string& text, bool multiline, float px) = nullptr;
+    void (*place)(Rect r) = nullptr;               // keep it over the field (sheets scroll, layouts change)
+    void (*setText)(const std::string& text) = nullptr;
+    int (*poll)(std::string& text) = nullptr;      // current text; returns 0 editing, 1 Enter, 2 Escape, 3 lost focus
+    void (*end)() = nullptr;
+    // This frame's fields, so a tap can focus the overlay inside the touch handler (iOS only opens
+    // the keyboard from there). `box` is where the text goes, `hit` the whole field.
+    struct Field { Rect hit, box; bool multiline; };
+    void (*fields)(const std::vector<Field>& fields) = nullptr;
+};
+
 enum ButtonStyle { BTN_NORMAL, BTN_FLAT, BTN_TAB, BTN_PRIMARY, BTN_TOOL, BTN_CHIP };
 
 class UI {
@@ -97,6 +111,7 @@ public:
     SDL_Window* window = nullptr;
     Theme th;
     float s = 1;           // ui scale (pixels per point)
+    NativeTextEdit native;
 
     void begin();
     void end();            // draws popups, dialogs, toasts, tooltip
@@ -164,6 +179,9 @@ private:
     size_t focus_ = 0;
     std::string editBuf_;
     size_t caret_ = 0;
+    bool nativeOn_ = false, focusSeen_ = false;  // focused field is edited by `native`; drawn this frame
+    std::vector<NativeTextEdit::Field> fieldRects_;
+    void startEditing(Rect r, Rect box, bool multiline, float px);
     size_t pressedId_ = 0;
     bool menuJustOpened_ = false;
     std::string pendingCombo_;
