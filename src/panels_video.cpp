@@ -35,7 +35,6 @@ struct App::VideoJob {
     int w = 0, h = 0, fps = 30, frames = 0, frame = 0;
     int viewMode = 0;  // 0..2 a view, 3 = tour of all three
     bool simulate = true, watermark = true, gif = false;
-    std::string title;
     bool cancel = false;
 };
 
@@ -109,10 +108,10 @@ void App::openVideoSheet() {
         }
         ui.checkbox("vid-sim", Rect(x + 16 * s, y, 220 * s, 32 * s), "Run the simulation", videoSimulate);
         y += 44 * s;
-        heading("TITLE");
-        ui.textField("vid-title", Rect(body.x, y, body.w, 34 * s), videoTitle, "Shown at the top of the video", true);
+        heading("NAME");
+        ui.textField("vid-title", Rect(body.x, y, body.w, 34 * s), videoTitle, "Used for the file name", true);
         y += 44 * s;
-        ui.checkbox("vid-wm", Rect(body.x, y, body.w, 30 * s), "Add “Made with designElectronics” at the bottom", videoWatermark);
+        ui.checkbox("vid-wm", Rect(body.x, y, body.w, 30 * s), "Add a small designElectronics logo and link in the corner", videoWatermark);
         if (ui.button("vid-go", Rect(body.r() - 160 * s, body.b() - 38 * s, 160 * s, 38 * s), "Export…", BTN_PRIMARY)) {
             std::string base;
             for (char c : (videoTitle.empty() ? doc.title : videoTitle)) base += std::isalnum((unsigned char)c) ? c : '_';
@@ -146,7 +145,6 @@ void App::startVideo(const std::string& path) {
     job->viewMode = videoView;
     job->simulate = videoSimulate;
     job->watermark = videoWatermark;
-    job->title = videoTitle;
     job->path = path;
     std::string err;
     job->writer = videoGif ? openGif(path, job->w, job->h, job->fps, &err) : openMp4(path, job->w, job->h, job->fps, &err);
@@ -183,20 +181,8 @@ bool App::renderVideoFrame() {
     SDL_SetRenderTarget(ren, J.target);
     SDL_SetRenderDrawColor(ren, 240, 241, 244, 255);
     SDL_RenderClear(ren);
-    // title bar
-    float barH = std::round(150 * u);
-    g.fillRect(Rect(0, 0, W, barH), rgba(11, 22, 48));
-    drawLogo(g, Rect(40 * u, barH / 2 - 44 * u, 88 * u, 88 * u));
-    std::string title = J.title.empty() ? doc.title : J.title;
-    float tmax = W - 200 * u;
-    float tpx = 56 * u;
-    while (g.textWidth(title, tpx) > tmax && tpx > 30 * u) tpx -= 2 * u;
-    g.text({150 * u, barH / 2 - (J.viewMode == 3 || J.simulate ? 16 * u : 0)}, title, tpx, rgba(255, 255, 255), 0);
-    std::string sub = std::string(viewName(v)) + (J.simulate ? " · live simulation" : "");
-    if (J.viewMode == 3 || J.simulate) g.text({150 * u, barH / 2 + 34 * u}, sub, 30 * u, rgba(150, 185, 255), 0);
-    // canvas
-    float footH = J.watermark ? std::round(90 * u) : 0;
-    Rect vp(0, barH, W, H - barH - footH);
+    // the circuit fills the frame; the watermark is a small faded corner mark
+    Rect vp(0, 0, W, H);
     g.fillRect(vp, v == PCB ? rgba(60, 64, 72) : rgba(246, 246, 244));
     rCanvas = vp;
     fitView(v, vp);
@@ -214,14 +200,13 @@ bool App::renderVideoFrame() {
         }
     }
     drawCanvas(v, cam[v], vp, true);
-    // footer
     if (J.watermark) {
-        Rect f(0, H - footH, W, footH);
-        g.fillRect(f, rgba(255, 255, 255));
-        g.fillRect(Rect(0, f.y, W, std::max(1.f, u * 2)), rgba(220, 224, 232));
-        drawLogo(g, Rect(40 * u, f.center().y - 26 * u, 52 * u, 52 * u));
-        g.text({104 * u, f.center().y - 10 * u}, "Made with designElectronics", 30 * u, rgba(30, 40, 60), 0);
-        g.text({104 * u, f.center().y + 22 * u}, "free & open source · rorretbolt.github.io/designElectronics", 21 * u, rgba(110, 120, 140), 0);
+        float m = 28 * u, lg = 40 * u, px = 22 * u;
+        const char* link = "rorretbolt.github.io/designElectronics";
+        float x = W - m - g.textWidth(link, px);
+        uint32_t ink = v == PCB ? rgba(255, 255, 255, 150) : rgba(30, 40, 60, 130);
+        drawLogo(g, Rect(x - lg - 10 * u, H - m - lg, lg, lg), 0.55f);
+        g.text({x, H - m - lg / 2}, link, px, ink, 0);
     }
     g.flush();
     SDL_Surface* shot = SDL_RenderReadPixels(ren, nullptr);

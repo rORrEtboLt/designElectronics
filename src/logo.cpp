@@ -50,7 +50,8 @@ float sdBody(Vec2 p) {
 
 }  // namespace
 
-void drawLogo(Gfx& g, Rect r) {
+void drawLogo(Gfx& g, Rect r, float opacity) {
+    auto col = [&](RGB c, int a = 255) { return ::col(c, (int)std::lround(a * opacity)); };
     float S = std::min(r.w, r.h);
     Vec2 o(r.x + (r.w - S) / 2, r.y + (r.h - S) / 2);
     auto P = [&](Vec2 p) { return o + p * S; };
@@ -67,7 +68,7 @@ void drawLogo(Gfx& g, Rect r) {
     g.fillCircle(P(kDie), S * kDieR * 3.2f, col(kBodyHot, 70));
     g.fillCircle(P(kDie), S * kDieR * 2.2f, col(kBodyHot, 140));
     g.fillCircle(P(kDie), S * kDieR * 1.2f, col(kChipCol, 230));
-    g.line(P(kShine0), P(kShine1), std::max(1.f, S * kShineW), rgba(255, 255, 255, 120));
+    g.line(P(kShine0), P(kShine1), std::max(1.f, S * kShineW), rgba(255, 255, 255, (int)std::lround(120 * opacity)));
 }
 
 SDL_Surface* makeLogoSurface(int size) {
