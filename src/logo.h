@@ -8,8 +8,8 @@
 
 class Gfx;
 
-// Draw the logo into a square in pixel coordinates.
-void drawLogo(Gfx& g, Rect r);
+// Draw the logo into a square in pixel coordinates; opacity 0..1 fades it (watermarks).
+void drawLogo(Gfx& g, Rect r, float opacity = 1);
 
 // Rasterise the logo into a new RGBA surface (window icon, PNG export).
 SDL_Surface* makeLogoSurface(int size);

@@ -1,4 +1,5 @@
-// designElectronics — the logo: a glowing blue 5 mm LED on a dark tile.
+// designElectronics — the logo: a lit LED drawn as flat blue line art on a
+// navy disc (pads on the legs, three rays of light). No gradients or glow.
 // The same geometry (unit square, y down) feeds the on-screen drawing, the
 // rasterised app icon and the SVG.
 #include "logo.h"
@@ -6,30 +7,33 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
+#include <vector>
 
 #include "gfx.h"
 
 namespace {
 
 struct RGB { float r, g, b; };
-constexpr RGB kTile{10, 20, 46}, kGlow{60, 140, 255}, kBody{58, 130, 250}, kBodyHot{170, 215, 255}, kRim{36, 92, 205},
-              kLeg{196, 202, 214}, kChipCol{240, 248, 255};
-constexpr float kCorner = 0.22f;
+constexpr RGB kDisc{10, 20, 46}, kInk{60, 140, 255};
 
 // geometry
-constexpr float kDomeCx = 0.5f, kDomeCy = 0.36f, kDomeR = 0.165f;    // dome = half circle
-constexpr float kBodyX0 = 0.335f, kBodyX1 = 0.665f, kBodyY1 = 0.62f;  // body below the dome
-constexpr float kRimX0 = 0.305f, kRimX1 = 0.695f, kRimY0 = 0.60f, kRimY1 = 0.665f;
-constexpr float kLegW = 0.036f;
-const Vec2 kLegA0{0.43f, 0.66f}, kLegA1{0.43f, 0.89f};  // cathode (short)
-const Vec2 kLegB0{0.57f, 0.66f}, kLegB1{0.57f, 0.94f};  // anode (long)
-const Vec2 kDie{0.5f, 0.47f};
-constexpr float kDieR = 0.04f;
-const Vec2 kShine0{0.395f, 0.30f}, kShine1{0.395f, 0.52f};
-constexpr float kShineW = 0.032f;
+constexpr float kStroke = 0.05f;                                     // line width
+constexpr float kDomeCx = 0.5f, kDomeCy = 0.42f, kDomeR = 0.14f;      // dome = half circle
+constexpr float kBodyY1 = 0.58f;                                      // body sides run down to here
+constexpr float kRimX0 = 0.32f, kRimX1 = 0.68f, kRimY0 = 0.58f, kRimY1 = 0.635f;
+const Vec2 kLegA0{0.44f, 0.635f}, kLegA1{0.44f, 0.73f};  // cathode (short)
+const Vec2 kLegB0{0.56f, 0.635f}, kLegB1{0.56f, 0.78f};  // anode (long)
+constexpr float kPadR = 0.035f;                          // pad ring at each leg's end
+constexpr float kRayR0 = 0.205f, kRayR1 = 0.275f;        // rays, measured from the dome centre
+const float kRayDeg[] = {-90.f, -135.f, -45.f};
 
 uint32_t col(RGB c, int a = 255) { return rgba((int)c.r, (int)c.g, (int)c.b, a); }
 RGB mix(RGB a, RGB b, float t) { return {a.r + (b.r - a.r) * t, a.g + (b.g - a.g) * t, a.b + (b.b - a.b) * t}; }
+Vec2 pad(Vec2 legEnd) { return {legEnd.x, legEnd.y + kPadR}; }
+Vec2 ray(float deg, float r) {
+    float a = deg * 3.14159265f / 180.f;
+    return {kDomeCx + std::cos(a) * r, kDomeCy + std::sin(a) * r};
+}
 
 // signed distances (negative inside)
 float sdBox(Vec2 p, float x0, float y0, float x1, float y1, float rad = 0) {
@@ -42,32 +46,43 @@ float sdSeg(Vec2 p, Vec2 a, Vec2 b, float w) {
     float t = std::clamp(dot(p - a, ab) / std::max(1e-9f, dot(ab, ab)), 0.f, 1.f);
     return len(p - (a + ab * t)) - w / 2;
 }
-float sdBody(Vec2 p) {
-    float dome = len(p - Vec2(kDomeCx, kDomeCy)) - kDomeR;
-    float box = sdBox(p, kBodyX0, kDomeCy, kBodyX1, kBodyY1);
-    return std::min(dome, box);
+// everything drawn in white
+float sdInk(Vec2 p) {
+    float x0 = kDomeCx - kDomeR, x1 = kDomeCx + kDomeR;
+    float dome = p.y <= kDomeCy ? std::fabs(len(p - Vec2(kDomeCx, kDomeCy)) - kDomeR) - kStroke / 2 : 1e9f;
+    float d = std::min({dome, sdSeg(p, {x0, kDomeCy}, {x0, kBodyY1}, kStroke), sdSeg(p, {x1, kDomeCy}, {x1, kBodyY1}, kStroke)});
+    d = std::min(d, sdBox(p, kRimX0, kRimY0, kRimX1, kRimY1, 0.012f));
+    d = std::min({d, sdSeg(p, kLegA0, kLegA1, kStroke), sdSeg(p, kLegB0, kLegB1, kStroke)});
+    for (Vec2 e : {kLegA1, kLegB1}) d = std::min(d, std::fabs(len(p - pad(e)) - kPadR) - kStroke / 2);
+    for (float a : kRayDeg) d = std::min(d, sdSeg(p, ray(a, kRayR0), ray(a, kRayR1), kStroke));
+    return d;
 }
 
 }  // namespace
 
-void drawLogo(Gfx& g, Rect r) {
+void drawLogo(Gfx& g, Rect r, float opacity) {
     float S = std::min(r.w, r.h);
     Vec2 o(r.x + (r.w - S) / 2, r.y + (r.h - S) / 2);
     auto P = [&](Vec2 p) { return o + p * S; };
-    g.fillRoundRect(Rect(o.x, o.y, S, S), S * kCorner, col(kTile));
-    // halo
-    for (int i = 6; i >= 1; i--) g.fillCircle(P({0.5f, 0.44f}), S * (0.18f + 0.045f * (float)i), col(kGlow, 14));
-    // legs, rim, body
-    g.line(P(kLegA0), P(kLegA1), std::max(1.f, S * kLegW), col(kLeg));
-    g.line(P(kLegB0), P(kLegB1), std::max(1.f, S * kLegW), col(kLeg));
-    g.fillRoundRect(Rect(o.x + kRimX0 * S, o.y + kRimY0 * S, (kRimX1 - kRimX0) * S, (kRimY1 - kRimY0) * S), S * 0.015f, col(kRim));
-    g.fillCircle(P({kDomeCx, kDomeCy}), S * kDomeR, col(kBody));
-    g.fillRect(Rect(o.x + kBodyX0 * S, o.y + kDomeCy * S, (kBodyX1 - kBodyX0) * S, (kBodyY1 - kDomeCy) * S), col(kBody));
-    // lit chip and shine
-    g.fillCircle(P(kDie), S * kDieR * 3.2f, col(kBodyHot, 70));
-    g.fillCircle(P(kDie), S * kDieR * 2.2f, col(kBodyHot, 140));
-    g.fillCircle(P(kDie), S * kDieR * 1.2f, col(kChipCol, 230));
-    g.line(P(kShine0), P(kShine1), std::max(1.f, S * kShineW), rgba(255, 255, 255, 120));
+    int a = (int)std::lround(255 * opacity);
+    uint32_t ink = col(kInk, a);
+    float w = std::max(1.5f, S * kStroke);  // stays legible in the menu bar
+    g.fillCircle(P({0.5f, 0.5f}), S * 0.5f, col(kDisc, a));
+    // dome and body outline, open at the bottom where the rim sits
+    std::vector<Vec2> outline;
+    outline.push_back(P({kDomeCx - kDomeR, kBodyY1}));
+    for (int i = 0; i <= 24; i++) {
+        float t = 3.14159265f * (1.f + (float)i / 24.f);
+        outline.push_back(P({kDomeCx + std::cos(t) * kDomeR, kDomeCy + std::sin(t) * kDomeR}));
+    }
+    outline.push_back(P({kDomeCx + kDomeR, kBodyY1}));
+    g.polyline(outline, w, ink);
+    g.fillRoundRect(Rect(o.x + kRimX0 * S, o.y + kRimY0 * S, (kRimX1 - kRimX0) * S, (kRimY1 - kRimY0) * S), S * 0.012f, ink);
+    g.line(P(kLegA0), P(kLegA1), w, ink, false);
+    g.line(P(kLegB0), P(kLegB1), w, ink, false);
+    g.strokeCircle(P(pad(kLegA1)), S * kPadR, w, ink);
+    g.strokeCircle(P(pad(kLegB1)), S * kPadR, w, ink);
+    for (float d : kRayDeg) g.line(P(ray(d, kRayR0)), P(ray(d, kRayR1)), w, ink);
 }
 
 SDL_Surface* makeLogoSurface(int size) {
@@ -79,24 +94,12 @@ SDL_Surface* makeLogoSurface(int size) {
         auto* row = (uint8_t*)surf->pixels + (size_t)y * (size_t)surf->pitch;
         for (int x = 0; x < size; x++) {
             Vec2 p(((float)x + 0.5f) * px, ((float)y + 0.5f) * px);
-            float aTile = cover(sdBox(p, 0, 0, 1, 1, kCorner));
-            RGB c = kTile;
-            // halo around the lit LED
-            float body = sdBody(p);
-            c = mix(c, kGlow, 0.75f * std::exp(-std::max(body, 0.f) / 0.07f) * (body > 0 ? 1.f : 0.f));
-            // legs and rim
-            float leg = std::min(sdSeg(p, kLegA0, kLegA1, kLegW), sdSeg(p, kLegB0, kLegB1, kLegW));
-            c = mix(c, kLeg, cover(leg));
-            c = mix(c, kRim, cover(sdBox(p, kRimX0, kRimY0, kRimX1, kRimY1, 0.015f)));
-            // body: brighter towards the chip
-            float heat = std::exp(-len(p - kDie) / 0.13f);
-            c = mix(c, mix(kBody, kBodyHot, 0.85f * heat), cover(body));
-            c = mix(c, kChipCol, std::clamp(1.4f - len(p - kDie) / kDieR, 0.f, 1.f) * cover(body));
-            c = mix(c, RGB{255, 255, 255}, 0.45f * cover(sdSeg(p, kShine0, kShine1, kShineW)));
+            float aDisc = cover(len(p - Vec2(0.5f, 0.5f)) - 0.5f);
+            RGB c = mix(kDisc, kInk, cover(sdInk(p)));
             row[x * 4 + 0] = (uint8_t)std::clamp(c.r, 0.f, 255.f);
             row[x * 4 + 1] = (uint8_t)std::clamp(c.g, 0.f, 255.f);
             row[x * 4 + 2] = (uint8_t)std::clamp(c.b, 0.f, 255.f);
-            row[x * 4 + 3] = (uint8_t)(aTile * 255.f + 0.5f);
+            row[x * 4 + 3] = (uint8_t)(aDisc * 255.f + 0.5f);
         }
     }
     return surf;
@@ -105,28 +108,23 @@ SDL_Surface* makeLogoSurface(int size) {
 std::string logoSvg() {
     auto hex = [](RGB c) { char b[8]; snprintf(b, sizeof b, "#%02x%02x%02x", (int)c.r, (int)c.g, (int)c.b); return std::string(b); };
     auto n = [](float v) { char b[16]; snprintf(b, sizeof b, "%.1f", v * 256); return std::string(b); };
+    auto ln = [&](Vec2 a, Vec2 b) {
+        return "    <line x1=\"" + n(a.x) + "\" y1=\"" + n(a.y) + "\" x2=\"" + n(b.x) + "\" y2=\"" + n(b.y) + "\"/>\n";
+    };
     std::string s;
     s += "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" width=\"256\" height=\"256\">\n";
-    s += "  <title>designElectronics</title>\n  <defs>\n";
-    s += "    <radialGradient id=\"halo\" cx=\"0.5\" cy=\"0.44\" r=\"0.42\"><stop offset=\"0.35\" stop-color=\"" + hex(kGlow) +
-         "\" stop-opacity=\"0.75\"/><stop offset=\"1\" stop-color=\"" + hex(kGlow) + "\" stop-opacity=\"0\"/></radialGradient>\n";
-    s += "    <radialGradient id=\"lit\" cx=\"" + n(kDie.x) + "\" cy=\"" + n(kDie.y) + "\" r=\"" + n(0.24f) +
-         "\" gradientUnits=\"userSpaceOnUse\"><stop offset=\"0\" stop-color=\"" + hex(kBodyHot) + "\"/><stop offset=\"1\" stop-color=\"" +
-         hex(kBody) + "\"/></radialGradient>\n";
-    s += "    <radialGradient id=\"chip\"><stop offset=\"0.3\" stop-color=\"" + hex(kChipCol) + "\"/><stop offset=\"1\" stop-color=\"" +
-         hex(kBodyHot) + "\" stop-opacity=\"0\"/></radialGradient>\n  </defs>\n";
-    s += "  <rect width=\"256\" height=\"256\" rx=\"" + n(kCorner) + "\" fill=\"" + hex(kTile) + "\"/>\n";
-    s += "  <rect width=\"256\" height=\"256\" rx=\"" + n(kCorner) + "\" fill=\"url(#halo)\"/>\n";
-    s += "  <g stroke=\"" + hex(kLeg) + "\" stroke-width=\"" + n(kLegW) + "\" stroke-linecap=\"round\">\n";
-    s += "    <line x1=\"" + n(kLegA0.x) + "\" y1=\"" + n(kLegA0.y) + "\" x2=\"" + n(kLegA1.x) + "\" y2=\"" + n(kLegA1.y) + "\"/>\n";
-    s += "    <line x1=\"" + n(kLegB0.x) + "\" y1=\"" + n(kLegB0.y) + "\" x2=\"" + n(kLegB1.x) + "\" y2=\"" + n(kLegB1.y) + "\"/>\n  </g>\n";
-    s += "  <rect x=\"" + n(kRimX0) + "\" y=\"" + n(kRimY0) + "\" width=\"" + n(kRimX1 - kRimX0) + "\" height=\"" + n(kRimY1 - kRimY0) +
-         "\" rx=\"" + n(0.015f) + "\" fill=\"" + hex(kRim) + "\"/>\n";
-    s += "  <path d=\"M" + n(kBodyX0) + " " + n(kBodyY1) + " V" + n(kDomeCy) + " A" + n(kDomeR) + " " + n(kDomeR) + " 0 0 1 " + n(kBodyX1) +
-         " " + n(kDomeCy) + " V" + n(kBodyY1) + " Z\" fill=\"url(#lit)\"/>\n";
-    s += "  <circle cx=\"" + n(kDie.x) + "\" cy=\"" + n(kDie.y) + "\" r=\"" + n(kDieR * 2.4f) + "\" fill=\"url(#chip)\"/>\n";
-    s += "  <line x1=\"" + n(kShine0.x) + "\" y1=\"" + n(kShine0.y) + "\" x2=\"" + n(kShine1.x) + "\" y2=\"" + n(kShine1.y) +
-         "\" stroke=\"#ffffff\" stroke-opacity=\"0.45\" stroke-width=\"" + n(kShineW) + "\" stroke-linecap=\"round\"/>\n";
+    s += "  <title>designElectronics</title>\n";
+    s += "  <circle cx=\"128\" cy=\"128\" r=\"128\" fill=\"" + hex(kDisc) + "\"/>\n";
+    s += "  <g fill=\"none\" stroke=\"" + hex(kInk) + "\" stroke-width=\"" + n(kStroke) + "\" stroke-linejoin=\"round\">\n";
+    s += "    <path d=\"M" + n(kDomeCx - kDomeR) + " " + n(kBodyY1) + " V" + n(kDomeCy) + " A" + n(kDomeR) + " " + n(kDomeR) + " 0 0 1 " +
+         n(kDomeCx + kDomeR) + " " + n(kDomeCy) + " V" + n(kBodyY1) + "\"/>\n";
+    s += ln(kLegA0, kLegA1) + ln(kLegB0, kLegB1);
+    for (Vec2 e : {kLegA1, kLegB1}) s += "    <circle cx=\"" + n(pad(e).x) + "\" cy=\"" + n(pad(e).y) + "\" r=\"" + n(kPadR) + "\"/>\n";
+    s += "  </g>\n  <g stroke=\"" + hex(kInk) + "\" stroke-width=\"" + n(kStroke) + "\" stroke-linecap=\"round\">\n";
+    for (float a : kRayDeg) s += ln(ray(a, kRayR0), ray(a, kRayR1));
+    s += "  </g>\n  <g fill=\"" + hex(kInk) + "\">\n";
+    s += "    <rect x=\"" + n(kRimX0) + "\" y=\"" + n(kRimY0) + "\" width=\"" + n(kRimX1 - kRimX0) + "\" height=\"" + n(kRimY1 - kRimY0) +
+         "\" rx=\"" + n(0.012f) + "\"/>\n  </g>\n";
     s += "</svg>\n";
     return s;
 }
