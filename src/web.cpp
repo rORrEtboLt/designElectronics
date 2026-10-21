@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cstdio>
 #include <functional>
+#include <cstdlib>
 #include <cstring>
 
 #include "app.h"
@@ -302,6 +303,141 @@ EM_JS(void, de_js_pick_file, (const char* accept), {
     input.click();
 });
 
+// Text fields: while one is being edited, a real <input>/<textarea> sits over it, so phones get
+// their keyboard, cursor handles and cut/copy/paste. Coordinates come in canvas pixels.
+EM_JS_DEPS(de_edit, "$stringToNewUTF8");
+EM_JS(void, de_js_edit_init, (), {
+    if (Module.deEdit) return;
+    const canvas = Module.canvas;
+    const st = { action: 0, active: null, fields: [], pending: 0 };
+    Module.deEdit = st;
+    const mk = (tag) => {
+        const el = document.createElement(tag);
+        for (const a of ['autocomplete', 'autocorrect', 'autocapitalize']) el.setAttribute(a, 'off');
+        el.spellcheck = false;
+        Object.assign(el.style, { position: 'fixed', display: 'none', zIndex: 10, margin: 0, padding: 0, border: 0, outline: 'none',
+            background: 'transparent', resize: 'none', boxSizing: 'border-box', overflow: 'hidden',
+            fontFamily: 'Lato, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' });
+        // keys belong to the field, not to the app's shortcuts
+        el.addEventListener('keydown', e => {
+            e.stopPropagation();
+            if (e.key === 'Enter' && !(tag === 'textarea' && e.shiftKey)) { e.preventDefault(); st.action = 1; }
+            else if (e.key === 'Escape') { e.preventDefault(); st.action = 2; }
+        });
+        for (const t of ['keyup', 'keypress', 'pointerdown', 'pointerup', 'touchstart', 'touchend', 'mousedown', 'mouseup', 'wheel'])
+            el.addEventListener(t, e => e.stopPropagation());
+        el.addEventListener('blur', () => { if (st.active === el) st.action = 3; });
+        document.body.appendChild(el);
+        return el;
+    };
+    st.input = mk('input');
+    st.area = mk('textarea');
+    st.show = (el, x, y, w, h, px) => {
+        if (el.parentNode !== document.body) document.body.appendChild(el);  // SDL's fill-document mode hides earlier children
+        const b = canvas.getBoundingClientRect(), k = b.width / canvas.width;
+        Object.assign(el.style, { display: 'block', left: (b.left + x * k) + 'px', top: (b.top + y * k) + 'px', width: (w * k) + 'px',
+            height: (h * k) + 'px', fontSize: (px * k) + 'px', lineHeight: el === st.area ? (px * k * 19 / 14) + 'px' : (h * k) + 'px' });
+        if (st.active && st.active !== el) st.active.style.display = 'none';
+        st.active = el;
+    };
+    st.hide = () => {
+        const el = st.active;
+        st.active = null;
+        st.action = 0;
+        if (el) {
+            const had = document.activeElement === el;
+            el.style.display = 'none';
+            if (had) canvas.focus({ preventScroll: true });  // give the keys back to the app
+        }
+    };
+    // Focus inside the touch handler: iOS only opens the keyboard from a user gesture.
+    canvas.addEventListener('touchend', e => {
+        const t = e.changedTouches[0];
+        if (!t || st.active) return;
+        const b = canvas.getBoundingClientRect(), k = canvas.width / b.width;
+        const x = (t.clientX - b.left) * k, y = (t.clientY - b.top) * k;
+        for (const f of st.fields) {
+            if (x < f[0] || y < f[1] || x > f[0] + f[2] || y > f[1] + f[3]) continue;
+            const el = f[8] ? st.area : st.input;
+            st.show(el, f[4], f[5], f[6], f[7], f[9]);
+            el.value = "";
+            el.focus();
+            // the app takes it over on its next frame; if it doesn't (the tap was a scroll), let go
+            clearTimeout(st.pending);
+            st.pending = setTimeout(() => { if (st.active === el && !st.owned) st.hide(); }, 400);
+            st.owned = false;
+            return;
+        }
+    }, { capture: true, passive: true });
+});
+
+EM_JS(void, de_js_edit_begin, (float x, float y, float w, float h, const char* text, int multi, float px, const char* color), {
+    const st = Module.deEdit;
+    const el = multi ? st.area : st.input;
+    st.show(el, x, y, w, h, px);
+    st.owned = true;
+    el.style.color = UTF8ToString(color);
+    el.style.caretColor = UTF8ToString(color);
+    el.value = UTF8ToString(text);
+    st.action = 0;
+    if (document.activeElement !== el) el.focus();
+    const n = el.value.length;
+    el.setSelectionRange(n, n);
+});
+EM_JS(void, de_js_edit_place, (float x, float y, float w, float h, float px), {
+    const st = Module.deEdit;
+    if (st.active) st.show(st.active, x, y, w, h, px);
+});
+EM_JS(void, de_js_edit_set, (const char* text), {
+    const st = Module.deEdit;
+    if (st.active) st.active.value = UTF8ToString(text);
+});
+EM_JS(char*, de_js_edit_text, (), {
+    const st = Module.deEdit;
+    return stringToNewUTF8(st.active ? st.active.value : "");
+});
+EM_JS(int, de_js_edit_action, (), {
+    const st = Module.deEdit;
+    const a = st.action;
+    if (a !== 3) st.action = 0;
+    return a;
+});
+EM_JS(void, de_js_edit_end, (), { Module.deEdit.hide(); });
+EM_JS(void, de_js_edit_fields, (const float* d, int n), {
+    const st = Module.deEdit;
+    st.fields = [];
+    for (let i = 0; i < n; i++) st.fields.push(Array.from(HEAPF32.subarray((d >> 2) + i * 10, (d >> 2) + i * 10 + 10)));
+});
+
+namespace {
+float editPx() { return g_webApp ? 14 * g_webApp->ui.s : 14; }
+std::string cssColor(uint32_t c) {
+    char b[32];
+    snprintf(b, sizeof b, "rgb(%u,%u,%u)", c >> 24, (c >> 16) & 255, (c >> 8) & 255);
+    return b;
+}
+void installNativeEdit(UI& ui) {
+    de_js_edit_init();
+    ui.native.begin = [](Rect r, const std::string& text, bool multi, float px) {
+        de_js_edit_begin(r.x, r.y, r.w, r.h, text.c_str(), multi, px, cssColor(g_webApp->ui.th.text).c_str());
+    };
+    ui.native.place = [](Rect r) { de_js_edit_place(r.x, r.y, r.w, r.h, editPx()); };
+    ui.native.setText = [](const std::string& t) { de_js_edit_set(t.c_str()); };
+    ui.native.poll = [](std::string& t) {
+        char* p = de_js_edit_text();
+        t = p;
+        free(p);
+        return de_js_edit_action();
+    };
+    ui.native.end = []() { de_js_edit_end(); };
+    ui.native.fields = [](const std::vector<NativeTextEdit::Field>& fs) {
+        std::vector<float> d;
+        for (auto& f : fs) d.insert(d.end(), {f.hit.x, f.hit.y, f.hit.w, f.hit.h, f.box.x, f.box.y, f.box.w, f.box.h, f.multiline ? 1.f : 0.f, editPx()});
+        de_js_edit_fields(d.data(), (int)fs.size());
+    };
+}
+}  // namespace
+
 extern "C" EMSCRIPTEN_KEEPALIVE void de_web_opened(const char* path) {
     if (!g_webApp) return;
     std::string p = path;
@@ -310,7 +446,12 @@ extern "C" EMSCRIPTEN_KEEPALIVE void de_web_opened(const char* path) {
 }
 #endif
 
-void webRegisterApp(App* app) { g_webApp = app; }
+void webRegisterApp(App* app) {
+    g_webApp = app;
+#ifdef __EMSCRIPTEN__
+    installNativeEdit(app->ui);
+#endif
+}
 
 // Save `name` through `write(path)` and hand it to the browser as a download.
 void webSaveAndDownload(const std::string& name, const std::function<void(const std::string&)>& write) {

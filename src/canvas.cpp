@@ -116,6 +116,17 @@ Hit App::hitTest(Vec2 s) {
             for (int e = 0; e < 2; e++)
                 if (wr.ends[e].part == part && wr.ends[e].pin == pin && selWires.count(wr.id)) { h.kind = Hit::WIRE_END; h.wire = wr.id; h.index = e; return h; }
         }
+        // On touch the enlarged pin radius covers most of a small part, so a drag would always start a
+        // wire. Inside a part's body: a selected part moves; otherwise only a press right on a pin wires.
+        if (in.touch) {
+            for (int i = (int)doc.parts.size() - 1; i >= 0; i--) {
+                const PartInst& p = doc.parts[(size_t)i];
+                if (!partShown(p, view) || p.def->isBreadboard || p.def->isBoard || !p.worldBounds(view).contains(w)) continue;
+                bool onPin = part == p.id && dist(p.pinPos(pin, view), w) <= std::max(pinRadius(p, pin, view), 6 * ui.s / z);
+                if (selParts.count(p.id) || !onPin) { h.kind = Hit::PART; h.part = p.id; return h; }
+                break;
+            }
+        }
         h.kind = Hit::PIN; h.part = part; h.pin = pin;
         return h;
     }
