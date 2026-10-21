@@ -1,4 +1,4 @@
-// designElectronics web loader — shared by /app/ (full editor) and /embed/ (viewer).
+// designElectronics web loader, shared by /app/ (full editor) and /embed/ (viewer).
 //
 // Link parameters (after #, joined with &):
 //   d=<data>       the design itself: deflate-raw + base64url of its compact JSON
